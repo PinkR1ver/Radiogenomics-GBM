@@ -3,8 +3,10 @@ from PIL import Image
 from cv2 import selectROIs
 
 from torch.utils.data import Dataset
+from torch.utils.data.dataset import T
 from utils import *
 from torchvision import transforms
+import SimpleITK as sitk
 
 import pandas as pd
 
@@ -24,13 +26,24 @@ class ImageDataSet(Dataset):
         return len(self.AxInfo)
 
     def __getitem__(self, index):
-        maskPath = os.path.join(self.path, ((self.AxInfo).iloc[index]).MaskPath)
-        imagePath = os.path.join(self.path, ((self.AxInfo).iloc[index]).ImagePath)
+        maskPath = os.path.join(self.path, (((self.AxInfo).iloc[index]).MaskPath))
+        imagePath = os.path.join(self.path, (((self.AxInfo).iloc[index]).ImagePath))
         image = keep_image_size_open_gray(imagePath)
         mask = keep_image_size_open_gray(maskPath)
         mask = gray2Binary(mask)
         return transform(image), transform(mask)
 
+class FeatureExtractionDataset(Dataset):
+    def __init__(self, path, dataset_file):
+        self.path = path
+        self.Info = pd.read_csv(os.path.join(self.path, dataset_file))
+        self.AxInfo = ((self.Info).loc[(self.Info)['Plane'] == 'AX'])
+    
+    def __len__(self):
+        return len(self.AxInfo)
+    
+    def __getitem__(self, index):
+        return pd.DataFrame([self.AxInfo.iloc[index].values.flatten().tolist()], columns=self.AxInfo.columns)
 
 
 def image_location_transfer(rootdir):
@@ -107,11 +120,23 @@ def built_dataset_csv(path):
 
 
 if __name__ == '__main__':
-    image_location_transfer(r'C:\Users\83549\OneDrive\Documents\Research Data\Multi-institutional Paired Expert Segmentations MNI images-atlas-annotations')
+    #image_location_transfer(r'C:\Users\83549\OneDrive\Documents\Research Data\Multi-institutional Paired Expert Segmentations MNI images-atlas-annotations')
     # built_dataset_csv(r'C:\Users\RTX 3090\Desktop\WangYichong\U-net for Ivy Gap\data')
     # GBMDataset = ImageDataSet(r'C:\Users\RTX 3090\Desktop\WangYichong\U-net for Ivy Gap\data', 'GBM_MRI_Dataset.csv')
-    # print(GBMDatase
-    # t.AxInfo)
+    # print(GBMDataset.AxInfo)
     # print(len(GBMDataset))
     # print(GBMDataset[5])
     # pass
+    FeatureDataset = FeatureExtractionDataset(r'/home/pinkr1ver/Documents/Github Projects/Radiogenemics--on-Ivy-Gap/data', 'GBM_MRI_Dataset.csv')
+    df = FeatureDataset[5631]
+    mask = sitk.ReadImage(os.path.join(r'/home/pinkr1ver/Documents/Github Projects/Radiogenemics--on-Ivy-Gap/data', (df['MaskPath'].loc[0]).replace('\\', '/')))
+    sitk.Show(mask)
+    #df = df.to_frame()
+    #df2 = FeatureDataset[8]
+    #df2 = df2.to_frame()
+    #df = df.append(df2)
+    #print(df.values.flatten().tolist())
+    #print(df)
+    #print(df2)
+    #df = df.append(df2, ignore_index=True)
+    #print(df)

@@ -17,7 +17,7 @@ class ImageDataSet(Dataset):
     def __init__(self, path, dataset_file):
         self.path = path
         self.Info = pd.read_csv(os.path.join(self.path, dataset_file))
-        self.AxInfo = (self.Info).loc[(self.Info)['Plane'] == 'AX']
+        self.AxInfo = ((self.Info).loc[(self.Info)['Plane'] == 'AX'])
 
 
     def __len__(self):
@@ -36,8 +36,8 @@ class ImageDataSet(Dataset):
 def image_location_transfer(rootdir):
     for root, dirs, files in os.walk(os.path.join(rootdir)):
         for file in files:
-            imageSavePath = r'C:\Users\RTX 3090\Desktop\WangYichong\U-net for Ivy Gap\data\Images'
-            maskSavePath = r'C:\Users\RTX 3090\Desktop\WangYichong\U-net for Ivy Gap\data\Masks'
+            imageSavePath = r'C:\Users\83549\Github Projects\Radiogenemics\Radiogenemics--on-Ivy-Gap\data\Images'
+            maskSavePath = r'C:\Users\83549\Github Projects\Radiogenemics\Radiogenemics--on-Ivy-Gap\data\Masks'
             if "1_Images_MNI" in root and '.png' in file:
                 imagePath = os.path.join(root, file)
                 print(f'Image:{imagePath}')
@@ -107,10 +107,11 @@ def built_dataset_csv(path):
 
 
 if __name__ == '__main__':
-    # image_location_transfer(r'C:\Users\RTX 3090\Desktop\WangYichong\Data\Masks\Multi-institutional Paired Expert Segmentations MNI images-atlas-annotations\3_Annotations_MNI')
+    image_location_transfer(r'C:\Users\83549\OneDrive\Documents\Research Data\Multi-institutional Paired Expert Segmentations MNI images-atlas-annotations')
     # built_dataset_csv(r'C:\Users\RTX 3090\Desktop\WangYichong\U-net for Ivy Gap\data')
-    GBMDataset = ImageDataSet(r'C:\Users\RTX 3090\Desktop\WangYichong\U-net for Ivy Gap\data', 'GBM_MRI_Dataset.csv')
-    print(GBMDataset.AxInfo)
-    print(len(GBMDataset))
-    print(GBMDataset[5])
-    pass
+    # GBMDataset = ImageDataSet(r'C:\Users\RTX 3090\Desktop\WangYichong\U-net for Ivy Gap\data', 'GBM_MRI_Dataset.csv')
+    # print(GBMDatase
+    # t.AxInfo)
+    # print(len(GBMDataset))
+    # print(GBMDataset[5])
+    # pass

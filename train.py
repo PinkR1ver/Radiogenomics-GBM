@@ -16,7 +16,7 @@ else:
     device = 'cpu'
     print("Using CPU")
 
-basePath = r'C:\Users\RTX 3090\Desktop\WangYichong\U-net for Ivy Gap'
+basePath = r'C:\Users\83549\Github Projects\Radiogenemics\Radiogenemics--on-Ivy-Gap'
 dataPath = os.path.join(basePath, 'data')
 weightPath = os.path.join(basePath, r'model\unet.pth')
 savePath = os.path.join(basePath, r'data\train_monitor_image_AX')
@@ -31,7 +31,7 @@ if __name__ == '__main__':
 
     trainDataset, testDataset = torch.utils.data.random_split(fullDataSet, [trainSize, testSize])
 
-    batchSize = 8
+    batchSize = 4
 
     trainLoader = DataLoader(trainDataset, batch_size=batchSize, shuffle=True)
     testLoader = DataLoader(testDataset, batch_size=batchSize, shuffle=False)

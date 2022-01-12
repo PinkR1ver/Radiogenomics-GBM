@@ -9,7 +9,7 @@ import pandas as pd
 import numpy as np
 from PIL import Image, ImageOps
 
-basePath = r'C:\Users\RTX 3090\Desktop\WangYichong\U-net for Ivy Gap'
+basePath = r'C:\Users\83549\Github Projects\Radiogenemics\Radiogenemics--on-Ivy-Gap'
 dataPath = os.path.join(basePath, 'data')
 
 if __name__ == '__main__':
@@ -96,7 +96,10 @@ if __name__ == '__main__':
         FeatureTableRow = pd.DataFrame([[Patient, Plane, MRISeries, Slice, ImagePath, MaskPath, Mean_of_image, Variance_of_image, StandardDeviation_of_image, Skewness_of_image, Kurtosis_of_image, Entropy_of_image, Entropy_of_image, Contrast_of_image, Homogeneity_of_image, Mean_of_GLCM_i, Mean_of_GLCM_j, Variance_of_GLCM_i, Variance_of_GLCM_j,
                                        Corrlation_of_image, Energy_of_GLCM, Entropy_of_GLCM, Dissimilarity_of_image, Area_of_image_by_bitquads_Gray, Area_of_image_by_bitquads_Pratt, Area_of_image_by_chain_code, Perimeter_of_image_by_bitquads_Gray, Perimeter_of_image_by_bitquads_Pratt, Perimeter_of_image_by_chain_code]], columns=FeatureTable.columns)
 
+        print(f'{i}: ---- \n {FeatureTableRow}')
+
         FeatureTable = FeatureTable.append(
             FeatureTableRow, ignore_index=True)
 
-    FeatureTable.to_csv(os.paht.join(dataPath, 'GBM_MRI_Feature.csv'), index=False)
+
+    FeatureTable.to_csv(os.path.join(dataPath, 'GBM_MRI_Feature.csv'), index=False)

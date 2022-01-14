@@ -1,6 +1,4 @@
 import os
-
-from cv2 import pencilSketch
 from data import *
 from utils import *
 from net import *

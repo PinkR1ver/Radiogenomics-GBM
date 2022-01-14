@@ -22,20 +22,26 @@ else:
     device = 'cpu'
     print("Using CPU")
 
-basePath = r'C:\Users\83549\Github Projects\Radiogenemics\Radiogenemics--on-Ivy-Gap\data'
+basePath = r'C:\Users\83549\Github Projects\Radiogenemics\Radiogenemics--on-Ivy-Gap'
 dataPath = os.path.join(basePath, 'data')
 weightPath = os.path.join(basePath, r'model\unet.pth')
 predictMaskPath = os.path.join(dataPath, r'predict_mask')
 assessmentPath = os.path.join(dataPath, 'assessment')
 cmatPath = os.path.join(assessmentPath, 'confusion_matrix')
 
-batch_size = 1
+batch_size = 2
 sensitivity_all = 0
+specificity_all = 0
 iters = 0
+cmat_all = [
+    [0, 0],
+    [0, 0]
+]
 
 if __name__ == '__main__':
     PredictDataset = ImageDataSet(dataPath, 'GBM_MRI_Dataset.csv')
-    PredictDataLoader = DataLoader(PredictDataset, batch_size=batch_size, shuffle=False)
+    PredictDataLoader = DataLoader(
+        PredictDataset, batch_size=batch_size, shuffle=False)
 
     f = open(os.path.join(assessmentPath, 'log.txt'), "w")
     f.close()
@@ -43,7 +49,8 @@ if __name__ == '__main__':
     net = UNet().to(device)
     if os.path.exists(weightPath):
         if device == 'cpu':
-            net.load_state_dict(torch.load(weightPath, map_location=torch.device('cpu')))
+            net.load_state_dict(torch.load(
+                weightPath, map_location=torch.device('cpu')))
             print("Loading Weight Successful")
         else:
             net.load_state_dict(torch.load(weightPath))
@@ -57,14 +64,15 @@ if __name__ == '__main__':
         predictMask = net(image)
 
         for j in range(batch_size):
-            predictMask_arr = torch.squeeze(predictMask[j]).detach().numpy()
+            predictMask_arr = torch.squeeze(
+                predictMask[j].cpu()).detach().numpy()
             predictMask_arr[predictMask_arr > 0.5] = 1
             predictMask_arr[predictMask_arr <= 0.5] = 0
-            mask_arr = torch.squeeze(mask[j]).detach().numpy()
+            mask_arr = torch.squeeze(mask[j].cpu()).detach().numpy()
             #torchvision.utils.save_image(mask[j], os.path.join(predictMaskPath, f'{i}_{j}.png'))
 
-            if np.any(predictMask_arr):
-                #print(predictMask.sum())
+            if np.any(predictMask_arr) or np.array(mask_arr):
+                # print(predictMask.sum())
 
                 FP = len(np.where(predictMask_arr - mask_arr == -1)[0])
                 FN = len(np.where(predictMask_arr - mask_arr == 1)[0])
@@ -74,27 +82,32 @@ if __name__ == '__main__':
                     [TN, FN],
                     [FP, TP]
                 ]
+                cmat_all += cmat
 
                 # print(f'sensitivity:{TP/(TP+FN)}')
                 # print(np.any(torch.squeeze(PredictDataset[i*batch_size + j][1]).detach().numpy() - mask_arr))
 
                 # print(cmat)
 
-                sensitivity = TP / (TP+FN)
-                iters +=1
+                sensitivity = TP / (TP + FN)
+                specificity = FP / (TN + FP)
+                iters += 1
                 sensitivity_all += sensitivity
-
+                specificity_all += specificity
 
                 fig_series = PredictDataset.AxInfo.iloc[i*batch_size + j]
-                fig_name = fig_series.Patient + '_' + fig_series.MRISeries + '_' + fig_series.Plane + '_' + str(fig_series.Slice) +'.png'
+                fig_name = fig_series.Patient + '_' + fig_series.MRISeries + \
+                    '_' + fig_series.Plane + '_' + \
+                    str(fig_series.Slice) + '.png'
 
                 f = open(os.path.join(assessmentPath, 'log.txt'), "a")
-                f.write(f'{fig_name} sensitivity:{sensitivity}\n')
+                f.write(
+                    f'{fig_name} sensitivity:{sensitivity}, specificity:{specificity}\n')
                 f.close()
 
-                
-                fig = plt.figure(figsize = (6, 6))
-                sns.heatmap(cmat / np.sum(cmat), cmap = "Reds", annot = True, fmt = '.2%', square = 1, linewidth = 2.)
+                fig = plt.figure(figsize=(6, 6))
+                sns.heatmap(cmat / np.sum(cmat), cmap="Reds",
+                            annot=True, fmt='.2%', square=1, linewidth=2.)
                 plt.xlabel("predictions")
                 plt.ylabel("real values")
                 plt.savefig(os.path.join(cmatPath, fig_name))
@@ -102,6 +115,16 @@ if __name__ == '__main__':
                 plt.close(fig)
                 gc.collect()
     
+    fig = plt.figure(figsize=(6, 6))
+    sns.heatmap(cmat_all / np.sum(cmat_all), cmap="Reds",
+                annot=True, fmt='.2%', square=1, linewidth=2.)
+    plt.xlabel("predictions")
+    plt.ylabel("real values")
+    plt.savefig(os.path.join(cmatPath, 'ALL.png'))
+    print('Done')
+    plt.close(fig)
+
     f = open(os.path.join(assessmentPath, 'log.txt'), "a")
-    f.write(f'sensitivity_mean:{sensitivity_all/iters}\n')
+    f.write(
+        f'sensitivity_mean:{sensitivity_all/iters}, specificity_mean:{specificity/iters}')
     f.close()

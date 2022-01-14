@@ -18,6 +18,9 @@ from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.feature_selection import SelectFromModel
+import warnings
+from sklearn.exceptions import ConvergenceWarning
+import VisuealizeNN as VisNN
 
 basePath = r'/home/pinkr1ver/Documents/Github Projects/Radiogenemics--on-Ivy-Gap'
 dataPath = os.path.join(basePath, 'data')
@@ -65,9 +68,12 @@ if __name__ == '__main__':
     classificationDataset = pd.read_csv(os.path.join(dataPath, 'valid_data_to_classify.csv'))
     classificationDataset = classificationDataset[classificationDataset['Slice'] < 150]
     classificationDataset = classificationDataset[classificationDataset['Slice'] > 50]
+    classificationDataset = classificationDataset.reset_index(drop=True)
     feature_cols = classificationDataset.columns[6:-1]
     X = classificationDataset[feature_cols]
     y = classificationDataset.molecular_subtype
+
+
 
     # Splitting Data
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=1) # 70% for training and 30% for testing
@@ -84,25 +90,24 @@ if __name__ == '__main__':
     normal_X_test = pd.DataFrame(normal_X_test, columns=feature_cols)
 
     ## Example to print PCA graph
-    '''
-    pca = PCA(n_components=2)
-    pca_normal_X_train = pca.fit_transform(normal_X_train)
-    pca_normal_X_train = pd.DataFrame(pca_normal_X_train, columns = ['principal component 1', 'principal component 2'])
-    pca_normal_full_dataset = pca_normal_X_train
-    pca_normal_full_dataset['molecular_subtype'] = y_train
+
+    #pca = PCA(n_components=2)
+    #pca_normal_X_train = pca.fit_transform(normal_X_train)
+    #pca_normal_X_train = pd.DataFrame(pca_normal_X_train, columns = ['principal component 1', 'principal component 2'])
+    #pca_normal_full_dataset = pca_normal_X_train
+    #pca_normal_full_dataset['molecular_subtype'] = y_train
 
     
-    plt.figure(figsize=(10,10))
-    sns.scatterplot(
-        x="principal component 1", y="principal component 2",
-        hue="molecular_subtype",
-        palette=sns.color_palette("hls", 8),
-        data=pca_normal_full_dataset,
-        legend="full",
-        alpha=0.3
-    )
-    plt.savefig(os.path.join(saveResultPath, 'PCA Normalize X_train to 2 dims.png'))
-    '''
+    #plt.figure(figsize=(10,10))
+    #sns.scatterplot(
+    #   x="principal component 1", y="principal component 2",
+    #    hue="molecular_subtype",
+    #    palette=sns.color_palette("hls", 8),
+    #    data=pca_normal_full_dataset,
+    #    legend="full",
+    #    alpha=0.3
+    #)
+    #plt.savefig(os.path.join(saveResultPath, 'PCA Normalize X_train to 2 dims.png'))
 
     ## PCA after normalize
     pca = PCA(0.99)
@@ -141,6 +146,8 @@ if __name__ == '__main__':
 
     normal_pca_X_test = StandardScaler().fit_transform(pca_X_test)
     normal_pca_X_test = pd.DataFrame(normal_pca_X_test, columns=pca_cols)
+
+
 
 
     #Build Decision Tree classifer to original data
@@ -540,8 +547,8 @@ if __name__ == '__main__':
     plt.savefig(os.path.join(saveResultPath, 'Train', 'Normalize', 'PCA', 'SVM.png'))
     plt.close()
 
-    # Use tensorflow to bulid NN to classify, data must be normalize
-    MLP_clf = MLPClassifier(hidden_layer_sizes=(256,256,128,64))
+    #Bulid NN to classify, data must be normalize
+    MLP_clf = MLPClassifier(hidden_layer_sizes=(1024,1024,512,256,64,32), max_iter=500)
     MLP_clf = MLP_clf.fit(normal_X_train, y_train)
 
     y_pred = MLP_clf.predict(normal_X_test)
@@ -579,7 +586,13 @@ if __name__ == '__main__':
     plt.savefig(os.path.join(saveResultPath, 'Train',  'Normalize', 'MLP.png'))
     plt.close()
 
-    # Use tensorflow to bulid NN to classify, data must be normalize
+    ## print(MLP_clf.hidden_layer_sizes)
+    ## print(np.asarray(MLP_clf.hidden_layer_sizes))
+    #network_structure = np.hstack(([normal_X_train.shape[1]], np.asarray(MLP_clf.hidden_layer_sizes), np.array([8])))
+    #network = VisNN.DrawNN(network_structure, MLP_clf.coefs_)
+    #network.draw()
+
+    # Bulid NN to classify, data must be normalize
     MLP_clf = MLPClassifier(hidden_layer_sizes=(256,256,128,64))
     MLP_clf = MLP_clf.fit(pca_normal_X_train, y_train)
 
@@ -617,6 +630,558 @@ if __name__ == '__main__':
     plt.ylabel("real values")
     plt.savefig(os.path.join(saveResultPath, 'Train',  'Normalize', 'PCA', 'MLP.png'))
     plt.close()
+
+    #network_structure = np.hstack(([pca_normal_X_train.shape[1]], np.asarray(MLP_clf.hidden_layer_sizes), np.array([8])))
+    #network = VisNN.DrawNN(network_structure, MLP_clf.coefs_)
+    #network.draw()
+
+    # -------------------------------------------------------------------------------------------------------
+    # -------------------------------------------------------------------------------------------------------
+    # -------------------------------------------------------------------------------------------------------
+
+
+
+    ## Simplify Dataset to single type
+    simlified_subtype_list = ['Classical', 'Proneural', 'Mesenchymal', 'Neural']
+    simlified_classificationDataset = pd.DataFrame({}, columns=classificationDataset.columns)
+    for i in range(len(classificationDataset)):
+        if classificationDataset.at[i, 'molecular_subtype'] not in simlified_subtype_list:
+            classificationDataset = classificationDataset.drop(index=i)
+    simlified_classificationDataset = classificationDataset.reset_index(drop=True)
+    X = simlified_classificationDataset[feature_cols]
+    y = simlified_classificationDataset.molecular_subtype
+
+    # Splitting Data
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=1) # 70% for training and 30% for testing
+
+    # Test Normalize X-train and PCA normalize X_train  and normalize PCA X_train
+    normal_X_train = StandardScaler().fit_transform(X_train)
+
+    # print(np.mean(normal_X_train), np.std(normal_X_train)) #this sentence can check normalize results, the mean should be 0, the std should be 1
+
+    ## Normalize First
+    normal_X_train = pd.DataFrame(normal_X_train, columns=feature_cols)
+    
+    normal_X_test = StandardScaler().fit_transform(X_test)
+    normal_X_test = pd.DataFrame(normal_X_test, columns=feature_cols)
+
+    ## PCA after normalize
+    pca = PCA(0.99)
+    pca = pca.fit(normal_X_train)
+    pca_normal_X_train = pca.transform(normal_X_train)
+    print(f'PCA Dataset shape:{pca_normal_X_train.shape}') # detect pca features
+    print(f'PCA variance ratio:{pca.explained_variance_ratio_}') # detect information loss
+
+    ### Detect pca number to write pca columns
+    pca_cols = []
+    for i in range(pca_normal_X_train.shape[1]):
+        pca_cols.append(f'principal component {i+1}')
+
+    pca_normal_X_train = pd.DataFrame(pca_normal_X_train, columns=pca_cols)
+
+    pca_normal_X_test = pca.transform(normal_X_test)
+    pca_normal_X_test = pd.DataFrame(pca_normal_X_test, columns=pca_cols)
+
+
+    # PCA First
+    pca = pca.fit(X_train)
+    pca_X_train = pca.transform(X_train)
+    
+    pca_cols = []
+    for i in range(pca_X_train.shape[1]):
+        pca_cols.append(f'principal component {i+1}')
+    
+    pca_X_train = pd.DataFrame(pca_X_train, columns=pca_cols)
+
+    pca_X_test = pca.transform(X_test)
+    pca_X_test = pd.DataFrame(pca_X_test, columns=pca_cols)
+
+    ## Normalize after PCA
+    normal_pca_X_train = StandardScaler().fit_transform(pca_X_train)
+    normal_pca_X_train = pd.DataFrame(normal_pca_X_train, columns=pca_cols)
+
+    normal_pca_X_test = StandardScaler().fit_transform(pca_X_test)
+    normal_pca_X_test = pd.DataFrame(normal_pca_X_test, columns=pca_cols)
+
+    
+
+
+    #Build Decision Tree classifer to original data
+    DecisionTree_clf = DecisionTreeClassifier(criterion='entropy')
+    DecisionTree_clf = DecisionTree_clf.fit(X_train, y_train)
+
+    y_pred = DecisionTree_clf.predict(X_test)
+    y_pred_in_train = DecisionTree_clf.predict(X_train)
+    #print("Accuracy:", metrics.accuracy_score(y_test, y_pred))
+    print(metrics.classification_report(y_test, y_pred, target_names=DecisionTree_clf.classes_))
+
+    f = open(os.path.join(saveResultPath, 'log.txt'), "a")
+
+    f.write('Decision Trees to original Data in Simplified TestDataset: \n')
+    f.write(metrics.classification_report(y_test, y_pred, target_names=DecisionTree_clf.classes_))
+    f.write('\n\n')
+   
+    f.write('Decision Trees to original Data in Simplified TrainDataset: \n')
+    f.write(metrics.classification_report(y_train, y_pred_in_train, target_names=DecisionTree_clf.classes_))
+    f.write('\n\n')
+
+    f.close()
+
+
+    cm_test = confusion_matrix(y_test, y_pred, labels=DecisionTree_clf.classes_)
+    cm_train = confusion_matrix(y_train, y_pred_in_train, labels=DecisionTree_clf.classes_)
+
+
+    fig = plt.figure(figsize=(16, 16))
+    sns.heatmap(cm_test / np.sum(cm_test), cmap="YlGnBu", annot=True, fmt='.2%', square=1, linewidth=2., xticklabels=DecisionTree_clf.classes_, yticklabels=DecisionTree_clf.classes_)
+    plt.xlabel("predictions")
+    plt.ylabel("real values")
+    plt.savefig(os.path.join(saveResultPath, 'Simplified', 'Test', 'DecisionTrees ConfusionMatrix.png'))
+    plt.close()
+
+    fig = plt.figure(figsize=(16, 16))
+    sns.heatmap(cm_train / np.sum(cm_train), cmap="YlGnBu", annot=True, fmt='.2%', square=1, linewidth=2., xticklabels=DecisionTree_clf.classes_, yticklabels=DecisionTree_clf.classes_)
+    plt.xlabel("predictions")
+    plt.ylabel("real values")
+    plt.savefig(os.path.join(saveResultPath, 'Simplified', 'Train', 'DecisionTrees ConfusionMatrix.png'))
+    plt.close()
+
+    #Build Decision Tree classifer to normalize data
+    DecisionTree_clf = DecisionTreeClassifier(criterion='entropy')
+    DecisionTree_clf = DecisionTree_clf.fit(normal_X_train, y_train)
+
+    y_pred = DecisionTree_clf.predict(normal_X_test)
+    y_pred_in_train = DecisionTree_clf.predict(normal_X_train)
+    #print("Accuracy:", metrics.accuracy_score(y_test, y_pred))
+    print(metrics.classification_report(y_test, y_pred, target_names=DecisionTree_clf.classes_))
+
+    f = open(os.path.join(saveResultPath, 'log.txt'), "a")
+
+    f.write('Decision Trees to normalize Data in Simplified TestDataset: \n')
+    f.write(metrics.classification_report(y_test, y_pred, target_names=DecisionTree_clf.classes_))
+    f.write('\n\n')
+   
+    f.write('Decision Trees to normalize Data in Simplified TrainDataset: \n')
+    f.write(metrics.classification_report(y_train, y_pred_in_train, target_names=DecisionTree_clf.classes_))
+    f.write('\n\n')
+
+    f.close()
+
+
+    cm_test = confusion_matrix(y_test, y_pred, labels=DecisionTree_clf.classes_)
+    cm_train = confusion_matrix(y_train, y_pred_in_train, labels=DecisionTree_clf.classes_)
+
+
+    fig = plt.figure(figsize=(16, 16))
+    sns.heatmap(cm_test / np.sum(cm_test), cmap="YlGnBu", annot=True, fmt='.2%', square=1, linewidth=2., xticklabels=DecisionTree_clf.classes_, yticklabels=DecisionTree_clf.classes_)
+    plt.xlabel("predictions")
+    plt.ylabel("real values")
+    plt.savefig(os.path.join(saveResultPath, 'Simplified', 'Test', 'Normalize','DecisionTrees ConfusionMatrix.png'))
+    plt.close()
+
+    fig = plt.figure(figsize=(16, 16))
+    sns.heatmap(cm_train / np.sum(cm_train), cmap="YlGnBu", annot=True, fmt='.2%', square=1, linewidth=2., xticklabels=DecisionTree_clf.classes_, yticklabels=DecisionTree_clf.classes_)
+    plt.xlabel("predictions")
+    plt.ylabel("real values")
+    plt.savefig(os.path.join(saveResultPath, 'Simplified', 'Train', 'Normalize', 'DecisionTrees ConfusionMatrix.png'))
+    plt.close()
+
+
+    #Build Decision Tree classifer to PCA data
+    DecisionTree_clf = DecisionTreeClassifier(criterion='entropy')
+    DecisionTree_clf = DecisionTree_clf.fit(pca_X_train, y_train)
+
+    y_pred = DecisionTree_clf.predict(pca_X_test)
+    y_pred_in_train = DecisionTree_clf.predict(pca_X_train)
+    #print("Accuracy:", metrics.accuracy_score(y_test, y_pred))
+    print(metrics.classification_report(y_test, y_pred, target_names=DecisionTree_clf.classes_))
+
+    f = open(os.path.join(saveResultPath, 'log.txt'), "a")
+
+    f.write('Decision Trees to PCA Data in Simplified TestDataset: \n')
+    f.write(metrics.classification_report(y_test, y_pred, target_names=DecisionTree_clf.classes_))
+    f.write('\n\n')
+   
+    f.write('Decision Trees to PCA Data in Simplified TrainDataset: \n')
+    f.write(metrics.classification_report(y_train, y_pred_in_train, target_names=DecisionTree_clf.classes_))
+    f.write('\n\n')
+
+    f.close()
+
+
+    cm_test = confusion_matrix(y_test, y_pred, labels=DecisionTree_clf.classes_)
+    cm_train = confusion_matrix(y_train, y_pred_in_train, labels=DecisionTree_clf.classes_)
+
+
+    fig = plt.figure(figsize=(16, 16))
+    sns.heatmap(cm_test / np.sum(cm_test), cmap="YlGnBu", annot=True, fmt='.2%', square=1, linewidth=2., xticklabels=DecisionTree_clf.classes_, yticklabels=DecisionTree_clf.classes_)
+    plt.xlabel("predictions")
+    plt.ylabel("real values")
+    plt.savefig(os.path.join(saveResultPath, 'Simplified', 'Test', 'PCA','DecisionTrees ConfusionMatrix.png'))
+    plt.close()
+
+    fig = plt.figure(figsize=(16, 16))
+    sns.heatmap(cm_train / np.sum(cm_train), cmap="YlGnBu", annot=True, fmt='.2%', square=1, linewidth=2., xticklabels=DecisionTree_clf.classes_, yticklabels=DecisionTree_clf.classes_)
+    plt.xlabel("predictions")
+    plt.ylabel("real values")
+    plt.savefig(os.path.join(saveResultPath, 'Simplified', 'Train', 'PCA', 'DecisionTrees ConfusionMatrix.png'))
+    plt.close()
+
+    #Build Decision Tree classifer to PCA Normalized data
+    DecisionTree_clf = DecisionTreeClassifier(criterion='entropy')
+    DecisionTree_clf = DecisionTree_clf.fit(pca_normal_X_train, y_train)
+
+    y_pred = DecisionTree_clf.predict(pca_normal_X_test)
+    y_pred_in_train = DecisionTree_clf.predict(pca_normal_X_train)
+    #print("Accuracy:", metrics.accuracy_score(y_test, y_pred))
+    print(metrics.classification_report(y_test, y_pred, target_names=DecisionTree_clf.classes_))
+
+    f = open(os.path.join(saveResultPath, 'log.txt'), "a")
+
+    f.write('Decision Trees to PCA Normalized Data in Simplified TestDataset: \n')
+    f.write(metrics.classification_report(y_test, y_pred, target_names=DecisionTree_clf.classes_))
+    f.write('\n\n')
+   
+    f.write('Decision Trees to PCA Normalized  Data in Simplified TrainDataset: \n')
+    f.write(metrics.classification_report(y_train, y_pred_in_train, target_names=DecisionTree_clf.classes_))
+    f.write('\n\n')
+
+    f.close()
+
+
+    cm_test = confusion_matrix(y_test, y_pred, labels=DecisionTree_clf.classes_)
+    cm_train = confusion_matrix(y_train, y_pred_in_train, labels=DecisionTree_clf.classes_)
+
+
+    fig = plt.figure(figsize=(16, 16))
+    sns.heatmap(cm_test / np.sum(cm_test), cmap="YlGnBu", annot=True, fmt='.2%', square=1, linewidth=2., xticklabels=DecisionTree_clf.classes_, yticklabels=DecisionTree_clf.classes_)
+    plt.xlabel("predictions")
+    plt.ylabel("real values")
+    plt.savefig(os.path.join(saveResultPath, 'Simplified', 'Test', 'Normalize', 'PCA', 'DecisionTrees ConfusionMatrix.png'))
+    plt.close()
+
+    fig = plt.figure(figsize=(16, 16))
+    sns.heatmap(cm_train / np.sum(cm_train), cmap="YlGnBu", annot=True, fmt='.2%', square=1, linewidth=2., xticklabels=DecisionTree_clf.classes_, yticklabels=DecisionTree_clf.classes_)
+    plt.xlabel("predictions")
+    plt.ylabel("real values")
+    plt.savefig(os.path.join(saveResultPath, 'Simplified', 'Train', 'Normalize', 'PCA', 'DecisionTrees ConfusionMatrix.png'))
+    plt.close()
+
+    #Build Decision Tree classifer to PCA Normalized data
+    DecisionTree_clf = DecisionTreeClassifier(criterion='entropy')
+    DecisionTree_clf = DecisionTree_clf.fit(normal_pca_X_train, y_train)
+
+    y_pred = DecisionTree_clf.predict(normal_pca_X_test)
+    y_pred_in_train = DecisionTree_clf.predict(normal_pca_X_train)
+    #print("Accuracy:", metrics.accuracy_score(y_test, y_pred))
+    print(metrics.classification_report(y_test, y_pred, target_names=DecisionTree_clf.classes_))
+
+    f = open(os.path.join(saveResultPath, 'log.txt'), "a")
+
+    f.write('Decision Trees to Normalized PCA Data in Simplified TestDataset: \n')
+    f.write(metrics.classification_report(y_test, y_pred, target_names=DecisionTree_clf.classes_))
+    f.write('\n\n')
+   
+    f.write('Decision Trees to Normalized PCA Data in Simplified TrainDataset: \n')
+    f.write(metrics.classification_report(y_train, y_pred_in_train, target_names=DecisionTree_clf.classes_))
+    f.write('\n\n')
+
+    f.close()
+
+
+    cm_test = confusion_matrix(y_test, y_pred, labels=DecisionTree_clf.classes_)
+    cm_train = confusion_matrix(y_train, y_pred_in_train, labels=DecisionTree_clf.classes_)
+
+
+    fig = plt.figure(figsize=(16, 16))
+    sns.heatmap(cm_test / np.sum(cm_test), cmap="YlGnBu", annot=True, fmt='.2%', square=1, linewidth=2., xticklabels=DecisionTree_clf.classes_, yticklabels=DecisionTree_clf.classes_)
+    plt.xlabel("predictions")
+    plt.ylabel("real values")
+    plt.savefig(os.path.join(saveResultPath, 'Simplified', 'Test', 'PCA', 'Normalize', 'DecisionTrees ConfusionMatrix.png'))
+    plt.close()
+
+    fig = plt.figure(figsize=(16, 16))
+    sns.heatmap(cm_train / np.sum(cm_train), cmap="YlGnBu", annot=True, fmt='.2%', square=1, linewidth=2., xticklabels=DecisionTree_clf.classes_, yticklabels=DecisionTree_clf.classes_)
+    plt.xlabel("predictions")
+    plt.ylabel("real values")
+    plt.savefig(os.path.join(saveResultPath, 'Simplified', 'Train', 'PCA', 'Normalize', 'DecisionTrees ConfusionMatrix.png'))
+    plt.close()
+
+    #Build RandomForest classifer to Original data
+    RandomForest_clf = RandomForestClassifier()
+    RandomForest_clf = RandomForest_clf.fit(X_train, y_train)
+
+    y_pred = RandomForest_clf.predict(X_test)
+    y_pred_in_train = RandomForest_clf.predict(X_train)
+    #print("Accuracy:", metrics.accuracy_score(y_test, y_pred))
+    print(metrics.classification_report(y_test, y_pred, target_names=RandomForest_clf.classes_))
+
+    f = open(os.path.join(saveResultPath, 'log.txt'), "a")
+
+    f.write('Random Forest to orginal Data in Simplified TestDataset: \n')
+    f.write(metrics.classification_report(y_test, y_pred, target_names=RandomForest_clf.classes_))
+    f.write('\n\n')
+   
+    f.write('Random Forest to original Data in Simplified TrainDataset: \n')
+    f.write(metrics.classification_report(y_train, y_pred_in_train, target_names=RandomForest_clf.classes_))
+    f.write('\n\n')
+    f.close()
+
+
+    cm_test = confusion_matrix(y_test, y_pred, labels=RandomForest_clf.classes_)
+    cm_train = confusion_matrix(y_train, y_pred_in_train, labels=RandomForest_clf.classes_)
+
+
+    fig = plt.figure(figsize=(16, 16))
+    sns.heatmap(cm_test / np.sum(cm_test), cmap="YlGnBu", annot=True, fmt='.2%', square=1, linewidth=2., xticklabels=RandomForest_clf.classes_, yticklabels=RandomForest_clf.classes_)
+    plt.xlabel("predictions")
+    plt.ylabel("real values")
+    plt.savefig(os.path.join(saveResultPath, 'Simplified', 'Test', 'Random Forest.png'))
+    plt.close()
+
+    fig = plt.figure(figsize=(16, 16))
+    sns.heatmap(cm_train / np.sum(cm_train), cmap="YlGnBu", annot=True, fmt='.2%', square=1, linewidth=2., xticklabels=RandomForest_clf.classes_, yticklabels=RandomForest_clf.classes_)
+    plt.xlabel("predictions")
+    plt.ylabel("real values")
+    plt.savefig(os.path.join(saveResultPath, 'Simplified', 'Train', 'Random Forest.png'))
+    plt.close()
+
+    #Build RandomForest classifer to Original data, adding tree numbers
+    RandomForest_clf = RandomForestClassifier(500)
+    RandomForest_clf = RandomForest_clf.fit(X_train, y_train)
+
+    y_pred = RandomForest_clf.predict(X_test)
+    y_pred_in_train = RandomForest_clf.predict(X_train)
+    #print("Accuracy:", metrics.accuracy_score(y_test, y_pred))
+    print(metrics.classification_report(y_test, y_pred, target_names=RandomForest_clf.classes_))
+
+    f = open(os.path.join(saveResultPath, 'log.txt'), "a")
+
+    f.write('Random Forest to orginal Data in Simplified TestDataset, adding tree numbers to 500: \n')
+    f.write(metrics.classification_report(y_test, y_pred, target_names=RandomForest_clf.classes_))
+    f.write('\n\n')
+   
+    f.write('Random Forest to original Data in Simplified TrainDataset, adding tree numbers to 500: \n')
+    f.write(metrics.classification_report(y_train, y_pred_in_train, target_names=RandomForest_clf.classes_))
+    f.write('\n\n')
+    f.close()
+
+
+    cm_test = confusion_matrix(y_test, y_pred, labels=RandomForest_clf.classes_)
+    cm_train = confusion_matrix(y_train, y_pred_in_train, labels=RandomForest_clf.classes_)
+
+
+    fig = plt.figure(figsize=(16, 16))
+    sns.heatmap(cm_test / np.sum(cm_test), cmap="YlGnBu", annot=True, fmt='.2%', square=1, linewidth=2., xticklabels=RandomForest_clf.classes_, yticklabels=RandomForest_clf.classes_)
+    plt.xlabel("predictions")
+    plt.ylabel("real values")
+    plt.savefig(os.path.join(saveResultPath, 'Simplified', 'Test', 'Random Forest, TreeNumbers=500.png'))
+    plt.close()
+
+    fig = plt.figure(figsize=(16, 16))
+    sns.heatmap(cm_train / np.sum(cm_train), cmap="YlGnBu", annot=True, fmt='.2%', square=1, linewidth=2., xticklabels=RandomForest_clf.classes_, yticklabels=RandomForest_clf.classes_)
+    plt.xlabel("predictions")
+    plt.ylabel("real values")
+    plt.savefig(os.path.join(saveResultPath, 'Simplified', 'Train', 'Random Forest, TreeNumbers=500.png'))
+    plt.close()
+
+    #Build RandomForest classifer to normalized data, adding tree numbers
+    RandomForest_clf = RandomForestClassifier(500)
+    RandomForest_clf = RandomForest_clf.fit(normal_X_train, y_train)
+
+    y_pred = RandomForest_clf.predict(normal_X_test)
+    y_pred_in_train = RandomForest_clf.predict(normal_X_train)
+    #print("Accuracy:", metrics.accuracy_score(y_test, y_pred))
+    print(metrics.classification_report(y_test, y_pred, target_names=RandomForest_clf.classes_))
+
+    f = open(os.path.join(saveResultPath, 'log.txt'), "a")
+
+    f.write('Random Forest to normalized Data in Simplified TestDataset, adding tree numbers to 500: \n')
+    f.write(metrics.classification_report(y_test, y_pred, target_names=RandomForest_clf.classes_))
+    f.write('\n\n')
+   
+    f.write('Random Forest to normalized Data in Simplified TrainDataset, adding tree numbers to 500: \n')
+    f.write(metrics.classification_report(y_train, y_pred_in_train, target_names=RandomForest_clf.classes_))
+    f.write('\n\n')
+    f.close()
+
+
+    cm_test = confusion_matrix(y_test, y_pred, labels=RandomForest_clf.classes_)
+    cm_train = confusion_matrix(y_train, y_pred_in_train, labels=RandomForest_clf.classes_)
+
+
+    fig = plt.figure(figsize=(16, 16))
+    sns.heatmap(cm_test / np.sum(cm_test), cmap="YlGnBu", annot=True, fmt='.2%', square=1, linewidth=2., xticklabels=RandomForest_clf.classes_, yticklabels=RandomForest_clf.classes_)
+    plt.xlabel("predictions")
+    plt.ylabel("real values")
+    plt.savefig(os.path.join(saveResultPath, 'Simplified', 'Test', 'Normalize','Random Forest, TreeNumbers=500.png'))
+    plt.close()
+
+    fig = plt.figure(figsize=(16, 16))
+    sns.heatmap(cm_train / np.sum(cm_train), cmap="YlGnBu", annot=True, fmt='.2%', square=1, linewidth=2., xticklabels=RandomForest_clf.classes_, yticklabels=RandomForest_clf.classes_)
+    plt.xlabel("predictions")
+    plt.ylabel("real values")
+    plt.savefig(os.path.join(saveResultPath, 'Simplified', 'Train', 'Normalize', 'Random Forest, TreeNumbers=500.png'))
+    plt.close()
+    
+    #Build RandomForest classifer to PCA normalized data, adding tree numbers
+    RandomForest_clf = RandomForestClassifier(500)
+    RandomForest_clf = RandomForest_clf.fit(pca_normal_X_train, y_train)
+
+    y_pred = RandomForest_clf.predict(pca_normal_X_test)
+    y_pred_in_train = RandomForest_clf.predict(pca_normal_X_train)
+    #print("Accuracy:", metrics.accuracy_score(y_test, y_pred))
+    print(metrics.classification_report(y_test, y_pred, target_names=RandomForest_clf.classes_))
+
+    f = open(os.path.join(saveResultPath, 'log.txt'), "a")
+
+    f.write('Random Forest to PCA normalized Data in Simplified TestDataset, adding tree numbers to 500: \n')
+    f.write(metrics.classification_report(y_test, y_pred, target_names=RandomForest_clf.classes_))
+    f.write('\n\n')
+   
+    f.write('Random Forest to PCA normalized Data in Simplified TrainDataset, adding tree numbers to 500: \n')
+    f.write(metrics.classification_report(y_train, y_pred_in_train, target_names=RandomForest_clf.classes_))
+    f.write('\n\n')
+    f.close()
+
+
+    cm_test = confusion_matrix(y_test, y_pred, labels=RandomForest_clf.classes_)
+    cm_train = confusion_matrix(y_train, y_pred_in_train, labels=RandomForest_clf.classes_)
+
+
+    fig = plt.figure(figsize=(16, 16))
+    sns.heatmap(cm_test / np.sum(cm_test), cmap="YlGnBu", annot=True, fmt='.2%', square=1, linewidth=2., xticklabels=RandomForest_clf.classes_, yticklabels=RandomForest_clf.classes_)
+    plt.xlabel("predictions")
+    plt.ylabel("real values")
+    plt.savefig(os.path.join(saveResultPath, 'Simplified', 'Test', 'Normalize', 'PCA', 'Random Forest, TreeNumbers=500.png'))
+    plt.close()
+
+    fig = plt.figure(figsize=(16, 16))
+    sns.heatmap(cm_train / np.sum(cm_train), cmap="YlGnBu", annot=True, fmt='.2%', square=1, linewidth=2., xticklabels=RandomForest_clf.classes_, yticklabels=RandomForest_clf.classes_)
+    plt.xlabel("predictions")
+    plt.ylabel("real values")
+    plt.savefig(os.path.join(saveResultPath, 'Simplified', 'Train', 'Normalize', 'PCA', 'Random Forest, TreeNumbers=500.png'))
+    plt.close()
+
+
+    #Build SVM classifer to PCA normalized data
+    SVM_clf = svm.SVC(kernel='linear', C=1.0)
+    SVM_clf = SVM_clf.fit(pca_normal_X_train, y_train)
+
+    y_pred = SVM_clf.predict(pca_normal_X_test)
+    y_pred_in_train = SVM_clf.predict(pca_normal_X_train)
+    #print("Accuracy:", metrics.accuracy_score(y_test, y_pred))
+    print(metrics.classification_report(y_test, y_pred, target_names=SVM_clf.classes_))
+
+    f = open(os.path.join(saveResultPath, 'log.txt'), "a")
+
+    f.write('SVM to PCA normalized Data in Simplified TestDataset: \n')
+    f.write(metrics.classification_report(y_test, y_pred, target_names=SVM_clf.classes_))
+    f.write('\n\n')
+   
+    f.write('SVM to PCA normalized Data in Simplified TrainDataset: \n')
+    f.write(metrics.classification_report(y_train, y_pred_in_train, target_names=SVM_clf.classes_))
+    f.write('\n\n')
+    f.close()
+
+
+    cm_test = confusion_matrix(y_test, y_pred, labels=SVM_clf.classes_)
+    cm_train = confusion_matrix(y_train, y_pred_in_train, labels=SVM_clf.classes_)
+
+
+    fig = plt.figure(figsize=(16, 16))
+    sns.heatmap(cm_test / np.sum(cm_test), cmap="YlGnBu", annot=True, fmt='.2%', square=1, linewidth=2., xticklabels=SVM_clf.classes_, yticklabels=SVM_clf.classes_)
+    plt.xlabel("predictions")
+    plt.ylabel("real values")
+    plt.savefig(os.path.join(saveResultPath, 'Simplified', 'Test', 'Normalize', 'PCA', 'SVM.png'))
+    plt.close()
+
+    fig = plt.figure(figsize=(16, 16))
+    sns.heatmap(cm_train / np.sum(cm_train), cmap="YlGnBu", annot=True, fmt='.2%', square=1, linewidth=2., xticklabels=SVM_clf.classes_, yticklabels=SVM_clf.classes_)
+    plt.xlabel("predictions")
+    plt.ylabel("real values")
+    plt.savefig(os.path.join(saveResultPath, 'Simplified', 'Train', 'Normalize', 'PCA', 'SVM.png'))
+    plt.close()
+
+    #Bulid NN to classify, data must be normalize
+    MLP_clf = MLPClassifier(hidden_layer_sizes=(1024,1024,512,256,64,32), max_iter=500)
+    MLP_clf = MLP_clf.fit(normal_X_train, y_train)
+
+    y_pred = MLP_clf.predict(normal_X_test)
+    y_pred_in_train = MLP_clf.predict(normal_X_train)
+
+    print(metrics.classification_report(y_test, y_pred, target_names=MLP_clf.classes_))
+
+    f = open(os.path.join(saveResultPath, 'log.txt'), "a")
+
+    f.write('MLP to Normalized Data in Simplified TestDataset: \n')
+    f.write(metrics.classification_report(y_test, y_pred, target_names=MLP_clf.classes_))
+    f.write('\n\n')
+   
+    f.write('MLP to Normalized Data in Simplified TrainDataset: \n')
+    f.write(metrics.classification_report(y_train, y_pred_in_train, target_names=MLP_clf.classes_))
+    f.write('\n\n')
+    f.close()
+
+
+    cm_test = confusion_matrix(y_test, y_pred, labels=MLP_clf.classes_)
+    cm_train = confusion_matrix(y_train, y_pred_in_train, labels=MLP_clf.classes_)
+
+
+    fig = plt.figure(figsize=(16, 16))
+    sns.heatmap(cm_test / np.sum(cm_test), cmap="YlGnBu", annot=True, fmt='.2%', square=1, linewidth=2., xticklabels=MLP_clf.classes_, yticklabels=MLP_clf.classes_)
+    plt.xlabel("predictions")
+    plt.ylabel("real values")
+    plt.savefig(os.path.join(saveResultPath, 'Simplified', 'Test', 'Normalize', 'MLP.png'))
+    plt.close()
+
+    fig = plt.figure(figsize=(16, 16))
+    sns.heatmap(cm_train / np.sum(cm_train), cmap="YlGnBu", annot=True, fmt='.2%', square=1, linewidth=2., xticklabels=MLP_clf.classes_, yticklabels=MLP_clf.classes_)
+    plt.xlabel("predictions")
+    plt.ylabel("real values")
+    plt.savefig(os.path.join(saveResultPath, 'Simplified', 'Train',  'Normalize', 'MLP.png'))
+    plt.close()
+
+    # Bulid NN to classify, data must be normalize
+    MLP_clf = MLPClassifier(hidden_layer_sizes=(256,256,128,64))
+    MLP_clf = MLP_clf.fit(pca_normal_X_train, y_train)
+
+    y_pred = MLP_clf.predict(pca_normal_X_test)
+    y_pred_in_train = MLP_clf.predict(pca_normal_X_train)
+
+    print(metrics.classification_report(y_test, y_pred, target_names=MLP_clf.classes_))
+
+    f = open(os.path.join(saveResultPath, 'log.txt'), "a")
+
+    f.write('MLP to PCA Normalized Data in Simplified TestDataset: \n')
+    f.write(metrics.classification_report(y_test, y_pred, target_names=MLP_clf.classes_))
+    f.write('\n\n')
+   
+    f.write('MLP to PCA Normalized Data in Simplified TrainDataset: \n')
+    f.write(metrics.classification_report(y_train, y_pred_in_train, target_names=MLP_clf.classes_))
+    f.write('\n\n')
+    f.close()
+
+
+    cm_test = confusion_matrix(y_test, y_pred, labels=MLP_clf.classes_)
+    cm_train = confusion_matrix(y_train, y_pred_in_train, labels=MLP_clf.classes_)
+
+
+    fig = plt.figure(figsize=(16, 16))
+    sns.heatmap(cm_test / np.sum(cm_test), cmap="YlGnBu", annot=True, fmt='.2%', square=1, linewidth=2., xticklabels=MLP_clf.classes_, yticklabels=MLP_clf.classes_)
+    plt.xlabel("predictions")
+    plt.ylabel("real values")
+    plt.savefig(os.path.join(saveResultPath, 'Simplified', 'Test', 'Normalize', 'PCA', 'MLP.png'))
+    plt.close()
+
+    fig = plt.figure(figsize=(16, 16))
+    sns.heatmap(cm_train / np.sum(cm_train), cmap="YlGnBu", annot=True, fmt='.2%', square=1, linewidth=2., xticklabels=MLP_clf.classes_, yticklabels=MLP_clf.classes_)
+    plt.xlabel("predictions")
+    plt.ylabel("real values")
+    plt.savefig(os.path.join(saveResultPath, 'Simplified', 'Train',  'Normalize', 'PCA', 'MLP.png'))
+    plt.close()
+
+
 
 
 

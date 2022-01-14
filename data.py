@@ -26,8 +26,8 @@ class ImageDataSet(Dataset):
         return len(self.AxInfo)
 
     def __getitem__(self, index):
-        maskPath = os.path.join(self.path, (((self.AxInfo).iloc[index]).MaskPath))
-        imagePath = os.path.join(self.path, (((self.AxInfo).iloc[index]).ImagePath))
+        maskPath = os.path.join(self.path, ((((self.AxInfo).iloc[index]).MaskPath).replace('\\', '/')))
+        imagePath = os.path.join(self.path, ((((self.AxInfo).iloc[index]).ImagePath).replace('\\', '/')))
         image = keep_image_size_open_gray(imagePath)
         mask = keep_image_size_open_gray(maskPath)
         mask = gray2Binary(mask)

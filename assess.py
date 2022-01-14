@@ -92,7 +92,7 @@ if __name__ == '__main__':
                 else:
                     sensitivity = np.nan
                 if TN + FP != 0:
-                    specificity = FP / (TN + FP)
+                    specificity = TN / (TN + FP)
                 else:
                     specificity = np.nan
                 iters += 1
@@ -124,7 +124,7 @@ if __name__ == '__main__':
                 _outImage = predictMask[0]
 
                 savePredictImage = torch.stack([_image, _segmentImage, _outImage], dim=0)
-                torchvision.utils.save_image(savePredictImage, f'{predictMaskPath}\{fig_name}.png')
+                torchvision.utils.save_image(savePredictImage, f'{predictMaskPath}\{fig_name}')
     
     fig = plt.figure(figsize=(6, 6))
     sns.heatmap(cmat_all / np.sum(cmat_all), cmap="Reds",

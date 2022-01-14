@@ -126,7 +126,7 @@ if __name__ == '__main__':
                 _outImage = predictMask[0]
 
                 savePredictImage = torch.stack([_image, _segmentImage, _outImage], dim=0)
-                torchvision.utils.save_image(savePredictImage, f'{predictMaskPath}/{fig_name}.png')
+                torchvision.utils.save_image(savePredictImage, f'{predictMaskPath}\{fig_name}.png')
     
     fig = plt.figure(figsize=(6, 6))
     sns.heatmap(cmat_all / np.sum(cmat_all), cmap="Reds",

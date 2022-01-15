@@ -22,10 +22,10 @@ else:
 
 basePath = r''
 dataPath = os.path.join(basePath, 'data')
-weightPath = os.path.join(basePath, r'model/unet.pth')
+weightPath = os.path.join(basePath, 'model', 'unet.pth')
 assessmentPath = os.path.join(dataPath, 'assessment')
 cmatPath = os.path.join(assessmentPath, 'confusion_matrix')
-predictMaskPath = os.path.join(assessmentPath, r'predict_mask')
+predictMaskPath = os.path.join(assessmentPath, 'predict_mask')
 
 batch_size = 1
 sensitivity_all = 0

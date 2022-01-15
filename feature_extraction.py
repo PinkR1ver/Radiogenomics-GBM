@@ -21,16 +21,21 @@ def ROI_not_one_dim(image_array):
                 if(flag_i and flag_j):
                     return True
     return False
-    
-dataPath = r'C:\Users\83549\Github Projects\Radiogenemics\Radiogenemics--on-Ivy-Gap\data'
+
+basePath = r''
+dataPath = os.path.join(basePath, 'data')
 dataFile = 'GBM_MRI_Dataset.csv'
 
 if __name__ == '__main__':
     params = os.path.join(dataPath, "Params.yaml")
     FeatureDataset = FeatureExtractionDataset(dataPath, dataFile)
     i = FeatureDataset[30]
-    imageName = os.path.join(dataPath, (i['ImagePath'].loc[0]).replace('\\', '/'))
-    maskName = os.path.join(dataPath, (i['MaskPath'].loc[0]).replace('\\', '/'))
+    if platform.system == 'Linux' or platform.system == 'Darwin':
+        imageName = os.path.join(dataPath, (i['ImagePath'].loc[0]).replace('\\', '/'))
+        maskName = os.path.join(dataPath, (i['MaskPath'].loc[0]).replace('\\', '/'))
+    elif platform.system == 'Windows':
+        imageName = os.path.join(dataPath, i['ImagePath'].loc[0])
+        maskName = os.path.join(dataPath, i['MaskPath'].loc[0])
     #print(imageName)
     extractor = featureextractor.RadiomicsFeatureExtractor(params)
 

@@ -21,7 +21,7 @@ from sklearn.feature_selection import SelectFromModel
 import warnings
 from sklearn.exceptions import ConvergenceWarning
 
-basePath = r'/home/pinkr1ver/Documents/Github Projects/Radiogenemics--on-Ivy-Gap'
+basePath = r''
 dataPath = os.path.join(basePath, 'data')
 subtypeFileName = 'tumor_details.csv'
 featureFileName = 'feature_extraction.csv'

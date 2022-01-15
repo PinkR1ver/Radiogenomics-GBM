@@ -10,6 +10,8 @@ import SimpleITK as sitk
 
 import pandas as pd
 
+import platform
+
 transform = transforms.Compose([
     transforms.ToTensor()
 ])
@@ -26,8 +28,12 @@ class ImageDataSet(Dataset):
         return len(self.AxInfo)
 
     def __getitem__(self, index):
-        maskPath = os.path.join(self.path, (((self.AxInfo).iloc[index]).MaskPath))
-        imagePath = os.path.join(self.path, (((self.AxInfo).iloc[index]).ImagePath))
+        if platform.system == 'Windows':
+            maskPath = os.path.join(self.path, (((self.AxInfo).iloc[index]).MaskPath))
+            imagePath = os.path.join(self.path, (((self.AxInfo).iloc[index]).ImagePath))
+        elif platform.system == 'Linux' or platform.system == 'Darwin':
+            maskPath = os.path.join(self.path, ((((self.AxInfo).iloc[index]).MaskPath).replace('\\', '/')))
+            imagePath = os.path.join(self.path, ((((self.AxInfo).iloc[index]).ImagePath).replace('\\', '/')))
         image = keep_image_size_open_gray(imagePath)
         mask = keep_image_size_open_gray(maskPath)
         mask = gray2Binary(mask)
@@ -49,8 +55,8 @@ class FeatureExtractionDataset(Dataset):
 def image_location_transfer(rootdir):
     for root, dirs, files in os.walk(os.path.join(rootdir)):
         for file in files:
-            imageSavePath = r'C:\Users\83549\Github Projects\Radiogenemics\Radiogenemics--on-Ivy-Gap\data\Images'
-            maskSavePath = r'C:\Users\83549\Github Projects\Radiogenemics\Radiogenemics--on-Ivy-Gap\data\Masks'
+            imageSavePath = os.path.join('data', 'Images')
+            maskSavePath = os.path.join('data', 'Masks')
             if "1_Images_MNI" in root and '.png' in file:
                 imagePath = os.path.join(root, file)
                 print(f'Image:{imagePath}')

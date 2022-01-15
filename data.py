@@ -28,10 +28,10 @@ class ImageDataSet(Dataset):
         return len(self.AxInfo)
 
     def __getitem__(self, index):
-        if platform.system == 'Windows':
+        if platform.system() == 'Windows':
             maskPath = os.path.join(self.path, (((self.AxInfo).iloc[index]).MaskPath))
             imagePath = os.path.join(self.path, (((self.AxInfo).iloc[index]).ImagePath))
-        elif platform.system == 'Linux' or platform.system == 'Darwin':
+        elif platform.system() == 'Linux' or platform.system() == 'Darwin':
             maskPath = os.path.join(self.path, ((((self.AxInfo).iloc[index]).MaskPath).replace('\\', '/')))
             imagePath = os.path.join(self.path, ((((self.AxInfo).iloc[index]).ImagePath).replace('\\', '/')))
         image = keep_image_size_open_gray(imagePath)

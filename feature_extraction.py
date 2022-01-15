@@ -30,10 +30,10 @@ if __name__ == '__main__':
     params = os.path.join(dataPath, "Params.yaml")
     FeatureDataset = FeatureExtractionDataset(dataPath, dataFile)
     i = FeatureDataset[30]
-    if platform.system == 'Linux' or platform.system == 'Darwin':
+    if platform.system() == 'Linux' or platform.system() == 'Darwin':
         imageName = os.path.join(dataPath, (i['ImagePath'].loc[0]).replace('\\', '/'))
         maskName = os.path.join(dataPath, (i['MaskPath'].loc[0]).replace('\\', '/'))
-    elif platform.system == 'Windows':
+    elif platform.system() == 'Windows':
         imageName = os.path.join(dataPath, i['ImagePath'].loc[0])
         maskName = os.path.join(dataPath, i['MaskPath'].loc[0])
     #print(imageName)

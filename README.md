@@ -1,7 +1,6 @@
 # Radiogenomics analysis on Dataset from Ivy Glioblastoma Atlas Project (Ivy GAP)
 ## What is Radiogenomics
 ![](Pictures/RadiogenomicsResearchTypicalPathway.png)
-Radiogenomics Research Typical Pathway
 $\quad$ Most existing radiogenomics studies aim to establish the relationship between tumor radiographic features  (eg,  tumor enhancement volume,  degree of necrosis)  and gene expression profiles or pathways.   These exploratory studies are designed to lay the groundwork for optimal study design, data collection, and analysis to help formulate relevant hypotheses for future research.  Exploratory studies are aimed at finding relevant mutations that may give rise to unique radiological phenotypes.  Ideally, radiogenomics studies are designed based on the following systematic approach:1) image acquisition; 2)image processing, including noise/artifact reduction, intensity and/or orientation standardization, coregistration of the multiparametric MRI scans; 3) ROI definition using manual annotation or (semi-)automatic segmentation; 4) feature extraction based on human-engineered (conventional radiomics) or deep-learning approaches; and5) data analysis, involving machine/deep-learning methods for feature selection, classification, and cross-validation.  This project focus on the last three steps, including ROI definition, also known as image segmentation, feature extraction, and data analysis [1]
 
 ## Dataest description [2]

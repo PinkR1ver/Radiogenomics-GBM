@@ -20,7 +20,6 @@ from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.feature_selection import SelectFromModel
 import warnings
 from sklearn.exceptions import ConvergenceWarning
-import VisuealizeNN as VisNN
 
 basePath = r'/home/pinkr1ver/Documents/Github Projects/Radiogenemics--on-Ivy-Gap'
 dataPath = os.path.join(basePath, 'data')
@@ -586,11 +585,6 @@ if __name__ == '__main__':
     plt.savefig(os.path.join(saveResultPath, 'Train',  'Normalize', 'MLP.png'))
     plt.close()
 
-    ## print(MLP_clf.hidden_layer_sizes)
-    ## print(np.asarray(MLP_clf.hidden_layer_sizes))
-    #network_structure = np.hstack(([normal_X_train.shape[1]], np.asarray(MLP_clf.hidden_layer_sizes), np.array([8])))
-    #network = VisNN.DrawNN(network_structure, MLP_clf.coefs_)
-    #network.draw()
 
     # Bulid NN to classify, data must be normalize
     MLP_clf = MLPClassifier(hidden_layer_sizes=(256,256,128,64))
@@ -630,10 +624,6 @@ if __name__ == '__main__':
     plt.ylabel("real values")
     plt.savefig(os.path.join(saveResultPath, 'Train',  'Normalize', 'PCA', 'MLP.png'))
     plt.close()
-
-    #network_structure = np.hstack(([pca_normal_X_train.shape[1]], np.asarray(MLP_clf.hidden_layer_sizes), np.array([8])))
-    #network = VisNN.DrawNN(network_structure, MLP_clf.coefs_)
-    #network.draw()
 
     # -------------------------------------------------------------------------------------------------------
     # -------------------------------------------------------------------------------------------------------

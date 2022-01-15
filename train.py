@@ -16,11 +16,11 @@ else:
     device = 'cpu'
     print("Using CPU")
 
-basePath = r'C:\Users\83549\Github Projects\Radiogenemics\Radiogenemics--on-Ivy-Gap'
+basePath = r''
 dataPath = os.path.join(basePath, 'data')
-weightPath = os.path.join(basePath, r'model\unet.pth')
-savePath = os.path.join(basePath, r'data\train_monitor_image_AX')
-predictPath = os.path.join(basePath, r'data\test_image_AX')
+weightPath = os.path.join(basePath, 'model', 'unet.pth')
+savePath = os.path.join(dataPath, 'train_monitor_image_AX')
+predictPath = os.path.join(dataPath, 'test_image_AX')
 
 if __name__ == '__main__':
     fullDataSet = ImageDataSet(dataPath,'GBM_MRI_Dataset.csv')
@@ -70,7 +70,7 @@ if __name__ == '__main__':
             _outImage = outImage[0]
 
             testImage = torch.stack([_image, _segmentImage, _outImage], dim=0)
-            torchvision.utils.save_image(testImage, f'{savePath}\{i}.png')
+            torchvision.utils.save_image(testImage, os.path.join(savePath, f'{i}.png'))
 
         epoch += 1
 

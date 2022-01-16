@@ -31,10 +31,7 @@ batch_size = 1
 sensitivity_all = 0
 specificity_all = 0
 iters = 0
-cmat_all = [
-    [0, 0],
-    [0, 0]
-]
+cmat_all = np.array([[0, 0],[0, 0]])
 
 if __name__ == '__main__':
     PredictDataset = ImageDataSet(dataPath, 'GBM_MRI_Dataset.csv')
@@ -69,17 +66,14 @@ if __name__ == '__main__':
             mask_arr = torch.squeeze(mask[j].cpu()).detach().numpy()
             #torchvision.utils.save_image(mask[j], os.path.join(predictMaskPath, f'{i}_{j}.png'))
 
-            if np.any(predictMask_arr) or np.any(mask_arr):
+            if np.any(predictMask_arr) and np.any(mask_arr):
                 # print(predictMask.sum())
 
                 FP = len(np.where(predictMask_arr - mask_arr == -1)[0])
                 FN = len(np.where(predictMask_arr - mask_arr == 1)[0])
                 TP = len(np.where(predictMask_arr + mask_arr == 2)[0])
                 TN = len(np.where(predictMask_arr + mask_arr == 0)[0])
-                cmat = [
-                    [TN, FN],
-                    [FP, TP]
-                ]
+                cmat = np.array([[TN, FN],[FP, TP]])
                 cmat_all += cmat
 
                 # print(f'sensitivity:{TP/(TP+FN)}')
@@ -87,14 +81,9 @@ if __name__ == '__main__':
 
                 # print(cmat)
 
-                if TP + FN != 0:
-                    sensitivity = TP / (TP + FN)
-                else:
-                    sensitivity = np.nan
-                if TN + FP != 0:
-                    specificity = TN / (TN + FP)
-                else:
-                    specificity = np.nan
+
+                sensitivity = TP / (TP + FN)
+                specificity = TN / (TN + FP)
                 iters += 1
                 sensitivity_all += sensitivity
                 specificity_all += specificity
@@ -124,7 +113,7 @@ if __name__ == '__main__':
                 _outImage = predictMask[0]
 
                 savePredictImage = torch.stack([_image, _segmentImage, _outImage], dim=0)
-                torchvision.utils.save_image(savePredictImage, f'{predictMaskPath}\{fig_name}')
+                torchvision.utils.save_image(savePredictImage, os.path.join(predictMaskPath, fig_name))
     
     fig = plt.figure(figsize=(6, 6))
     sns.heatmap(cmat_all / np.sum(cmat_all), cmap="Reds",

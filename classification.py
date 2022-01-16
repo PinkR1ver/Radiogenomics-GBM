@@ -546,6 +546,45 @@ if __name__ == '__main__':
     plt.savefig(os.path.join(saveResultPath, 'Train', 'Normalize', 'PCA', 'SVM.png'))
     plt.close()
 
+    #Build  Poly SVM classifer to PCA normalized data
+    SVM_clf = svm.SVC(kernel='poly', degree=7, C=1.0)
+    SVM_clf = SVM_clf.fit(pca_normal_X_train, y_train)
+
+    y_pred = SVM_clf.predict(pca_normal_X_test)
+    y_pred_in_train = SVM_clf.predict(pca_normal_X_train)
+    #print("Accuracy:", metrics.accuracy_score(y_test, y_pred))
+    print(metrics.classification_report(y_test, y_pred, target_names=SVM_clf.classes_))
+
+    f = open(os.path.join(saveResultPath, 'log.txt'), "a")
+
+    f.write('Poly SVM to PCA normalized Data in TestDataset: \n')
+    f.write(metrics.classification_report(y_test, y_pred, target_names=SVM_clf.classes_))
+    f.write('\n\n')
+   
+    f.write('Poly SVM to PCA normalized Data in TrainDataset: \n')
+    f.write(metrics.classification_report(y_train, y_pred_in_train, target_names=SVM_clf.classes_))
+    f.write('\n\n')
+    f.close()
+
+
+    cm_test = confusion_matrix(y_test, y_pred, labels=SVM_clf.classes_)
+    cm_train = confusion_matrix(y_train, y_pred_in_train, labels=SVM_clf.classes_)
+
+
+    fig = plt.figure(figsize=(16, 16))
+    sns.heatmap(cm_test / np.sum(cm_test), cmap="YlGnBu", annot=True, fmt='.2%', square=1, linewidth=2., xticklabels=SVM_clf.classes_, yticklabels=SVM_clf.classes_)
+    plt.xlabel("predictions")
+    plt.ylabel("real values")
+    plt.savefig(os.path.join(saveResultPath, 'Test', 'Normalize', 'PCA', 'Poly SVM.png'))
+    plt.close()
+
+    fig = plt.figure(figsize=(16, 16))
+    sns.heatmap(cm_train / np.sum(cm_train), cmap="YlGnBu", annot=True, fmt='.2%', square=1, linewidth=2., xticklabels=SVM_clf.classes_, yticklabels=SVM_clf.classes_)
+    plt.xlabel("predictions")
+    plt.ylabel("real values")
+    plt.savefig(os.path.join(saveResultPath, 'Train', 'Normalize', 'PCA', 'Poly SVM.png'))
+    plt.close()
+
     #Bulid NN to classify, data must be normalize
     MLP_clf = MLPClassifier(hidden_layer_sizes=(1024,1024,512,256,64,32), max_iter=500)
     MLP_clf = MLP_clf.fit(normal_X_train, y_train)
@@ -1091,6 +1130,45 @@ if __name__ == '__main__':
     plt.xlabel("predictions")
     plt.ylabel("real values")
     plt.savefig(os.path.join(saveResultPath, 'Simplified', 'Train', 'Normalize', 'PCA', 'SVM.png'))
+    plt.close()
+
+    #Build SVM classifer to PCA normalized data
+    SVM_clf = svm.SVC(kernel='poly', degree=7 ,C=1.0)
+    SVM_clf = SVM_clf.fit(pca_normal_X_train, y_train)
+
+    y_pred = SVM_clf.predict(pca_normal_X_test)
+    y_pred_in_train = SVM_clf.predict(pca_normal_X_train)
+    #print("Accuracy:", metrics.accuracy_score(y_test, y_pred))
+    print(metrics.classification_report(y_test, y_pred, target_names=SVM_clf.classes_))
+
+    f = open(os.path.join(saveResultPath, 'log.txt'), "a")
+
+    f.write('Poly SVM to PCA normalized Data in Simplified TestDataset: \n')
+    f.write(metrics.classification_report(y_test, y_pred, target_names=SVM_clf.classes_))
+    f.write('\n\n')
+   
+    f.write('Poly SVM to PCA normalized Data in Simplified TrainDataset: \n')
+    f.write(metrics.classification_report(y_train, y_pred_in_train, target_names=SVM_clf.classes_))
+    f.write('\n\n')
+    f.close()
+
+
+    cm_test = confusion_matrix(y_test, y_pred, labels=SVM_clf.classes_)
+    cm_train = confusion_matrix(y_train, y_pred_in_train, labels=SVM_clf.classes_)
+
+
+    fig = plt.figure(figsize=(16, 16))
+    sns.heatmap(cm_test / np.sum(cm_test), cmap="YlGnBu", annot=True, fmt='.2%', square=1, linewidth=2., xticklabels=SVM_clf.classes_, yticklabels=SVM_clf.classes_)
+    plt.xlabel("predictions")
+    plt.ylabel("real values")
+    plt.savefig(os.path.join(saveResultPath, 'Simplified', 'Test', 'Normalize', 'PCA', 'Poly SVM.png'))
+    plt.close()
+
+    fig = plt.figure(figsize=(16, 16))
+    sns.heatmap(cm_train / np.sum(cm_train), cmap="YlGnBu", annot=True, fmt='.2%', square=1, linewidth=2., xticklabels=SVM_clf.classes_, yticklabels=SVM_clf.classes_)
+    plt.xlabel("predictions")
+    plt.ylabel("real values")
+    plt.savefig(os.path.join(saveResultPath, 'Simplified', 'Train', 'Normalize', 'PCA', 'Poly SVM.png'))
     plt.close()
 
     #Bulid NN to classify, data must be normalize

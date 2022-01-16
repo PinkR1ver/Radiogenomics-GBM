@@ -128,15 +128,15 @@ def built_dataset_csv(path):
 if __name__ == '__main__':
     #image_location_transfer(r'C:\Users\83549\OneDrive\Documents\Research Data\Multi-institutional Paired Expert Segmentations MNI images-atlas-annotations')
     # built_dataset_csv(r'C:\Users\RTX 3090\Desktop\WangYichong\U-net for Ivy Gap\data')
-    # GBMDataset = ImageDataSet(r'C:\Users\RTX 3090\Desktop\WangYichong\U-net for Ivy Gap\data', 'GBM_MRI_Dataset.csv')
+    GBMDataset = ImageDataSet(r'data', 'GBM_MRI_Dataset.csv')
     # print(GBMDataset.AxInfo)
-    # print(len(GBMDataset))
+    print(len(GBMDataset))
     # print(GBMDataset[5])
     # pass
-    FeatureDataset = FeatureExtractionDataset(r'/home/pinkr1ver/Documents/Github Projects/Radiogenemics--on-Ivy-Gap/data', 'GBM_MRI_Dataset.csv')
-    df = FeatureDataset[5631]
-    mask = sitk.ReadImage(os.path.join(r'/home/pinkr1ver/Documents/Github Projects/Radiogenemics--on-Ivy-Gap/data', (df['MaskPath'].loc[0]).replace('\\', '/')))
-    sitk.Show(mask)
+    #FeatureDataset = FeatureExtractionDataset(r'/home/pinkr1ver/Documents/Github Projects/Radiogenemics--on-Ivy-Gap/data', 'GBM_MRI_Dataset.csv')
+    #df = FeatureDataset[5631]
+    #mask = sitk.ReadImage(os.path.join(r'/home/pinkr1ver/Documents/Github Projects/Radiogenemics--on-Ivy-Gap/data', (df['MaskPath'].loc[0]).replace('\\', '/')))
+    #sitk.Show(mask)
     #df = df.to_frame()
     #df2 = FeatureDataset[8]
     #df2 = df2.to_frame()

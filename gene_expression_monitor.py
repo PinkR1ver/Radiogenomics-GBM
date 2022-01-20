@@ -4,6 +4,7 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 from rich import print
+import gc
 
 basePath = r''
 dataPath = os.path.join(basePath, 'data')
@@ -21,10 +22,6 @@ if __name__ == '__main__':
 
     for i in tumor_name:
 
-        if not os.path.isdir(os.path.join(savePath, i)):
-            os.mkdir(os.path.join(savePath, i))
-
-
         # Get sub group
         sub_gene_expression_details = gene_expression_details.loc[gene_expression_details['tumor_name'] == i]
         sub_gene_expression_details = sub_gene_expression_details.reset_index(drop=True)
@@ -38,17 +35,39 @@ if __name__ == '__main__':
 
 
         # Extract one tumor, one gene
-        fig = plt.figure(figsize=(6, 6))
         for j in gene_symbol:
             sub_sub_gene_expression_details = sub_gene_expression_details.loc[sub_gene_expression_details['gene_symbol'] == j]
             expression_energy_le = sub_sub_gene_expression_details['expression_energy_le']
             expression_energy_le = expression_energy_le.reset_index(drop=True)
-            if len(expression_energy_le) > 15:
+            expression_energy_it = sub_sub_gene_expression_details['expression_energy_it']
+            expression_energy_it = expression_energy_it.reset_index(drop=True)
+            if len(expression_energy_le[~(expression_energy_le.isnull())]) > 10:
+                fig = plt.figure(figsize=(6, 6))
+                if not os.path.isdir(os.path.join(savePath, 'expression_energy_le', i)):
+                    os.mkdir(os.path.join(savePath, 'expression_energy_le', i))
                 print(j)
                 print(expression_energy_le)
                 sns.kdeplot(sub_sub_gene_expression_details['expression_energy_le'])
-                plt.savefig(os.path.join(savePath, i, j+'.png'))
-                plt.close()
+                plt.savefig(os.path.join(savePath, 'expression_energy_le', i, j+'.png'))
+                plt.close(fig)
+                gc.collect()
+            else:
+                plt.close(fig)
+                gc.collect()
             
+            if len(expression_energy_it[~(expression_energy_it.isnull())]) > 10:
+                fig = plt.figure(figsize=(6, 6))
+                if not os.path.isdir(os.path.join(savePath, 'expression_energy_it', i)):
+                    os.mkdir(os.path.join(savePath, 'expression_energy_it', i))
+                print(j)
+                print(expression_energy_it)
+                sns.kdeplot(sub_sub_gene_expression_details['expression_energy_it'])
+                plt.savefig(os.path.join(savePath, 'expression_energy_it', i, j+'.png'))
+                plt.close(fig)
+                gc.collect()
+            else:
+                plt.close(fig)
+                gc.collect()
+
 
 

@@ -23,9 +23,9 @@ class Train_T1_AX_ImageDataSet(Dataset):
     def __init__(self, path, dataset_file):
         self.path = path
         self.Info = pd.read_csv(os.path.join(self.path, dataset_file))
-        AXInfo = ((self.Info).loc[(self.Info)['Plane'] == 'AX'])
-        T1AXInfo = ((AXInfo).loc[(AXInfo)['MRISeries'] == 'T1'])
-        T1AXInfo = ((T1AXInfo).loc[(T1AXInfo)['Patient'] < 'W5'])
+        AXInfo = self.Info[self.Info['Plane'] == 'AX']
+        T1AXInfo = AXInfo[(AXInfo)['MRISeries'] == 'T1']
+        T1AXInfo = T1AXInfo[T1AXInfo['Patient'] < 'W5']
         self.T1AXInfo = T1AXInfo.reset_index(drop=True)
 
     def __len__(self):
@@ -47,9 +47,9 @@ class Train_T2_AX_ImageDataSet(Dataset):
     def __init__(self, path, dataset_file):
         self.path = path
         self.Info = pd.read_csv(os.path.join(self.path, dataset_file))
-        AXInfo = ((self.Info).loc[(self.Info)['Plane'] == 'AX'])
-        T2AXInfo = ((AXInfo).loc[(AXInfo)['MRISeries'] == 'T2'])
-        T2AXInfo = ((T2AXInfo).loc[(T2AXInfo)['Patient'] < 'W5'])
+        AXInfo = self.Info[self.Info['Plane'] == 'AX']
+        T2AXInfo = AXInfo[AXInfo['MRISeries'] == 'T2']
+        T2AXInfo = T2AXInfo[T2AXInfo['Patient'] < 'W5']
         self.T2AXInfo = T2AXInfo.reset_index(drop=True)
 
 
@@ -72,9 +72,9 @@ class Train_FLAIR_AX_ImageDataSet(Dataset):
     def __init__(self, path, dataset_file):
         self.path = path
         self.Info = pd.read_csv(os.path.join(self.path, dataset_file))
-        AXInfo = ((self.Info).loc[(self.Info)['Plane'] == 'AX'])
-        FLAIR_AXInfo = ((AXInfo).loc[(AXInfo)['MRISeries'] == 'FLAIR'])
-        FLAIR_AXInfo = ((FLAIR_AXInfo).loc[(FLAIR_AXInfo)['Patient'] < 'W5'])
+        AXInfo = self.Info[self.Info['Plane'] == 'AX']
+        FLAIR_AXInfo = AXInfo[AXInfo['MRISeries'] == 'FLAIR']
+        FLAIR_AXInfo = FLAIR_AXInfo[FLAIR_AXInfo['Patient'] < 'W5']
         self.FLAIR_AXInfo = FLAIR_AXInfo.reset_index(drop=True)
 
 
@@ -97,20 +97,141 @@ class Train_Stack_AX_ImageDataSet(Dataset):
     def __init__(self, path, dataset_file):
         self.path = path
         self.Info = pd.read_csv(os.path.join(self.path, dataset_file))
-        AXInfo = ((self.Info).loc[(self.Info)['Plane'] == 'AX'])
-        FLAIR_AXInfo = ((AXInfo).loc[(AXInfo)['MRISeries'] == 'FLAIR'])
+        AXInfo = self.Info[self.Info['Plane'] == 'AX']
+        FLAIR_AXInfo = AXInfo[AXInfo['MRISeries'] == 'FLAIR']
         FLAIR_AXInfo = FLAIR_AXInfo.reset_index(drop=True)
         FLAIR_AXInfo = FLAIR_AXInfo.rename(columns={'MRISeries':'MRISeries3', 'ImagePath':'ImagePath3'})
         
-        T1AXInfo = ((AXInfo).loc[(AXInfo)['MRISeries'] == 'T1'])
+        T1AXInfo = AXInfo[(AXInfo)['MRISeries'] == 'T1']
         T1AXInfo = T1AXInfo.reset_index(drop=True)
         
-        T2AXInfo = ((AXInfo).loc[(AXInfo)['MRISeries'] == 'T2'])
+        T2AXInfo = AXInfo[(AXInfo)['MRISeries'] == 'T2']
         T2AXInfo = T2AXInfo.reset_index(drop=True)
         T2AXInfo = T2AXInfo.rename(columns={'MRISeries':'MRISeries2', 'ImagePath':'ImagePath2'})
 
         Stack_AXInfo = T1AXInfo.merge(T2AXInfo.merge(FLAIR_AXInfo))
-        Stack_AXInfo = Stack_AXInfo.loc[Stack_AXInfo['Patient'] < 'W5']
+        Stack_AXInfo = Stack_AXInfo[Stack_AXInfo['Patient'] < 'W5']
+        self.Stack_AXInfo = Stack_AXInfo.reset_index(drop=True)
+
+
+    def __len__(self):
+        return len(self.Stack_AXInfo)
+
+    def __getitem__(self, index):
+        if platform.system() == 'Windows':
+            maskPath = os.path.join(self.path, (((self.Stack_AXInfo).iloc[index]).MaskPath))
+            T1_imagePath = os.path.join(self.path, (((self.Stack_AXInfo).iloc[index]).ImagePath))
+            T2_imagePath = os.path.join(self.path, (((self.Stack_AXInfo).iloc[index]).ImagePath2))
+            FLAIR_imagePath = os.path.join(self.path, (((self.Stack_AXInfo).iloc[index]).ImagePath3))
+        elif platform.system() == 'Linux' or platform.system() == 'Darwin':
+            maskPath = os.path.join(self.path, ((((self.Stack_AXInfo).iloc[index]).MaskPath).replace('\\', '/')))
+            T1_imagePath = os.path.join(self.path, ((((self.Stack_AXInfo).iloc[index]).ImagePath).replace('\\', '/')))
+            T2_imagePath = os.path.join(self.path, ((((self.Stack_AXInfo).iloc[index]).ImagePath2).replace('\\', '/')))
+            FLAIR_imagePath = os.path.join(self.path, ((((self.Stack_AXInfo).iloc[index]).ImagePath3).replace('\\', '/')))
+        T1_image = np.array(keep_image_size_open_gray(T1_imagePath))
+        T2_image = np.array(keep_image_size_open_gray(T2_imagePath))
+        FLAIR_image = np.array(keep_image_size_open_gray(FLAIR_imagePath))
+        image = np.stack((T1_image, T2_image, FLAIR_image), axis=-1)
+        # I don't know why i need to transpose numpy array before I create Image from array
+        #print(image_stack.T.shape) (256, 256, 3)
+        #print(image_stack.shape) (3, 256, 256)
+        #image = Image.fromarray(image_stack.T, mode='RGB')
+        mask = keep_image_size_open_gray(maskPath)
+        mask = gray2Binary(mask)
+        return transform(image), transform(mask)
+
+class Test_T1_AX_ImageDataSet(Dataset):
+    def __init__(self, path, dataset_file):
+        self.path = path
+        self.Info = pd.read_csv(os.path.join(self.path, dataset_file))
+        AXInfo = self.Info[self.Info['Plane'] == 'AX']
+        T1AXInfo = AXInfo[(AXInfo)['MRISeries'] == 'T1']
+        T1AXInfo = T1AXInfo[T1AXInfo['Patient'] >= 'W5']
+        self.T1AXInfo = T1AXInfo.reset_index(drop=True)
+
+    def __len__(self):
+        return len(self.T1AXInfo)
+
+    def __getitem__(self, index):
+        if platform.system() == 'Windows':
+            maskPath = os.path.join(self.path, (((self.T1AXInfo).iloc[index]).MaskPath))
+            imagePath = os.path.join(self.path, (((self.T1AXInfo).iloc[index]).ImagePath))
+        elif platform.system() == 'Linux' or platform.system() == 'Darwin':
+            maskPath = os.path.join(self.path, ((((self.T1AXInfo).iloc[index]).MaskPath).replace('\\', '/')))
+            imagePath = os.path.join(self.path, ((((self.T1AXInfo).iloc[index]).ImagePath).replace('\\', '/')))
+        image = keep_image_size_open_gray(imagePath)
+        mask = keep_image_size_open_gray(maskPath)
+        mask = gray2Binary(mask)
+        return transform(image), transform(mask)
+
+class Test_T2_AX_ImageDataSet(Dataset):
+    def __init__(self, path, dataset_file):
+        self.path = path
+        self.Info = pd.read_csv(os.path.join(self.path, dataset_file))
+        AXInfo = self.Info[self.Info['Plane'] == 'AX']
+        T2AXInfo = AXInfo[AXInfo['MRISeries'] == 'T2']
+        T2AXInfo = T2AXInfo[T2AXInfo['Patient'] >= 'W5']
+        self.T2AXInfo = T2AXInfo.reset_index(drop=True)
+
+
+    def __len__(self):
+        return len(self.T2AXInfo)
+
+    def __getitem__(self, index):
+        if platform.system() == 'Windows':
+            maskPath = os.path.join(self.path, (((self.T2AXInfo).iloc[index]).MaskPath))
+            imagePath = os.path.join(self.path, (((self.T2AXInfo).iloc[index]).ImagePath))
+        elif platform.system() == 'Linux' or platform.system() == 'Darwin':
+            maskPath = os.path.join(self.path, ((((self.T2AXInfo).iloc[index]).MaskPath).replace('\\', '/')))
+            imagePath = os.path.join(self.path, ((((self.T2AXInfo).iloc[index]).ImagePath).replace('\\', '/')))
+        image = keep_image_size_open_gray(imagePath)
+        mask = keep_image_size_open_gray(maskPath)
+        mask = gray2Binary(mask)
+        return transform(image), transform(mask)
+
+class Test_FLAIR_AX_ImageDataSet(Dataset):
+    def __init__(self, path, dataset_file):
+        self.path = path
+        self.Info = pd.read_csv(os.path.join(self.path, dataset_file))
+        AXInfo = self.Info[self.Info['Plane'] == 'AX']
+        FLAIR_AXInfo = AXInfo[AXInfo['MRISeries'] == 'FLAIR']
+        FLAIR_AXInfo = FLAIR_AXInfo[FLAIR_AXInfo['Patient'] >= 'W5']
+        self.FLAIR_AXInfo = FLAIR_AXInfo.reset_index(drop=True)
+
+
+    def __len__(self):
+        return len(self.FLAIR_AXInfo)
+
+    def __getitem__(self, index):
+        if platform.system() == 'Windows':
+            maskPath = os.path.join(self.path, (((self.FLAIR_AXInfo).iloc[index]).MaskPath))
+            imagePath = os.path.join(self.path, (((self.FLAIR_AXInfo).iloc[index]).ImagePath))
+        elif platform.system() == 'Linux' or platform.system() == 'Darwin':
+            maskPath = os.path.join(self.path, ((((self.FLAIR_AXInfo).iloc[index]).MaskPath).replace('\\', '/')))
+            imagePath = os.path.join(self.path, ((((self.FLAIR_AXInfo).iloc[index]).ImagePath).replace('\\', '/')))
+        image = keep_image_size_open_gray(imagePath)
+        mask = keep_image_size_open_gray(maskPath)
+        mask = gray2Binary(mask)
+        return transform(image), transform(mask)
+
+class Test_Stack_AX_ImageDataSet(Dataset):
+    def __init__(self, path, dataset_file):
+        self.path = path
+        self.Info = pd.read_csv(os.path.join(self.path, dataset_file))
+        AXInfo = self.Info[self.Info['Plane'] == 'AX']
+        FLAIR_AXInfo = AXInfo[AXInfo['MRISeries'] == 'FLAIR']
+        FLAIR_AXInfo = FLAIR_AXInfo.reset_index(drop=True)
+        FLAIR_AXInfo = FLAIR_AXInfo.rename(columns={'MRISeries':'MRISeries3', 'ImagePath':'ImagePath3'})
+        
+        T1AXInfo = AXInfo[(AXInfo)['MRISeries'] == 'T1']
+        T1AXInfo = T1AXInfo.reset_index(drop=True)
+        
+        T2AXInfo = AXInfo[(AXInfo)['MRISeries'] == 'T2']
+        T2AXInfo = T2AXInfo.reset_index(drop=True)
+        T2AXInfo = T2AXInfo.rename(columns={'MRISeries':'MRISeries2', 'ImagePath':'ImagePath2'})
+
+        Stack_AXInfo = T1AXInfo.merge(T2AXInfo.merge(FLAIR_AXInfo))
+        Stack_AXInfo = Stack_AXInfo[Stack_AXInfo['Patient'] >= 'W5']
         self.Stack_AXInfo = Stack_AXInfo.reset_index(drop=True)
 
 
@@ -144,7 +265,7 @@ class FeatureExtractionDataset(Dataset):
     def __init__(self, path, dataset_file):
         self.path = path
         self.Info = pd.read_csv(os.path.join(self.path, dataset_file))
-        self.AXInfo = ((self.Info).loc[(self.Info)['Plane'] == 'AX'])
+        self.AXInfo = self.Info[self.Info['Plane'] == 'AX']
     
     def __len__(self):
         return len(self.AXInfo)
@@ -229,17 +350,29 @@ def built_dataset_csv(path):
 if __name__ == '__main__':
     #image_location_transfer(r'C:\Users\83549\OneDrive\Documents\Research Data\Multi-institutional Paired Expert Segmentations MNI images-atlas-annotations')
     # built_dataset_csv(r'C:\Users\RTX 3090\Desktop\WangYichong\U-net for Ivy Gap\data')
-    GBMDataset = T1_AX_ImageDataSet(r'data', 'GBM_MRI_Dataset.csv')
-    GBMDataset2 = T2_AX_ImageDataSet('data', 'GBM_MRI_Dataset.csv')
-    GBMDataset3 = FLAIR_AX_ImageDataSet('data', 'GBM_MRI_Dataset.csv')
-    # print(GBMDataset.AxInfo)
+    GBMDataset = Train_T1_AX_ImageDataSet(r'data', 'GBM_MRI_Dataset.csv')
+    GBMDataset2 = Train_T2_AX_ImageDataSet('data', 'GBM_MRI_Dataset.csv')
+    GBMDataset3 = Train_FLAIR_AX_ImageDataSet('data', 'GBM_MRI_Dataset.csv')
+
     print(len(GBMDataset))
     print(len(GBMDataset2))
     print(len(GBMDataset3))
 
-    GBMDataset4 = Stack_AX_ImageDataSet('data', 'GBM_MRI_Dataset.csv')
+    GBMDataset = Test_T1_AX_ImageDataSet(r'data', 'GBM_MRI_Dataset.csv')
+    GBMDataset2 = Test_T2_AX_ImageDataSet('data', 'GBM_MRI_Dataset.csv')
+    GBMDataset3 = Test_FLAIR_AX_ImageDataSet('data', 'GBM_MRI_Dataset.csv')
+    
+    print(len(GBMDataset))
+    print(len(GBMDataset2))
+    print(len(GBMDataset3))
+
+
+    GBMDataset4 = Train_Stack_AX_ImageDataSet('data', 'GBM_MRI_Dataset.csv')
     print(len(GBMDataset4))
     print(GBMDataset4[3][0].shape)
+
+    for i in range(len(GBMDataset4)):
+        print(GBMDataset4.Stack_AXInfo.iloc[i])
     plt.imshow(GBMDataset4[3][0].detach().numpy()[1])
     plt.show()
     plt.imshow(GBMDataset4[3][1].detach().numpy()[0])

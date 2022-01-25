@@ -3,7 +3,6 @@ from PIL import Image
 from cv2 import selectROIs
 
 from torch.utils.data import Dataset
-from torch.utils.data.dataset import T
 from utils import *
 from torchvision import transforms
 import SimpleITK as sitk
@@ -19,10 +18,10 @@ transform = transforms.Compose([
 ])
 
 
-class Train_T1_AX_ImageDataSet(Dataset):
-    def __init__(self, path, dataset_file):
+class Train_T1_AX_ImageDataset(Dataset):
+    def __init__(self, path, Dataset_file):
         self.path = path
-        self.Info = pd.read_csv(os.path.join(self.path, dataset_file))
+        self.Info = pd.read_csv(os.path.join(self.path, Dataset_file))
         AXInfo = self.Info[self.Info['Plane'] == 'AX']
         T1AXInfo = AXInfo[(AXInfo)['MRISeries'] == 'T1']
         T1AXInfo = T1AXInfo[T1AXInfo['Patient'] < 'W5']
@@ -43,10 +42,10 @@ class Train_T1_AX_ImageDataSet(Dataset):
         mask = gray2Binary(mask)
         return transform(image), transform(mask)
 
-class Train_T2_AX_ImageDataSet(Dataset):
-    def __init__(self, path, dataset_file):
+class Train_T2_AX_ImageDataset(Dataset):
+    def __init__(self, path, Dataset_file):
         self.path = path
-        self.Info = pd.read_csv(os.path.join(self.path, dataset_file))
+        self.Info = pd.read_csv(os.path.join(self.path, Dataset_file))
         AXInfo = self.Info[self.Info['Plane'] == 'AX']
         T2AXInfo = AXInfo[AXInfo['MRISeries'] == 'T2']
         T2AXInfo = T2AXInfo[T2AXInfo['Patient'] < 'W5']
@@ -68,10 +67,10 @@ class Train_T2_AX_ImageDataSet(Dataset):
         mask = gray2Binary(mask)
         return transform(image), transform(mask)
 
-class Train_FLAIR_AX_ImageDataSet(Dataset):
-    def __init__(self, path, dataset_file):
+class Train_FLAIR_AX_ImageDataset(Dataset):
+    def __init__(self, path, Dataset_file):
         self.path = path
-        self.Info = pd.read_csv(os.path.join(self.path, dataset_file))
+        self.Info = pd.read_csv(os.path.join(self.path, Dataset_file))
         AXInfo = self.Info[self.Info['Plane'] == 'AX']
         FLAIR_AXInfo = AXInfo[AXInfo['MRISeries'] == 'FLAIR']
         FLAIR_AXInfo = FLAIR_AXInfo[FLAIR_AXInfo['Patient'] < 'W5']
@@ -93,10 +92,10 @@ class Train_FLAIR_AX_ImageDataSet(Dataset):
         mask = gray2Binary(mask)
         return transform(image), transform(mask)
 
-class Train_Stack_AX_ImageDataSet(Dataset):
-    def __init__(self, path, dataset_file):
+class Train_Stack_AX_ImageDataset(Dataset):
+    def __init__(self, path, Dataset_file):
         self.path = path
-        self.Info = pd.read_csv(os.path.join(self.path, dataset_file))
+        self.Info = pd.read_csv(os.path.join(self.path, Dataset_file))
         AXInfo = self.Info[self.Info['Plane'] == 'AX']
         FLAIR_AXInfo = AXInfo[AXInfo['MRISeries'] == 'FLAIR']
         FLAIR_AXInfo = FLAIR_AXInfo.reset_index(drop=True)
@@ -140,10 +139,10 @@ class Train_Stack_AX_ImageDataSet(Dataset):
         mask = gray2Binary(mask)
         return transform(image), transform(mask)
 
-class Test_T1_AX_ImageDataSet(Dataset):
-    def __init__(self, path, dataset_file):
+class Test_T1_AX_ImageDataset(Dataset):
+    def __init__(self, path, Dataset_file):
         self.path = path
-        self.Info = pd.read_csv(os.path.join(self.path, dataset_file))
+        self.Info = pd.read_csv(os.path.join(self.path, Dataset_file))
         AXInfo = self.Info[self.Info['Plane'] == 'AX']
         T1AXInfo = AXInfo[(AXInfo)['MRISeries'] == 'T1']
         T1AXInfo = T1AXInfo[T1AXInfo['Patient'] >= 'W5']
@@ -164,10 +163,10 @@ class Test_T1_AX_ImageDataSet(Dataset):
         mask = gray2Binary(mask)
         return transform(image), transform(mask)
 
-class Test_T2_AX_ImageDataSet(Dataset):
-    def __init__(self, path, dataset_file):
+class Test_T2_AX_ImageDataset(Dataset):
+    def __init__(self, path, Dataset_file):
         self.path = path
-        self.Info = pd.read_csv(os.path.join(self.path, dataset_file))
+        self.Info = pd.read_csv(os.path.join(self.path, Dataset_file))
         AXInfo = self.Info[self.Info['Plane'] == 'AX']
         T2AXInfo = AXInfo[AXInfo['MRISeries'] == 'T2']
         T2AXInfo = T2AXInfo[T2AXInfo['Patient'] >= 'W5']
@@ -189,10 +188,10 @@ class Test_T2_AX_ImageDataSet(Dataset):
         mask = gray2Binary(mask)
         return transform(image), transform(mask)
 
-class Test_FLAIR_AX_ImageDataSet(Dataset):
-    def __init__(self, path, dataset_file):
+class Test_FLAIR_AX_ImageDataset(Dataset):
+    def __init__(self, path, Dataset_file):
         self.path = path
-        self.Info = pd.read_csv(os.path.join(self.path, dataset_file))
+        self.Info = pd.read_csv(os.path.join(self.path, Dataset_file))
         AXInfo = self.Info[self.Info['Plane'] == 'AX']
         FLAIR_AXInfo = AXInfo[AXInfo['MRISeries'] == 'FLAIR']
         FLAIR_AXInfo = FLAIR_AXInfo[FLAIR_AXInfo['Patient'] >= 'W5']
@@ -214,10 +213,10 @@ class Test_FLAIR_AX_ImageDataSet(Dataset):
         mask = gray2Binary(mask)
         return transform(image), transform(mask)
 
-class Test_Stack_AX_ImageDataSet(Dataset):
-    def __init__(self, path, dataset_file):
+class Test_Stack_AX_ImageDataset(Dataset):
+    def __init__(self, path, Dataset_file):
         self.path = path
-        self.Info = pd.read_csv(os.path.join(self.path, dataset_file))
+        self.Info = pd.read_csv(os.path.join(self.path, Dataset_file))
         AXInfo = self.Info[self.Info['Plane'] == 'AX']
         FLAIR_AXInfo = AXInfo[AXInfo['MRISeries'] == 'FLAIR']
         FLAIR_AXInfo = FLAIR_AXInfo.reset_index(drop=True)
@@ -262,9 +261,9 @@ class Test_Stack_AX_ImageDataSet(Dataset):
         return transform(image), transform(mask)
 
 class FeatureExtractionDataset(Dataset):
-    def __init__(self, path, dataset_file):
+    def __init__(self, path, Dataset_file):
         self.path = path
-        self.Info = pd.read_csv(os.path.join(self.path, dataset_file))
+        self.Info = pd.read_csv(os.path.join(self.path, Dataset_file))
         self.AXInfo = self.Info[self.Info['Plane'] == 'AX']
     
     def __len__(self):
@@ -316,7 +315,7 @@ def image_location_transfer(rootdir):
                 maskSavePath = os.path.join(maskSavePath, dirNeed, fileNeed)
                 mask.save(maskSavePath)
 
-def built_dataset_csv(path):
+def built_Dataset_csv(path):
     ImageDatasetTable = pd.DataFrame(
         {
             "Patient":[],
@@ -349,25 +348,25 @@ def built_dataset_csv(path):
 
 if __name__ == '__main__':
     #image_location_transfer(r'C:\Users\83549\OneDrive\Documents\Research Data\Multi-institutional Paired Expert Segmentations MNI images-atlas-annotations')
-    # built_dataset_csv(r'C:\Users\RTX 3090\Desktop\WangYichong\U-net for Ivy Gap\data')
-    GBMDataset = Train_T1_AX_ImageDataSet(r'data', 'GBM_MRI_Dataset.csv')
-    GBMDataset2 = Train_T2_AX_ImageDataSet('data', 'GBM_MRI_Dataset.csv')
-    GBMDataset3 = Train_FLAIR_AX_ImageDataSet('data', 'GBM_MRI_Dataset.csv')
+    # built_Dataset_csv(r'C:\Users\RTX 3090\Desktop\WangYichong\U-net for Ivy Gap\data')
+    GBMDataset = Train_T1_AX_ImageDataset(r'data', 'GBM_MRI_Dataset.csv')
+    GBMDataset2 = Train_T2_AX_ImageDataset('data', 'GBM_MRI_Dataset.csv')
+    GBMDataset3 = Train_FLAIR_AX_ImageDataset('data', 'GBM_MRI_Dataset.csv')
 
     print(len(GBMDataset))
     print(len(GBMDataset2))
     print(len(GBMDataset3))
 
-    GBMDataset = Test_T1_AX_ImageDataSet(r'data', 'GBM_MRI_Dataset.csv')
-    GBMDataset2 = Test_T2_AX_ImageDataSet('data', 'GBM_MRI_Dataset.csv')
-    GBMDataset3 = Test_FLAIR_AX_ImageDataSet('data', 'GBM_MRI_Dataset.csv')
+    GBMDataset = Test_T1_AX_ImageDataset(r'data', 'GBM_MRI_Dataset.csv')
+    GBMDataset2 = Test_T2_AX_ImageDataset('data', 'GBM_MRI_Dataset.csv')
+    GBMDataset3 = Test_FLAIR_AX_ImageDataset('data', 'GBM_MRI_Dataset.csv')
     
     print(len(GBMDataset))
     print(len(GBMDataset2))
     print(len(GBMDataset3))
 
 
-    GBMDataset4 = Train_Stack_AX_ImageDataSet('data', 'GBM_MRI_Dataset.csv')
+    GBMDataset4 = Train_Stack_AX_ImageDataset('data', 'GBM_MRI_Dataset.csv')
     print(len(GBMDataset4))
     print(GBMDataset4[3][0].shape)
 

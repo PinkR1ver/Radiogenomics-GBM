@@ -34,7 +34,7 @@ if __name__ == '__main__':
 
     trainDataset, testDataset = torch.utils.data.random_split(fullTrainDataset, [trainSize, testSize])
 
-    batchSize = 1
+    batchSize = 4
 
     trainLoader = DataLoader(trainDataset, batch_size=batchSize, shuffle=True)
     testLoader = DataLoader(testDataset, batch_size=batchSize, shuffle=False)
@@ -53,35 +53,42 @@ if __name__ == '__main__':
     trainLossList = np.array([])
     trainSensitivityList = np.array([])
     trainSpecificityList = np.array([])
+
     while True:
 
-        if epoch % 2 == 0:
-            trainLossList_x = len(trainLossList)
-            fig = plt.figure(name="Train_Loss", figsize=(30, 30))
-            plt.title(f'epoch{epoch-1} - epoch{epoch}: Train Loss')
+        if epoch % 10 == 0:
+            trainLossList_x = np.arange(len(trainLossList))
+            fig = plt.figure(num="Train_Loss", figsize=(30, 30))
+            plt.title(f'epoch{epoch-9} - epoch{epoch-1}: Train Loss')
             plt.xlabel('Train Times')
             plt.ylabel('Train Loss')
             plt.plot(trainLossList_x, trainLossList)
             plt.legend(title='train loss', loc='upper right', labels='train loss')
-            plt.savefig(os.path.join(savePath, 'train_loss_monitor', f'epoch{epoch-1} - epoch{epoch}: Train Loss' + '.png'))
+            plt.savefig(os.path.join(savePath, 'train_loss_monitor', f'epoch{epoch-9} - epoch{epoch-1}_Train Loss.png'))
 
-            trainSensitivityList_x = len(trainSensitivityList)
-            fig = plt.figure(name="Train_Loss", figsize=(30, 30))
-            plt.title(f'epoch{epoch-1} - epoch{epoch}: Sensitivity')
+            trainSensitivityList_x = np.arange(len(trainSensitivityList))
+            fig = plt.figure(num="Train_Sensitivity", figsize=(30, 30))
+            plt.title(f'epoch{epoch-9} - epoch{epoch-1}: Sensitivity')
             plt.xlabel('Train Times')
             plt.ylabel('Sensitivity')
             plt.plot(trainSensitivityList_x, trainSensitivityList)
             plt.legend(title='sensitivity', loc='upper right', labels='sensitivity')
-            plt.savefig(os.path.join(savePath, 'train_sensitivity_monitor', f'epoch{epoch-1} - epoch{epoch}: Sensitivity' + '.png'))
+            plt.savefig(os.path.join(savePath, 'train_sensitivity_monitor', f'epoch{epoch-9} - epoch{epoch-1}_Sensitivity.png'))
 
-            trainSpecificityList_x = len(trainSpecificityList)
-            fig = plt.figure(name="Train_Loss", figsize=(30, 30))
-            plt.title(f'epoch{epoch-1} - epoch{epoch}: Specificity')
+            trainSpecificityList_x = np.arange(len(trainSpecificityList))
+            fig = plt.figure(num="Train_Specificity", figsize=(30, 30))
+            plt.title(f'epoch{epoch-9} - epoch{epoch-1}: Specificity')
             plt.xlabel('Train Times')
             plt.ylabel('Specificity')
             plt.plot(trainSpecificityList_x, trainSpecificityList)
             plt.legend(title='specificity', loc='upper right', labels='specificty')
-            plt.savefig(os.path.join(savePath, 'train_specificity_monitor', f'epoch{epoch-1} - epoch{epoch}: Specificity' + '.png'))
+            plt.savefig(os.path.join(savePath, 'train_specificity_monitor', f'epoch{epoch-9} - epoch{epoch-1}_Specificity.png'))
+
+            plt.close('all')
+            trainLossList = np.array([])
+            trainSensitivityList = np.array([])
+            trainSpecificityList = np.array([])
+
 
 
 
@@ -114,9 +121,14 @@ if __name__ == '__main__':
                     specificity += TN / (TN + FP)
                     iters += 1
 
-            if sensitivity != 0 and specificity != 0:
+            if sensitivity != 0:
                 trainSensitivityList = np.append(trainSensitivityList, np.array(sensitivity/iters))
+            else:
+                trainSensitivityList = np.append(trainSensitivityList, np.NaN)
+            if specificity != 0:
                 trainSpecificityList = np.append(trainSpecificityList, np.array(specificity/iters))
+            else:
+                trainSpecificityList = np.append(trainSpecificityList, np.NaN)
 
             opt.zero_grad()
             trainLoss.backward()
@@ -124,9 +136,14 @@ if __name__ == '__main__':
 
             if i % 5 == 0:
                 print(f'{epoch}-{i}_train loss=====>>{trainLoss.item()}')
-                if sensitivity != 0 and specificity != 0:
+                if sensitivity != 0:
                     print(f'{epoch}-{i}_sensitivity=====>>{sensitivity/iters}')
+                else:
+                    print(f'{epoch}-{i}_sensitivity=====>>{np.NaN}')
+                if specificity != 0:
                     print(f'{epoch}-{i}_sensitivity=====>>{specificity/iters}')
+                else:
+                    print(f'{epoch}-{i}_specificity=====>>{np.NaN}')
 
             if i % 50 == 0:
                 torch.save(net.state_dict(), T1WeightPath)

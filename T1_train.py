@@ -209,7 +209,7 @@ if __name__ == '__main__':
             plt.ylabel('Test Loss')
             plt.plot(testLossList_x, testLossList)
             plt.legend(title='test loss', loc='upper right', labels='test loss')
-            plt.savefig(os.path.join(predictPath, 'test_loss_monitor', f'test_times_{int(epoch/5)}_TestLoss.png'))
+            plt.savefig(os.path.join(predictPath, 'T1', 'test_loss_monitor', f'test_times_{int(epoch/5)}_TestLoss.png'))
             testSensitivityList_x = np.arange(len(testSensitivityList))
             fig = plt.figure(num="Test_Sensitivity", figsize=(30, 30))
             plt.title(f'test times {int(epoch/5)}: Sensitivity')
@@ -217,7 +217,7 @@ if __name__ == '__main__':
             plt.ylabel('Sensitivity')
             plt.plot(testSensitivityList_x, testSensitivityList)
             plt.legend(title='sensitivity', loc='upper right', labels='sensitivity')
-            plt.savefig(os.path.join(predictPath, 'test_sensitivity_monitor', f'test_times_{int(epoch/5)}_Sensitivity.png'))
+            plt.savefig(os.path.join(predictPath, 'T1', 'test_sensitivity_monitor', f'test_times_{int(epoch/5)}_Sensitivity.png'))
 
             testSpecificityList_x = np.arange(len(testSpecificityList))
             fig = plt.figure(num="Test_Specificity", figsize=(30, 30))
@@ -226,25 +226,25 @@ if __name__ == '__main__':
             plt.ylabel('Specificity')
             plt.plot(testSpecificityList_x, testSpecificityList)
             plt.legend(title='specificity', loc='upper right', labels='specificty')
-            plt.savefig(os.path.join(predictPath, 'test_specificity_monitor', f'test_times_{int(epoch/5)}_Specificity.png'))
+            plt.savefig(os.path.join(predictPath, 'T1', 'test_specificity_monitor', f'test_times_{int(epoch/5)}_Specificity.png'))
 
             plt.close('all')
 
-            f = open(os.path.join(predictPath, 'test_loss_monitor', 'log.txt'), "a")
+            f = open(os.path.join(predictPath, 'T1', 'test_loss_monitor', 'log.txt'), "a")
             f.write(f'test times {int(epoch/5)}:\n')
             for t_loss in testLossList:
                 f.write(f'{t_loss}\n')
             f.write('--------------------***--------------------\n\n\n')
             f.close()
 
-            f = open(os.path.join(predictPath, 'test_sensitivity_monitor', 'log.txt'), "a")
+            f = open(os.path.join(predictPath, 'T1', 'test_sensitivity_monitor', 'log.txt'), "a")
             f.write(f'test times {int(epoch/5)}:\n')
             for t_sen in testSensitivityList:
                 f.write(f'{t_sen}\n')
             f.write('--------------------***--------------------\n\n\n')
             f.close()
 
-            f = open(os.path.join(predictPath, 'test_specificity_monitor', 'log.txt'), "a")
+            f = open(os.path.join(predictPath, 'T1', 'test_specificity_monitor', 'log.txt'), "a")
             f.write(f'test times {int(epoch/5)}:\n')
             for t_spec in testSpecificityList:
                 f.write(f'{t_spec}\n')
@@ -271,7 +271,7 @@ if __name__ == '__main__':
         plt.ylabel('Train Loss')
         plt.plot(trainLossList_x, trainLossList)
         plt.legend(title='train loss', loc='upper right', labels='train loss')
-        plt.savefig(os.path.join(savePath, 'train_loss_monitor', f'epoch{epoch}_TrainLoss.png'))
+        plt.savefig(os.path.join(savePath, 'T1', 'train_loss_monitor', f'epoch{epoch}_TrainLoss.png'))
 
         trainSensitivityList_x = np.arange(len(trainSensitivityList))
         fig = plt.figure(num="Train_Sensitivity", figsize=(30, 30))
@@ -280,7 +280,7 @@ if __name__ == '__main__':
         plt.ylabel('Sensitivity')
         plt.plot(trainSensitivityList_x, trainSensitivityList)
         plt.legend(title='sensitivity', loc='upper right', labels='sensitivity')
-        plt.savefig(os.path.join(savePath, 'train_sensitivity_monitor', f'epoch{epoch}_Sensitivity.png'))
+        plt.savefig(os.path.join(savePath, 'T1', 'train_sensitivity_monitor', f'epoch{epoch}_Sensitivity.png'))
 
         trainSpecificityList_x = np.arange(len(trainSpecificityList))
         fig = plt.figure(num="Train_Specificity", figsize=(30, 30))
@@ -289,25 +289,25 @@ if __name__ == '__main__':
         plt.ylabel('Specificity')
         plt.plot(trainSpecificityList_x, trainSpecificityList)
         plt.legend(title='specificity', loc='upper right', labels='specificty')
-        plt.savefig(os.path.join(savePath, 'train_specificity_monitor', f'epoch{epoch}_Specificity.png'))
+        plt.savefig(os.path.join(savePath, 'T1', 'train_specificity_monitor', f'epoch{epoch}_Specificity.png'))
 
         plt.close('all')
 
-        f = open(os.path.join(savePath, 'train_loss_monitor', 'log.txt'), "a")
+        f = open(os.path.join(savePath, 'T1', 'train_loss_monitor', 'log.txt'), "a")
         f.write(f'epoch{epoch}:\n')
         for t_loss in trainLossList:
             f.write(f'{t_loss}\n')
         f.write('--------------------***--------------------\n\n\n')
         f.close()
 
-        f = open(os.path.join(savePath, 'train_sensitivity_monitor', 'log.txt'), "a")
+        f = open(os.path.join(savePath, 'T1', 'train_sensitivity_monitor', 'log.txt'), "a")
         f.write(f'epoch{epoch}:\n')
         for t_sen in trainSensitivityList:
             f.write(f'{t_sen}\n')
         f.write('--------------------***--------------------\n\n\n')
         f.close()
 
-        f = open(os.path.join(savePath, 'train_specificity_monitor', 'log.txt'), "a")
+        f = open(os.path.join(savePath, 'T1', 'train_specificity_monitor', 'log.txt'), "a")
         f.write(f'epoch{epoch}:\n')
         for t_spec in trainSpecificityList:
             f.write(f'{t_spec}\n')
@@ -331,7 +331,7 @@ if __name__ == '__main__':
             plt.ylabel('Train Loss')
             plt.plot(averageTrainLossList_x, averageTrainLossList)
             plt.legend(title='train loss', loc='upper right', labels='train loss')
-            plt.savefig(os.path.join(savePath, 'train_loss_monitor', f'epoch{epoch-19}_epoch{epoch}:_TrainLoss.png'))
+            plt.savefig(os.path.join(savePath, 'T1', 'train_loss_monitor', f'epoch{epoch-19}_epoch{epoch}:_TrainLoss.png'))
 
             averageTrainSensitivityList_x = np.arange(len(averageTrainSensitivityList))
             fig = plt.figure(num="Train_Sensitivity", figsize=(30, 30))
@@ -340,7 +340,7 @@ if __name__ == '__main__':
             plt.ylabel('Sensitivity')
             plt.plot(averageTrainSensitivityList_x, averageTrainSensitivityList)
             plt.legend(title='sensitivity', loc='upper right', labels='sensitivity')
-            plt.savefig(os.path.join(savePath, 'train_sensitivity_monitor', f'epoch{epoch-19}_epoch{epoch}_Sensitivity.png'))
+            plt.savefig(os.path.join(savePath, 'T1', 'train_sensitivity_monitor', f'epoch{epoch-19}_epoch{epoch}_Sensitivity.png'))
 
             averageTrainSpecificityList_x = np.arange(len(averageTrainSpecificityList))
             fig = plt.figure(num="Train_Specificity", figsize=(30, 30))
@@ -349,11 +349,11 @@ if __name__ == '__main__':
             plt.ylabel('Specificity')
             plt.plot(averageTrainSpecificityList_x, averageTrainSpecificityList)
             plt.legend(title='specificity', loc='upper right', labels='specificty')
-            plt.savefig(os.path.join(savePath, 'train_specificity_monitor', f'epoch{epoch-19}_epoch{epoch}_Specificity.png'))
+            plt.savefig(os.path.join(savePath, 'T1', 'train_specificity_monitor', f'epoch{epoch-19}_epoch{epoch}_Specificity.png'))
             
             plt.close('all')
 
-            f = open(os.path.join(savePath, 'train_loss_monitor', 'log.txt'), "a")
+            f = open(os.path.join(savePath, 'T1', 'train_loss_monitor', 'log.txt'), "a")
             f.write('***AVERAGE***\n')
             f.write(f'epoch{epoch-19} - epoch{epoch}:\n')
             for t_loss in averageTrainLossList:
@@ -361,7 +361,7 @@ if __name__ == '__main__':
             f.write('--------------------***--------------------\n\n\n')
             f.close()
 
-            f = open(os.path.join(savePath, 'train_sensitivity_monitor', 'log.txt'), "a")
+            f = open(os.path.join(savePath, 'T1', 'train_sensitivity_monitor', 'log.txt'), "a")
             f.write('***AVERAGE***\n')
             f.write(f'epoch{epoch-19} - epoch{epoch}:\n')
             for t_sen in averageTrainSensitivityList:
@@ -369,7 +369,7 @@ if __name__ == '__main__':
             f.write('--------------------***--------------------\n\n\n')
             f.close()
 
-            f = open(os.path.join(savePath, 'train_specificity_monitor', 'log.txt'), "a")
+            f = open(os.path.join(savePath, 'T1', 'train_specificity_monitor', 'log.txt'), "a")
             f.write('***AVERAGE***\n')
             f.write(f'epoch{epoch-19} - epoch{epoch}:\n')
             for t_spec in averageTrainSpecificityList:
@@ -389,7 +389,7 @@ if __name__ == '__main__':
             plt.ylabel('Test Loss')
             plt.plot(averageTestLossList_x, averageTestLossList)
             plt.legend(title='test loss', loc='upper right', labels='test loss')
-            plt.savefig(os.path.join(predictPath, 'test_loss_monitor', f'Already_epoch{epoch}:_TestLoss.png'))
+            plt.savefig(os.path.join(predictPath, 'T1', 'test_loss_monitor', f'Already_epoch{epoch}:_TestLoss.png'))
 
             averageTestSensitivityList_x = np.arange(len(averageTestSensitivityList))
             fig = plt.figure(num="Test_Sensitivity", figsize=(30, 30))
@@ -398,7 +398,7 @@ if __name__ == '__main__':
             plt.ylabel('Sensitivity')
             plt.plot(averageTestSensitivityList_x, averageTestSensitivityList)
             plt.legend(title='sensitivity', loc='upper right', labels='sensitivity')
-            plt.savefig(os.path.join(predictPath, 'test_sensitivity_monitor', f'Already epoch{epoch}_Sensitivity.png'))
+            plt.savefig(os.path.join(predictPath, 'T1', 'test_sensitivity_monitor', f'Already epoch{epoch}_Sensitivity.png'))
 
             averageTestSpecificityList_x = np.arange(len(averageTestSpecificityList))
             fig = plt.figure(num="Test_Specificity", figsize=(30, 30))
@@ -407,11 +407,11 @@ if __name__ == '__main__':
             plt.ylabel('Specificity')
             plt.plot(averageTestSpecificityList_x, averageTestSpecificityList)
             plt.legend(title='specificity', loc='upper right', labels='specificty')
-            plt.savefig(os.path.join(predictPath, 'test_specificity_monitor', f'Already epoch{epoch}_Specificity.png'))
+            plt.savefig(os.path.join(predictPath, 'T1', 'test_specificity_monitor', f'Already epoch{epoch}_Specificity.png'))
             
             plt.close('all')
 
-            f = open(os.path.join(predictPath, 'test_loss_monitor', 'log.txt'), "a")
+            f = open(os.path.join(predictPath, 'T1', 'test_loss_monitor', 'log.txt'), "a")
             f.write('***AVERAGE***\n')
             f.write(f'Already epoch{epoch}:\n')
             for t_loss in averageTestLossList:
@@ -419,7 +419,7 @@ if __name__ == '__main__':
             f.write('--------------------***--------------------\n\n\n')
             f.close()
 
-            f = open(os.path.join(predictPath, 'test_sensitivity_monitor', 'log.txt'), "a")
+            f = open(os.path.join(predictPath, 'T1', 'test_sensitivity_monitor', 'log.txt'), "a")
             f.write('***AVERAGE***\n')
             f.write(f'Already epoch{epoch}:\n')
             for t_sen in averageTestSensitivityList:
@@ -427,7 +427,7 @@ if __name__ == '__main__':
             f.write('--------------------***--------------------\n\n\n')
             f.close()
 
-            f = open(os.path.join(predictPath, 'test_specificity_monitor', 'log.txt'), "a")
+            f = open(os.path.join(predictPath, 'T1', 'test_specificity_monitor', 'log.txt'), "a")
             f.write('***AVERAGE***\n')
             f.write(f'Already epoch{epoch}:\n')
             for t_spec in averageTestSpecificityList:

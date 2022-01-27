@@ -7,6 +7,7 @@ from data import *
 from net import *
 import numpy as np
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 if torch.cuda.is_available():
     device = 'cuda'
@@ -226,35 +227,24 @@ if __name__ == '__main__':
 
             plt.close('all')
 
+
             #-----------------------------------------------------------------------------
-            # Test Monitor Data Plot
+            # Test Monitor Data Plot, histogram
 
-            testLossList_x = np.arange(len(testLossList))
             fig = plt.figure(num="Test_Loss", figsize=(30, 30))
+            sns.histplot(testLossList, stat="probability", kde=True)
             plt.title(f'test times {int(epoch/5)}: Test Loss')
-            plt.xlabel('Test Times')
-            plt.ylabel('Test Loss')
-            plt.plot(testLossList_x, np.sort(testLossList))
-            plt.legend(title='test loss', loc='upper right', labels='test loss')
-            plt.savefig(os.path.join(predictPath, 'T2', 'test_loss_monitor', f'test_times_{int(epoch/5)}_TestLoss_sort.png'))
+            plt.savefig(os.path.join(predictPath, 'T2', 'test_loss_monitor', f'test_times_{int(epoch/5)}_TestLoss_overview.png'))
             
-            testSensitivityList_x = np.arange(len(testSensitivityList))
             fig = plt.figure(num="Test_Sensitivity", figsize=(30, 30))
+            sns.histplot(testSensitivityList, stat="probability", kde=True)
             plt.title(f'test times {int(epoch/5)}: Sensitivity')
-            plt.xlabel('Test Times')
-            plt.ylabel('Sensitivity')
-            plt.plot(testSensitivityList_x, np.sort(testSensitivityList))
-            plt.legend(title='sensitivity', loc='upper right', labels='sensitivity')
-            plt.savefig(os.path.join(predictPath, 'T2', 'test_sensitivity_monitor', f'test_times_{int(epoch/5)}_Sensitivity_sort.png'))
+            plt.savefig(os.path.join(predictPath, 'T2', 'test_sensitivity_monitor', f'test_times_{int(epoch/5)}_Sensitivity_overview.png'))
 
-            testSpecificityList_x = np.arange(len(testSpecificityList))
             fig = plt.figure(num="Test_Specificity", figsize=(30, 30))
             plt.title(f'test times {int(epoch/5)}: Specificity')
-            plt.xlabel('Test Times')
-            plt.ylabel('Specificity')
-            plt.plot(testSpecificityList_x, np.sort(testSpecificityList))
-            plt.legend(title='specificity', loc='upper right', labels='specificty')
-            plt.savefig(os.path.join(predictPath, 'T2', 'test_specificity_monitor', f'test_times_{int(epoch/5)}_Specificity_sort.png'))
+            sns.histplot(testSpecificityList, stat="probability", kde=True)
+            plt.savefig(os.path.join(predictPath, 'T2', 'test_specificity_monitor', f'test_times_{int(epoch/5)}_Specificity_overview.png'))
 
             plt.close('all')
 
@@ -347,34 +337,22 @@ if __name__ == '__main__':
         f.close()
 
         #-----------------------------------------------------------------------------
-        # Train Monitor Data Plot - sort
+        # Train Monitor Data Plot - histogram
 
-        trainLossList_x = np.arange(len(trainLossList))
         fig = plt.figure(num="Train_Loss", figsize=(30, 30))
+        sns.histplot(trainLossList, stat="probability", kde=True)
         plt.title(f'epoch{epoch}: Train Loss')
-        plt.xlabel('Train Times')
-        plt.ylabel('Train Loss')
-        plt.plot(trainLossList_x, np.sort(trainLossList))
-        plt.legend(title='train loss', loc='upper right', labels='train loss')
-        plt.savefig(os.path.join(savePath, 'T2', 'train_loss_monitor', f'epoch{epoch}_TrainLoss_sort.png'))
+        plt.savefig(os.path.join(savePath, 'T2', 'train_loss_monitor', f'epoch{epoch}_TrainLoss_overview.png'))
 
-        trainSensitivityList_x = np.arange(len(trainSensitivityList))
         fig = plt.figure(num="Train_Sensitivity", figsize=(30, 30))
+        sns.histplot(trainSensitivityList, stat="probability", kde=True)
         plt.title(f'epoch{epoch}: Sensitivity')
-        plt.xlabel('Train Times')
-        plt.ylabel('Sensitivity')
-        plt.plot(trainSensitivityList_x, np.sort(trainSensitivityList))
-        plt.legend(title='sensitivity', loc='upper right', labels='sensitivity')
-        plt.savefig(os.path.join(savePath, 'T2', 'train_sensitivity_monitor', f'epoch{epoch}_Sensitivity_sort.png'))
+        plt.savefig(os.path.join(savePath, 'T2', 'train_sensitivity_monitor', f'epoch{epoch}_Sensitivity_overview.png'))
 
-        trainSpecificityList_x = np.arange(len(trainSpecificityList))
         fig = plt.figure(num="Train_Specificity", figsize=(30, 30))
+        sns.histplot(trainSpecificityList, stat="probability", kde=True)
         plt.title(f'epoch{epoch}: Specificity')
-        plt.xlabel('Train Times')
-        plt.ylabel('Specificity')
-        plt.plot(trainSpecificityList_x, np.sort(trainSpecificityList))
-        plt.legend(title='specificity', loc='upper right', labels='specificty')
-        plt.savefig(os.path.join(savePath, 'T2', 'train_specificity_monitor', f'epoch{epoch}_Specificity_sort.png'))
+        plt.savefig(os.path.join(savePath, 'T2', 'train_specificity_monitor', f'epoch{epoch}_Specificity_overview.png'))
 
         plt.close('all')
 

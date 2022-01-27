@@ -31,7 +31,7 @@ if __name__ == '__main__':
 
     trainDataset, testDataset = torch.utils.data.random_split(fullTrainDataset, [trainSize, testSize])
 
-    batchSize = 1
+    batchSize = 8
 
     trainLoader = DataLoader(trainDataset, batch_size=batchSize, shuffle=True)
     testLoader = DataLoader(testDataset, batch_size=batchSize, shuffle=False)
@@ -80,7 +80,7 @@ if __name__ == '__main__':
             specificity = 0
             iters = 0
 
-            for j in range(batchSize):
+            for j in range(outImage.size(dim=0)):
                 
                 predictMask_arr = torch.squeeze(outImage[j].cpu()).detach().numpy()
                 predictMask_arr[predictMask_arr > 0.5] = 1
@@ -146,7 +146,7 @@ if __name__ == '__main__':
                     specificity = 0
                     iters = 0
 
-                    for j in range(batchSize):
+                    for j in range(outImage.size(dim=0)):
                         
                         predictMask_arr = torch.squeeze(outImage[j].cpu()).detach().numpy()
                         predictMask_arr[predictMask_arr > 0.5] = 1
@@ -206,6 +206,7 @@ if __name__ == '__main__':
             plt.plot(testLossList_x, testLossList)
             plt.legend(title='test loss', loc='upper right', labels='test loss')
             plt.savefig(os.path.join(predictPath, 'T1', 'test_loss_monitor', f'test_times_{int(epoch/5)}_TestLoss.png'))
+            
             testSensitivityList_x = np.arange(len(testSensitivityList))
             fig = plt.figure(num="Test_Sensitivity", figsize=(30, 30))
             plt.title(f'test times {int(epoch/5)}: Sensitivity')
@@ -438,6 +439,6 @@ if __name__ == '__main__':
 
         epoch += 1
 
-        f = open(os.path.join(modelPath, 'epoch.txt'), "w")
+        f = open(os.path.join(modelPath, 'T1_epoch.txt'), "w")
         f.write(f'{epoch}')
         f.close()

@@ -31,7 +31,7 @@ if __name__ == '__main__':
 
     trainDataset, testDataset = torch.utils.data.random_split(fullTrainDataset, [trainSize, testSize])
 
-    batchSize = 1
+    batchSize = 8
 
     trainLoader = DataLoader(trainDataset, batch_size=batchSize, shuffle=True)
     testLoader = DataLoader(testDataset, batch_size=batchSize, shuffle=False)
@@ -438,6 +438,6 @@ if __name__ == '__main__':
 
         epoch += 1
 
-        f = open(os.path.join(modelPath, 'epoch.txt'), "w")
+        f = open(os.path.join(modelPath, 'T2_epoch.txt'), "w")
         f.write(f'{epoch}')
         f.close()

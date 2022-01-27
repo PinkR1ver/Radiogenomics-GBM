@@ -1,12 +1,8 @@
-from cProfile import label
 import os
-from sys import path
-from turtle import title
 from torch import nn, optim
 import torch
 from torch.utils.data import DataLoader
 import torchvision
-from torch.utils.data.sampler import SubsetRandomSampler
 from data import *
 from net import *
 import numpy as np

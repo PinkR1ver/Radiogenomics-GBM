@@ -1,12 +1,8 @@
-from cProfile import label
 import os
-from sys import path
-from turtle import title
 from torch import nn, optim
 import torch
 from torch.utils.data import DataLoader
 import torchvision
-from torch.utils.data.sampler import SubsetRandomSampler
 from data import *
 from net import *
 import numpy as np
@@ -188,7 +184,7 @@ if __name__ == '__main__':
                     else:
                         print(f'test-{int(epoch / 5)}-{i}_sensitivity=====>>{np.NaN}')
                     if specificity != 0:
-                        print(f'test-int(epoch / 5)-{i}_specificity=====>>{specificity/iters}')
+                        print(f'test-{int(epoch / 5)}-{i}_specificity=====>>{specificity/iters}')
                     else:
                         print(f'test-{int(epoch / 5)}-{i}_specificity=====>>{np.NaN}')
 

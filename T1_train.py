@@ -188,7 +188,7 @@ if __name__ == '__main__':
                     else:
                         print(f'test-{int(epoch / 5)}-{i}_sensitivity=====>>{np.NaN}')
                     if specificity != 0:
-                        print(f'test-int(epoch / 5)-{i}_specificity=====>>{specificity/iters}')
+                        print(f'test-{int(epoch / 5)}-{i}_specificity=====>>{specificity/iters}')
                     else:
                         print(f'test-{int(epoch / 5)}-{i}_specificity=====>>{np.NaN}')
 

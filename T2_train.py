@@ -226,6 +226,41 @@ if __name__ == '__main__':
 
             plt.close('all')
 
+            #-----------------------------------------------------------------------------
+            # Test Monitor Data Plot
+
+            testLossList_x = np.arange(len(testLossList))
+            fig = plt.figure(num="Test_Loss", figsize=(30, 30))
+            plt.title(f'test times {int(epoch/5)}: Test Loss')
+            plt.xlabel('Test Times')
+            plt.ylabel('Test Loss')
+            plt.plot(testLossList_x, np.sort(testLossList))
+            plt.legend(title='test loss', loc='upper right', labels='test loss')
+            plt.savefig(os.path.join(predictPath, 'T2', 'test_loss_monitor', f'test_times_{int(epoch/5)}_TestLoss_sort.png'))
+            
+            testSensitivityList_x = np.arange(len(testSensitivityList))
+            fig = plt.figure(num="Test_Sensitivity", figsize=(30, 30))
+            plt.title(f'test times {int(epoch/5)}: Sensitivity')
+            plt.xlabel('Test Times')
+            plt.ylabel('Sensitivity')
+            plt.plot(testSensitivityList_x, np.sort(testSensitivityList))
+            plt.legend(title='sensitivity', loc='upper right', labels='sensitivity')
+            plt.savefig(os.path.join(predictPath, 'T2', 'test_sensitivity_monitor', f'test_times_{int(epoch/5)}_Sensitivity_sort.png'))
+
+            testSpecificityList_x = np.arange(len(testSpecificityList))
+            fig = plt.figure(num="Test_Specificity", figsize=(30, 30))
+            plt.title(f'test times {int(epoch/5)}: Specificity')
+            plt.xlabel('Test Times')
+            plt.ylabel('Specificity')
+            plt.plot(testSpecificityList_x, np.sort(testSpecificityList))
+            plt.legend(title='specificity', loc='upper right', labels='specificty')
+            plt.savefig(os.path.join(predictPath, 'T2', 'test_specificity_monitor', f'test_times_{int(epoch/5)}_Specificity_sort.png'))
+
+            plt.close('all')
+
+            #------------------------------------------------------------------------------------------
+            # Write into log
+
             f = open(os.path.join(predictPath, 'T2', 'test_loss_monitor', 'log.txt'), "a")
             f.write(f'test times {int(epoch/5)}:\n')
             for t_loss in testLossList:
@@ -289,6 +324,7 @@ if __name__ == '__main__':
 
         plt.close('all')
 
+
         f = open(os.path.join(savePath, 'T2', 'train_loss_monitor', 'log.txt'), "a")
         f.write(f'epoch{epoch}:\n')
         for t_loss in trainLossList:
@@ -309,6 +345,42 @@ if __name__ == '__main__':
             f.write(f'{t_spec}\n')
         f.write('--------------------***--------------------\n\n\n')
         f.close()
+
+        #-----------------------------------------------------------------------------
+        # Train Monitor Data Plot - sort
+
+        trainLossList_x = np.arange(len(trainLossList))
+        fig = plt.figure(num="Train_Loss", figsize=(30, 30))
+        plt.title(f'epoch{epoch}: Train Loss')
+        plt.xlabel('Train Times')
+        plt.ylabel('Train Loss')
+        plt.plot(trainLossList_x, np.sort(trainLossList))
+        plt.legend(title='train loss', loc='upper right', labels='train loss')
+        plt.savefig(os.path.join(savePath, 'T2', 'train_loss_monitor', f'epoch{epoch}_TrainLoss_sort.png'))
+
+        trainSensitivityList_x = np.arange(len(trainSensitivityList))
+        fig = plt.figure(num="Train_Sensitivity", figsize=(30, 30))
+        plt.title(f'epoch{epoch}: Sensitivity')
+        plt.xlabel('Train Times')
+        plt.ylabel('Sensitivity')
+        plt.plot(trainSensitivityList_x, np.sort(trainSensitivityList))
+        plt.legend(title='sensitivity', loc='upper right', labels='sensitivity')
+        plt.savefig(os.path.join(savePath, 'T2', 'train_sensitivity_monitor', f'epoch{epoch}_Sensitivity_sort.png'))
+
+        trainSpecificityList_x = np.arange(len(trainSpecificityList))
+        fig = plt.figure(num="Train_Specificity", figsize=(30, 30))
+        plt.title(f'epoch{epoch}: Specificity')
+        plt.xlabel('Train Times')
+        plt.ylabel('Specificity')
+        plt.plot(trainSpecificityList_x, np.sort(trainSpecificityList))
+        plt.legend(title='specificity', loc='upper right', labels='specificty')
+        plt.savefig(os.path.join(savePath, 'T2', 'train_specificity_monitor', f'epoch{epoch}_Specificity_sort.png'))
+
+        plt.close('all')
+
+        # ---------------------------------------------------------------------------
+        # write into log
+
 
 
         averageTrainLossList = np.append(averageTrainLossList, trainLossList.sum()/len(trainLossList))

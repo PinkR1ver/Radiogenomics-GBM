@@ -80,7 +80,7 @@ if __name__ == '__main__':
             specificity = 0
             iters = 0
 
-            for j in range(batchSize):
+            for j in range(outImage.size(dim=0)):
                 
                 predictMask_arr = torch.squeeze(outImage[j].cpu()).detach().numpy()
                 predictMask_arr[predictMask_arr > 0.5] = 1
@@ -146,7 +146,7 @@ if __name__ == '__main__':
                     specificity = 0
                     iters = 0
 
-                    for j in range(batchSize):
+                    for j in range(outImage.size(dim=0)):
                         
                         predictMask_arr = torch.squeeze(outImage[j].cpu()).detach().numpy()
                         predictMask_arr[predictMask_arr > 0.5] = 1

@@ -273,8 +273,12 @@ if __name__ == '__main__':
             f.close()
 
             averageTestLossList = np.append(averageTestLossList, testLossList.sum()/len(testLossList))
-            averageTestSensitivityList = np.append(averageTestSensitivityList, testSensitivityList.sum()/len(testSensitivityList))
-            averageTestSpecificityList = np.append(averageTestSpecificityList, testSpecificityList.sum()/len(testSpecificityList))
+
+            remove_nan_testSensitivityList = testSensitivityList[~(np.isnan(testSensitivityList))]
+            averageTestSensitivityList = np.append(averageTestSensitivityList, remove_nan_testSensitivityList.sum()/len(remove_nan_testSensitivityList))
+            
+            remove_nan_testSpecificityList = testSpecificityList[~(np.isnan(testSpecificityList))]
+            averageTestSpecificityList = np.append(averageTestSpecificityList, remove_nan_testSpecificityList.sum()/len(remove_nan_testSpecificityList))
             
             testLossList = np.array([])
             testSensitivityList = np.array([])
@@ -360,10 +364,13 @@ if __name__ == '__main__':
         # write into log
 
 
-
         averageTrainLossList = np.append(averageTrainLossList, trainLossList.sum()/len(trainLossList))
-        averageTrainSensitivityList = np.append(averageTrainSensitivityList, trainSensitivityList.sum()/len(trainSensitivityList))
-        averageTrainSpecificityList = np.append(averageTrainSpecificityList, trainSpecificityList.sum()/len(trainSpecificityList))
+        
+        remove_nan_trainSensitivityList = trainSensitivityList[~(np.isnan(trainSensitivityList))]
+        averageTrainSensitivityList = np.append(averageTrainSensitivityList, remove_nan_trainSensitivityList.sum()/len(remove_nan_trainSensitivityList))
+
+        remove_nan_trainSpecificityList = trainSpecificityList[~(np.isnan(trainSpecificityList))]
+        averageTrainSpecificityList = np.append(averageTrainSpecificityList, remove_nan_trainSpecificityList.sum()/len(remove_nan_trainSpecificityList))
 
         trainLossList = np.array([])
         trainSensitivityList = np.array([])
@@ -377,7 +384,7 @@ if __name__ == '__main__':
             plt.ylabel('Train Loss')
             plt.plot(averageTrainLossList_x, averageTrainLossList)
             plt.legend(title='train loss', loc='upper right', labels='train loss')
-            plt.savefig(os.path.join(savePath, 'T2', 'train_loss_monitor', f'epoch{epoch-19}_epoch{epoch}:_TrainLoss.png'))
+            plt.savefig(os.path.join(savePath, 'T2', 'train_loss_monitor', f'epoch{epoch-19}_epoch{epoch}_TrainLoss.png'))
 
             averageTrainSensitivityList_x = np.arange(len(averageTrainSensitivityList))
             fig = plt.figure(num="Train_Sensitivity", figsize=(30, 30))
@@ -435,7 +442,7 @@ if __name__ == '__main__':
             plt.ylabel('Test Loss')
             plt.plot(averageTestLossList_x, averageTestLossList)
             plt.legend(title='test loss', loc='upper right', labels='test loss')
-            plt.savefig(os.path.join(predictPath, 'T2', 'test_loss_monitor', f'Already_epoch{epoch}:_TestLoss.png'))
+            plt.savefig(os.path.join(predictPath, 'T2', 'test_loss_monitor', f'Already_epoch{epoch}_TestLoss.png'))
 
             averageTestSensitivityList_x = np.arange(len(averageTestSensitivityList))
             fig = plt.figure(num="Test_Sensitivity", figsize=(30, 30))

@@ -375,7 +375,7 @@ if __name__ == '__main__':
             plt.ylabel('Train Loss')
             plt.plot(averageTrainLossList_x, averageTrainLossList)
             plt.legend(title='train loss', loc='upper right', labels='train loss')
-            plt.savefig(os.path.join(savePath, 'T1', 'train_loss_monitor', f'epoch{epoch-19}_epoch{epoch}:_TrainLoss.png'))
+            plt.savefig(os.path.join(savePath, 'T1', 'train_loss_monitor', f'epoch{epoch-19}_epoch{epoch}_TrainLoss.png'))
 
             averageTrainSensitivityList_x = np.arange(len(averageTrainSensitivityList))
             fig = plt.figure(num="Train_Sensitivity", figsize=(30, 30))

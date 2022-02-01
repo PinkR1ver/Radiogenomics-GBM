@@ -211,176 +211,205 @@ if __name__ == '__main__':
     #   plot average epoch's parameters (loss, sensitivity, specificity) every 100 epoch or something   #
     #---------------------------------------------------------------------------------------------------#
 
-    for iter_out in range(1000):
+    try:
+        for iter_out in range(1000):
 
-        for i, (image, mask) in enumerate(trainLoader):
+            for i, (image, mask) in enumerate(trainLoader):
 
-            #---------------------#
-            # The main train loop #
-            #---------------------#
+                #---------------------#
+                # The main train loop #
+                #---------------------#
 
-            image, mask = image.to(device), mask.to(device)
+                image, mask = image.to(device), mask.to(device)
 
-            outImage = net(image)
-            trainLoss = lossFunction(outImage, mask)
-            trainLossList.list_pushback(trainLoss.item())
+                outImage = net(image)
+                trainLoss = lossFunction(outImage, mask)
+                trainLossList.list_pushback(trainLoss.item())
 
-            sensitivity, specificity = sensitivity_and_specificity_calculation(
-                groundtruth=mask, predictImage=outImage)
-            trainSensitivityList.list_pushback(sensitivity)
-            trainSpecificityList.list_pushback(specificity)
+                sensitivity, specificity = sensitivity_and_specificity_calculation(
+                    groundtruth=mask, predictImage=outImage)
+                trainSensitivityList.list_pushback(sensitivity)
+                trainSpecificityList.list_pushback(specificity)
 
-            opt.zero_grad()
-            trainLoss.backward()
-            opt.step()
+                opt.zero_grad()
+                trainLoss.backward()
+                opt.step()
 
-            if i % 5 == 0:
-                print(f'{epoch}-{i}_train loss=====>>{trainLoss.item()}')
-                if sensitivity != 0:
-                    print(f'{epoch}-{i}_sensitivity=====>>{sensitivity/iters}')
-                else:
-                    print(f'{epoch}-{i}_sensitivity=====>>{np.NaN}')
-                if specificity != 0:
-                    print(f'{epoch}-{i}_specificity=====>>{specificity/iters}')
-                else:
-                    print(f'{epoch}-{i}_specificity=====>>{np.NaN}')
-
-            _image = image[0]
-            _mask = mask[0]
-            _outImage = outImage[0]
-
-            testImage = torch.stack([_image, _mask, _outImage], dim=0)
-            torchvision.utils.save_image(
-                testImage, os.path.join(savePath, MRI_series_this, f'{i}.png'))
-
-        # -----------------------------------------------------------------------------
-        # After a epoch, we will plot some histgram to monitor this epoch performance
-        # And write trainning data into epoch
-
-        trainLossList.list_plot(epoch)
-        trainSensitivityList.list_plot(epoch)
-        trainSpecificityList.list_plot(epoch)
-
-        trainLossList.list_write_into_log(epoch)
-        trainSensitivityList.list_write_into_log(epoch)
-        trainSpecificityList.list_write_into_log(epoch)
-
-        trainLossList.averageList_pushback()
-        trainSensitivityList.averageList_pushback()
-        trainSpecificityList.averageList_pushback()
-
-        # Init list again for next epoch
-
-        trainLossList.clear_list()
-        trainSensitivityList.clear_list()
-        trainSpecificityList.clear_list()
-
-        # -------------------------------------------------------------------------------
-        # for every 5 epoches, do a test epoch
-
-        if iter_out % 5 == 0:
-            print("\n-------------------------------------------------------\n")
-            with torch.no_grad():
-                for i, (image, mask) in enumerate(testLoader):
-                    image, mask = image.to(device), mask.to(device)
-
-                    outImage = net(image)
-                    testLoss = lossFunction(outImage, mask)
-                    testLossList.list_pushback(testLoss.item())
-
-                    sensitivity, specificity = sensitivity_and_specificity_calculation(
-                        groundtruth=mask, predictImage=outImage)
-
-                    testSensitivityList.list_pushback(sensitivity)
-                    testSpecificityList.list_pushback(specificity)
-
-                    _image = image[0]
-                    _mask = mask[0]
-                    _outImage = outImage[0]
-
-                    print(
-                        f'test-{int(iter_out / 5) + 1}_{i}_test_loss=====>>{testLoss.item()}')
-
+                if i % 5 == 0:
+                    print(f'{epoch}-{i}_train loss=====>>{trainLoss.item()}')
                     if sensitivity != 0:
                         print(
-                            f'test-{int(iter_out / 5) + 1}-{i}_sensitivity=====>>{sensitivity/iters}')
+                            f'{epoch}-{i}_sensitivity=====>>{sensitivity/iters}')
                     else:
-                        print(
-                            f'test-{int(iter_out / 5) + 1}-{i}_sensitivity=====>>{np.NaN}')
+                        print(f'{epoch}-{i}_sensitivity=====>>{np.NaN}')
                     if specificity != 0:
                         print(
-                            f'test-{int(iter_out / 5) + 1}-{i}_specificity=====>>{specificity/iters}')
+                            f'{epoch}-{i}_specificity=====>>{specificity/iters}')
                     else:
-                        print(
-                            f'test-{int(iter_out / 5) + 1}-{i}_specificity=====>>{np.NaN}')
+                        print(f'{epoch}-{i}_specificity=====>>{np.NaN}')
 
-                    testImage = torch.stack(
-                        [_image, _mask, _outImage], dim=0)
-                    torchvision.utils.save_image(
-                        testImage, os.path.join(predictPath, MRI_series_this, f'{i}.png'))
+                _image = image[0]
+                _mask = mask[0]
+                _outImage = outImage[0]
 
-            print("\n-------------------------------------------------------\n")
+                testImage = torch.stack([_image, _mask, _outImage], dim=0)
+                torchvision.utils.save_image(
+                    testImage, os.path.join(savePath, MRI_series_this, f'{i}.png'))
 
             # -----------------------------------------------------------------------------
-            # Test Monitor Data Plot and write into epoch
+            # After a epoch, we will plot some histgram to monitor this epoch performance
+            # And write trainning data into epoch
 
-            testLossList.list_plot(epoch)
-            testSensitivityList.list_plot(epoch)
-            testSpecificityList.list_plot(epoch)
+            trainLossList.list_plot(epoch)
+            trainSensitivityList.list_plot(epoch)
+            trainSpecificityList.list_plot(epoch)
 
-            testLossList.list_write_into_log(epoch)
-            testSensitivityList.list_write_into_log(epoch)
-            testSpecificityList.list_write_into_log(epoch)
+            trainLossList.list_write_into_log(epoch)
+            trainSensitivityList.list_write_into_log(epoch)
+            trainSpecificityList.list_write_into_log(epoch)
 
-            testLossList.averageList_pushback()
-            testSensitivityList.averageList_pushback()
-            testSpecificityList.averageList_pushback()
+            trainLossList.averageList_pushback()
+            trainSensitivityList.averageList_pushback()
+            trainSpecificityList.averageList_pushback()
 
             # Init list again for next epoch
 
-            testLossList.clear_list()
-            testSensitivityList.clear_list()
-            testSpecificityList.clear_list()
+            trainLossList.clear_list()
+            trainSensitivityList.clear_list()
+            trainSpecificityList.clear_list()
 
-        #---------------------------------------------------------------
-        # for every 100 epoches, we will plot the parameter change 
+            # -------------------------------------------------------------------------------
+            # for every 5 epoches, do a test epoch
 
+            if iter_out % 5 == 0:
+                print("\n-------------------------------------------------------\n")
+                with torch.no_grad():
+                    for i, (image, mask) in enumerate(testLoader):
+                        image, mask = image.to(device), mask.to(device)
 
-        if iter_out != 0 and iter_out % 100 == 0:
+                        outImage = net(image)
+                        testLoss = lossFunction(outImage, mask)
+                        testLossList.list_pushback(testLoss.item())
 
-            trainLossList.averageList_plot(epoch)
-            trainSensitivityList.averageList_plot(epoch)
-            trainSpecificityList.averageList_plot(epoch)
+                        sensitivity, specificity = sensitivity_and_specificity_calculation(
+                            groundtruth=mask, predictImage=outImage)
 
-            trainLossList.averageList_write_into_log(epoch)
-            trainSensitivityList.averageList_write_into_log(epoch)
-            trainSpecificityList.averageList_write_into_log(epoch)
+                        testSensitivityList.list_pushback(sensitivity)
+                        testSpecificityList.list_pushback(specificity)
 
-            trainLossList.clear_averageList()
-            trainSensitivityList.clear_averageList()
-            trainSpecificityList.clear_averageList()
+                        _image = image[0]
+                        _mask = mask[0]
+                        _outImage = outImage[0]
 
+                        print(
+                            f'test-{int(iter_out / 5) + 1}_{i}_test_loss=====>>{testLoss.item()}')
 
-            #also for the test part
+                        if sensitivity != 0:
+                            print(
+                                f'test-{int(iter_out / 5) + 1}-{i}_sensitivity=====>>{sensitivity/iters}')
+                        else:
+                            print(
+                                f'test-{int(iter_out / 5) + 1}-{i}_sensitivity=====>>{np.NaN}')
+                        if specificity != 0:
+                            print(
+                                f'test-{int(iter_out / 5) + 1}-{i}_specificity=====>>{specificity/iters}')
+                        else:
+                            print(
+                                f'test-{int(iter_out / 5) + 1}-{i}_specificity=====>>{np.NaN}')
 
-            testLossList.averageList_plot(epoch)
-            testSensitivityList.averageList_plot(epoch)
-            testSpecificityList.averageList_plot(epoch)
+                        testImage = torch.stack(
+                            [_image, _mask, _outImage], dim=0)
+                        torchvision.utils.save_image(
+                            testImage, os.path.join(predictPath, MRI_series_this, f'{i}.png'))
 
-            testLossList.averageList_write_into_log(epoch)
-            testSensitivityList.averageList_write_into_log(epoch)
-            testSpecificityList.averageList_write_into_log(epoch)
+                print("\n-------------------------------------------------------\n")
 
-            testLossList.clear_averageList()
-            testSensitivityList.clear_averageList()
-            testSpecificityList.clear_averageList()          
+                # -----------------------------------------------------------------------------
+                # Test Monitor Data Plot and write into epoch
 
-        # for every epoch end, save model and add epoch
-        
-        torch.save(net.state_dict(), weightPath)
+                testLossList.list_plot(epoch)
+                testSensitivityList.list_plot(epoch)
+                testSpecificityList.list_plot(epoch)
 
-        epoch += 1
+                testLossList.list_write_into_log(epoch)
+                testSensitivityList.list_write_into_log(epoch)
+                testSpecificityList.list_write_into_log(epoch)
 
-        f = open(os.path.join(modelPath, f'{MRI_series_this}_epoch.txt'), "w")
-        f.write(f'{epoch}')
+                testLossList.averageList_pushback()
+                testSensitivityList.averageList_pushback()
+                testSpecificityList.averageList_pushback()
+
+                # Init list again for next epoch
+
+                testLossList.clear_list()
+                testSensitivityList.clear_list()
+                testSpecificityList.clear_list()
+
+            # ---------------------------------------------------------------
+            # for every 100 epoches, we will plot the parameter change
+
+            if iter_out != 0 and iter_out % 100 == 0:
+
+                trainLossList.averageList_plot(epoch)
+                trainSensitivityList.averageList_plot(epoch)
+                trainSpecificityList.averageList_plot(epoch)
+
+                trainLossList.averageList_write_into_log(epoch)
+                trainSensitivityList.averageList_write_into_log(epoch)
+                trainSpecificityList.averageList_write_into_log(epoch)
+
+                trainLossList.clear_averageList()
+                trainSensitivityList.clear_averageList()
+                trainSpecificityList.clear_averageList()
+
+                # also for the test part
+
+                testLossList.averageList_plot(epoch)
+                testSensitivityList.averageList_plot(epoch)
+                testSpecificityList.averageList_plot(epoch)
+
+                testLossList.averageList_write_into_log(epoch)
+                testSensitivityList.averageList_write_into_log(epoch)
+                testSpecificityList.averageList_write_into_log(epoch)
+
+                testLossList.clear_averageList()
+                testSensitivityList.clear_averageList()
+                testSpecificityList.clear_averageList()
+
+            # for every epoch end, save model and add epoch
+
+            torch.save(net.state_dict(), weightPath)
+
+            epoch += 1
+
+            f = open(os.path.join(
+                modelPath, f'{MRI_series_this}_epoch.txt'), "w")
+            f.write(f'{epoch}')
+            f.close()
+
+    except:
+        print('Exception!!!')
+        if not os.path.isfile(os.path.join(dataPath, 'exception_in_training', f'{MRI_series_this}_log.txt')):
+            f = open(os.path.join(dataPath, 'exception_in_training',
+                     f'{MRI_series_this}_log.txt'), 'x')
+            f.close()
+        f = open(os.path.join(dataPath, 'exception_in_training',
+                 f'{MRI_series_this}_log.txt'), 'a')
+        f.write(f'exception in epoch{epoch}')
         f.close()
+
+        trainLossList.averageList_plot(epoch)
+        trainSensitivityList.averageList_plot(epoch)
+        trainSpecificityList.averageList_plot(epoch)
+
+        trainLossList.averageList_write_into_log(epoch)
+        trainSensitivityList.averageList_write_into_log(epoch)
+        trainSpecificityList.averageList_write_into_log(epoch)
+
+        testLossList.averageList_plot(epoch)
+        testSensitivityList.averageList_plot(epoch)
+        testSpecificityList.averageList_plot(epoch)
+
+        testLossList.averageList_write_into_log(epoch)
+        testSensitivityList.averageList_write_into_log(epoch)
+        testSpecificityList.averageList_write_into_log(epoch)

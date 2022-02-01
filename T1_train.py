@@ -10,6 +10,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import traceback
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
 
 MRI_series_this = 'T1'
 
@@ -19,6 +23,46 @@ modelPath = os.path.join(basePath, 'model')
 weightPath = os.path.join(modelPath, f'{MRI_series_this}_unet.pth')
 savePath = os.path.join(dataPath, 'train_monitor_image_AX')
 predictPath = os.path.join(dataPath, 'test_image_AX')
+
+def sendmail(content, subject):
+    # setting mail server information
+    mail_host = 'smtp.gmail.com'
+
+    # password
+    mail_pass = 'xxxx'
+
+    # sender mail
+    sender = 'xxxx@gmail.comc'
+
+    # receiver mail, you can set a lots of receiver mails in a list
+    receivers = ['xxxx@qq.com']
+
+    # message information
+
+    message = MIMEMultipart()
+    message.attach(MIMEText(content, 'plain', 'utf-8'))
+
+    message['Subject'] = subject
+
+    message['From'] = sender
+
+    message['To'] = receivers[0]
+
+    # try send mail
+    try:
+        # login and send
+        smtpObj = smtplib.SMTP_SSL(mail_host, 587)
+
+        smtpObj.login(sender, mail_pass)
+        smtpObj.sendmail(
+            sender, receivers, message.as_string())
+
+        smtpObj.quit()
+        
+        print('send success')
+    except smtplib.SMTPException as e:
+        print('sending error', e)  
+        smtpObj.quit()
 
 
 def sensitivity_and_specificity_calculation(groundtruth: torch.Tensor, predictImage: torch.Tensor):
@@ -415,3 +459,5 @@ if __name__ == '__main__':
         testLossList.averageList_write_into_log(epoch)
         testSensitivityList.averageList_write_into_log(epoch)
         testSpecificityList.averageList_write_into_log(epoch)
+
+        sendmail(content=r'Your train.py went something wrong', subject=r'train.py go wrong')

@@ -1,0 +1,28 @@
+exception in epoch1exception in epoch1
+Traceback (most recent call last):
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\T1_train.py", line 243, in <module>
+    f'{epoch}-{i}_sensitivity=====>>{sensitivity/iters}')
+NameError: name 'iters' is not defined
+
+exception in epoch1
+Traceback (most recent call last):
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\T1_train.py", line 243, in <module>
+    f'{epoch}-{i}_sensitivity=====>>{sensitivity/iters}')
+NameError: name 'iters' is not defined
+
+exception in epoch1
+Traceback (most recent call last):
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\T1_train.py", line 257, in <module>
+    torchvision.utils.save_image(
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\torch\autograd\grad_mode.py", line 28, in decorate_context
+    return func(*args, **kwargs)
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\torchvision\utils.py", line 134, in save_image
+    ndarr = grid.mul(255).add_(0.5).clamp_(0, 255).permute(1, 2, 0).to('cpu', torch.uint8).numpy()
+KeyboardInterrupt
+
+exception in epoch1
+Traceback (most recent call last):
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\T1_train.py", line 228, in <module>
+    trainLossList.list_pushback(trainLoss.item())
+KeyboardInterrupt
+

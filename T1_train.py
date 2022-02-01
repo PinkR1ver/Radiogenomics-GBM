@@ -9,6 +9,7 @@ from net import *
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+import traceback
 
 MRI_series_this = 'T1'
 
@@ -99,7 +100,7 @@ class trainHelper():
                 start=self.begin, stop=self.begin + 20 * len(self.averageList), step=20)
         else:
             averageList_x = np.arange(
-                start=self.begin(), stop=self.begin + len(self.averageList))
+                start=self.begin, stop=self.begin + len(self.averageList))
         fig = plt.figure(figsize=(6, 6))
         plt.title(
             f'epoch{self.begin} - epoch{epoch}: {self.monitor_para.capitalize()}')
@@ -129,7 +130,7 @@ class trainHelper():
                 start=self.begin, stop=self.begin + 20 * len(self.averageList), step=20)
         else:
             averageList_x = np.arange(
-                start=self.begin(), stop=self.begin + len(self.averageList))
+                start=self.begin, stop=self.begin + len(self.averageList))
         if not os.path.isfile(os.path.join(savePath if self.train_or_test == 'train' else predictPath, MRI_series_this, f'{self.train_or_test}_{self.monitor_para}_monitor', f'log.txt')):
             f = open(os.path.join(savePath if self.train_or_test == 'train' else predictPath, MRI_series_this,
                      f'{self.train_or_test}_{self.monitor_para}_monitor', 'log.txt'), "x")
@@ -239,12 +240,12 @@ if __name__ == '__main__':
                     print(f'{epoch}-{i}_train loss=====>>{trainLoss.item()}')
                     if sensitivity != 0:
                         print(
-                            f'{epoch}-{i}_sensitivity=====>>{sensitivity/iters}')
+                            f'{epoch}-{i}_sensitivity=====>>{sensitivity}')
                     else:
                         print(f'{epoch}-{i}_sensitivity=====>>{np.NaN}')
                     if specificity != 0:
                         print(
-                            f'{epoch}-{i}_specificity=====>>{specificity/iters}')
+                            f'{epoch}-{i}_specificity=====>>{specificity}')
                     else:
                         print(f'{epoch}-{i}_specificity=====>>{np.NaN}')
 
@@ -306,13 +307,13 @@ if __name__ == '__main__':
 
                         if sensitivity != 0:
                             print(
-                                f'test-{int(iter_out / 5) + 1}-{i}_sensitivity=====>>{sensitivity/iters}')
+                                f'test-{int(iter_out / 5) + 1}-{i}_sensitivity=====>>{sensitivity}')
                         else:
                             print(
                                 f'test-{int(iter_out / 5) + 1}-{i}_sensitivity=====>>{np.NaN}')
                         if specificity != 0:
                             print(
-                                f'test-{int(iter_out / 5) + 1}-{i}_specificity=====>>{specificity/iters}')
+                                f'test-{int(iter_out / 5) + 1}-{i}_specificity=====>>{specificity}')
                         else:
                             print(
                                 f'test-{int(iter_out / 5) + 1}-{i}_specificity=====>>{np.NaN}')
@@ -389,13 +390,14 @@ if __name__ == '__main__':
 
     except:
         print('Exception!!!')
-        if not os.path.isfile(os.path.join(dataPath, 'exception_in_training', f'{MRI_series_this}_log.txt')):
-            f = open(os.path.join(dataPath, 'exception_in_training',
-                     f'{MRI_series_this}_log.txt'), 'x')
+        if not os.path.isfile(os.path.join(dataPath, 'exception_in_trainning', f'{MRI_series_this}_log.txt')):
+            f = open(os.path.join(dataPath, 'exception_in_trainning', f'{MRI_series_this}_log.txt'), 'x')
             f.close()
-        f = open(os.path.join(dataPath, 'exception_in_training',
+        f = open(os.path.join(dataPath, 'exception_in_trainning',
                  f'{MRI_series_this}_log.txt'), 'a')
-        f.write(f'exception in epoch{epoch}')
+        f.write(f'exception in epoch{epoch}\n')
+        f.write(traceback.format_exc())
+        f.write('\n')
         f.close()
 
         trainLossList.averageList_plot(epoch)

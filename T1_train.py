@@ -29,40 +29,42 @@ def sendmail(content, subject):
     mail_host = 'smtp.gmail.com'
 
     # password
-    mail_pass = 'xxxx'
+    mail_pass = 'xxxxxx'
 
     # sender mail
-    sender = 'xxxx@gmail.comc'
+    sender = 'pinkr1veroops@gmail.com'
 
     # receiver mail, you can set a lots of receiver mails in a list
-    receivers = ['xxxx@qq.com']
+    receivers = ['pinkr1veroops@gmail.com']
 
     # message information
 
-    message = MIMEMultipart()
-    message.attach(MIMEText(content, 'plain', 'utf-8'))
+    for i in range(len(receivers)):
 
-    message['Subject'] = subject
+        message = MIMEMultipart()
+        message.attach(MIMEText(content, 'plain', 'utf-8'))
 
-    message['From'] = sender
+        message['Subject'] = subject
 
-    message['To'] = receivers[0]
+        message['From'] = sender
 
-    # try send mail
-    try:
-        # login and send
-        smtpObj = smtplib.SMTP_SSL(mail_host, 587)
+        message['To'] = receivers[i]
 
-        smtpObj.login(sender, mail_pass)
-        smtpObj.sendmail(
-            sender, receivers, message.as_string())
+        # try send mail
+        try:
+            # login and send
+            smtpObj = smtplib.SMTP_SSL(mail_host, 587)
 
-        smtpObj.quit()
-        
-        print('send success')
-    except smtplib.SMTPException as e:
-        print('sending error', e)  
-        smtpObj.quit()
+            smtpObj.login(sender, mail_pass)
+            smtpObj.sendmail(
+                sender, receivers, message.as_string())
+
+            smtpObj.quit()
+            
+            print('send success')
+        except smtplib.SMTPException as e:
+            print('sending error', e)  
+            smtpObj.quit()
 
 
 def sensitivity_and_specificity_calculation(groundtruth: torch.Tensor, predictImage: torch.Tensor):

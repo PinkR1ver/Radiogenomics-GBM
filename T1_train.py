@@ -29,10 +29,10 @@ def sendmail(content, subject):
     mail_host = 'smtp.gmail.com'
 
     # password
-    mail_pass = 'xxxxxx'
+    mail_pass = '*******'
 
     # sender mail
-    sender = 'pinkr1veroops@gmail.com'
+    sender = 'fakelspwang@gmail.com'
 
     # receiver mail, you can set a lots of receiver mails in a list
     receivers = ['pinkr1veroops@gmail.com']
@@ -53,7 +53,7 @@ def sendmail(content, subject):
         # try send mail
         try:
             # login and send
-            smtpObj = smtplib.SMTP_SSL(mail_host, 587)
+            smtpObj = smtplib.SMTP_SSL(mail_host, 465)
 
             smtpObj.login(sender, mail_pass)
             smtpObj.sendmail(
@@ -119,7 +119,7 @@ class trainHelper():
     def averageList_pushback(self):
         self.delete_nan_list()
         self.averageList = np.append(
-            self.averageList, self.list / len(self.list))
+            self.averageList, self.list.sum() / len(self.list))
 
     def clear_list(self):
         self.list = np.array([])
@@ -198,6 +198,8 @@ else:
     print("Using CPU")
 
 if __name__ == '__main__':
+
+
     #--------------------------------------------------------------#
     #   Load data and init some list to monitor processing         #
     #                                                              #
@@ -259,7 +261,7 @@ if __name__ == '__main__':
     #---------------------------------------------------------------------------------------------------#
 
     try:
-        for iter_out in range(1000):
+        for iter_out in range(1001):
 
             for i, (image, mask) in enumerate(trainLoader):
 
@@ -436,10 +438,10 @@ if __name__ == '__main__':
 
     except:
         print('Exception!!!')
-        if not os.path.isfile(os.path.join(dataPath, 'exception_in_trainning', f'{MRI_series_this}_log.txt')):
-            f = open(os.path.join(dataPath, 'exception_in_trainning', f'{MRI_series_this}_log.txt'), 'x')
+        if not os.path.isfile(os.path.join(basePath, 'exception_in_trainning', f'{MRI_series_this}_log.txt')):
+            f = open(os.path.join(basePath, 'exception_in_trainning', f'{MRI_series_this}_log.txt'), 'x')
             f.close()
-        f = open(os.path.join(dataPath, 'exception_in_trainning',
+        f = open(os.path.join(basePath, 'exception_in_trainning',
                  f'{MRI_series_this}_log.txt'), 'a')
         f.write(f'exception in epoch{epoch}\n')
         f.write(traceback.format_exc())
@@ -463,3 +465,25 @@ if __name__ == '__main__':
         testSpecificityList.averageList_write_into_log(epoch)
 
         sendmail(content=r'Your train.py went something wrong', subject=r'train.py go wrong')
+    
+    else:
+        print("Train finishing")
+        if trainLossList.averageList.size != 0:
+            trainLossList.averageList_plot(epoch)
+            trainSensitivityList.averageList_plot(epoch)
+            trainSpecificityList.averageList_plot(epoch)
+
+            trainLossList.averageList_write_into_log(epoch)
+            trainSensitivityList.averageList_write_into_log(epoch)
+            trainSpecificityList.averageList_write_into_log(epoch)
+        
+        if testLossList.averageList.size != 0:
+            testLossList.averageList_plot(epoch)
+            testSensitivityList.averageList_plot(epoch)
+            testSpecificityList.averageList_plot(epoch)
+
+            testLossList.averageList_write_into_log(epoch)
+            testSensitivityList.averageList_write_into_log(epoch)
+            testSpecificityList.averageList_write_into_log(epoch)
+
+        sendmail(content=r'Your train.py run success', subject=r'train.py finished')

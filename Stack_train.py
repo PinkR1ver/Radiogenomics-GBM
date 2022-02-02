@@ -15,7 +15,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 
-MRI_series_this = 'T2'
+MRI_series_this = 'Stack'
 
 basePath = r''
 dataPath = os.path.join(basePath, 'data')
@@ -29,7 +29,7 @@ def sendmail(content, subject):
     mail_host = 'smtp.gmail.com'
 
     # password
-    mail_pass = '*******'
+    mail_pass = '******'
 
     # sender mail
     sender = 'fakelspwang@gmail.com'
@@ -206,7 +206,7 @@ if __name__ == '__main__':
     #                                                              #
     #--------------------------------------------------------------#
 
-    fullTrainDataset = Train_T2_AX_ImageDataset(
+    fullTrainDataset = Train_Stack_AX_ImageDataset(
         dataPath, 'GBM_MRI_Dataset.csv')
     trainingDataSize = 0.8
 
@@ -221,7 +221,7 @@ if __name__ == '__main__':
     trainLoader = DataLoader(trainDataset, batch_size=batchSize, shuffle=True)
     testLoader = DataLoader(testDataset, batch_size=batchSize, shuffle=False)
 
-    net = UNet().to(device)
+    net = UNet_three_in().to(device)
     if os.path.exists(weightPath):
         net.load_state_dict(torch.load(weightPath))
         print("Loading Weight Successful")

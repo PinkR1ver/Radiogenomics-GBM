@@ -1,0 +1,6 @@
+exception in epoch1
+Traceback (most recent call last):
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\Stack_train.py", line 264, in <module>
+    for iter_out in raFnge(1001):
+NameError: name 'raFnge' is not defined
+

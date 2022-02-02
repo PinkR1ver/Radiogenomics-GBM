@@ -29,7 +29,7 @@ def sendmail(content, subject):
     mail_host = 'smtp.gmail.com'
 
     # password
-    mail_pass = '******'
+    mail_pass = '*******'
 
     # sender mail
     sender = 'fakelspwang@gmail.com'
@@ -143,7 +143,7 @@ class trainHelper():
     def averageList_plot(self, epoch):
         if self.train_or_test == 'test':
             averageList_x = np.arange(
-                start=self.begin, stop=self.begin + 20 * len(self.averageList), step=20)
+                start=self.begin, stop=self.begin + 5 * len(self.averageList), step=20)
         else:
             averageList_x = np.arange(
                 start=self.begin, stop=self.begin + len(self.averageList))
@@ -173,7 +173,7 @@ class trainHelper():
     def averageList_write_into_log(self, epoch):
         if self.train_or_test == 'test':
             averageList_x = np.arange(
-                start=self.begin, stop=self.begin + 20 * len(self.averageList), step=20)
+                start=self.begin, stop=self.begin + 5 * len(self.averageList), step=20)
         else:
             averageList_x = np.arange(
                 start=self.begin, stop=self.begin + len(self.averageList))
@@ -298,8 +298,8 @@ if __name__ == '__main__':
                         print(f'{epoch}-{i}_specificity=====>>{np.NaN}')
 
                 _image = image[0]
-                _mask = mask[0]
-                _outImage = outImage[0]
+                _mask = gray2RGB(mask[0])
+                _outImage = gray2RGB(outImage[0])
 
                 testImage = torch.stack([_image, _mask, _outImage], dim=0)
                 torchvision.utils.save_image(
@@ -347,8 +347,8 @@ if __name__ == '__main__':
                         testSpecificityList.list_pushback(specificity)
 
                         _image = image[0]
-                        _mask = mask[0]
-                        _outImage = outImage[0]
+                        _mask = gray2RGB(mask[0])
+                        _outImage = gray2RGB(outImage[0])
 
                         print(
                             f'test-{int(iter_out / 5) + 1}_{i}_test_loss=====>>{testLoss.item()}')
@@ -448,21 +448,23 @@ if __name__ == '__main__':
         f.write('\n')
         f.close()
 
-        trainLossList.averageList_plot(epoch)
-        trainSensitivityList.averageList_plot(epoch)
-        trainSpecificityList.averageList_plot(epoch)
+        if trainLossList.averageList.size != 0:
+            trainLossList.averageList_plot(epoch)
+            trainSensitivityList.averageList_plot(epoch)
+            trainSpecificityList.averageList_plot(epoch)
 
-        trainLossList.averageList_write_into_log(epoch)
-        trainSensitivityList.averageList_write_into_log(epoch)
-        trainSpecificityList.averageList_write_into_log(epoch)
+            trainLossList.averageList_write_into_log(epoch)
+            trainSensitivityList.averageList_write_into_log(epoch)
+            trainSpecificityList.averageList_write_into_log(epoch)
+        
+        if testLossList.averageList.size != 0:
+            testLossList.averageList_plot(epoch)
+            testSensitivityList.averageList_plot(epoch)
+            testSpecificityList.averageList_plot(epoch)
 
-        testLossList.averageList_plot(epoch)
-        testSensitivityList.averageList_plot(epoch)
-        testSpecificityList.averageList_plot(epoch)
-
-        testLossList.averageList_write_into_log(epoch)
-        testSensitivityList.averageList_write_into_log(epoch)
-        testSpecificityList.averageList_write_into_log(epoch)
+            testLossList.averageList_write_into_log(epoch)
+            testSensitivityList.averageList_write_into_log(epoch)
+            testSpecificityList.averageList_write_into_log(epoch)
 
         sendmail(content=r'Your train.py went something wrong', subject=r'train.py go wrong')
     

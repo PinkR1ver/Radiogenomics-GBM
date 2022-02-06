@@ -143,7 +143,7 @@ class trainHelper():
     def averageList_plot(self, epoch):
         if self.train_or_test == 'test':
             averageList_x = np.arange(
-                start=self.begin, stop=self.begin + 20 * len(self.averageList), step=20)
+                start=self.begin, stop=self.begin + 20 * len(self.averageList), step=5)
         else:
             averageList_x = np.arange(
                 start=self.begin, stop=self.begin + len(self.averageList))
@@ -173,7 +173,7 @@ class trainHelper():
     def averageList_write_into_log(self, epoch):
         if self.train_or_test == 'test':
             averageList_x = np.arange(
-                start=self.begin, stop=self.begin + 20 * len(self.averageList), step=20)
+                start=self.begin, stop=self.begin + 20 * len(self.averageList), step=5)
         else:
             averageList_x = np.arange(
                 start=self.begin, stop=self.begin + len(self.averageList))

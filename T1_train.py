@@ -11,7 +11,7 @@ import trainHelper
 
 MRI_series_this = 'T1'
 
-basePath = r''
+basePath = os.path.dirname(__file__)
 dataPath = os.path.join(basePath, 'data')
 modelPath = os.path.join(basePath, 'model')
 weightPath = os.path.join(modelPath, f'{MRI_series_this}_unet.pth')

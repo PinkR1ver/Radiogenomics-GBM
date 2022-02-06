@@ -1,5 +1,4 @@
 import os
-import string
 from torch import nn, optim
 import torch
 from torch.utils.data import DataLoader

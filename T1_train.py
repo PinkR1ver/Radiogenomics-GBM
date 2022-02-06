@@ -6,12 +6,7 @@ import torchvision
 from data import *
 from net import *
 import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
 import traceback
-import smtplib
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
 import trainHelper
 
 MRI_series_this = 'T1'
@@ -109,7 +104,7 @@ if __name__ == '__main__':
                 trainLoss = lossFunction(outImage, mask)
                 trainLossList.list_pushback(trainLoss.item())
 
-                sensitivity, specificity = sensitivity_and_specificity_calculation(
+                sensitivity, specificity = trainHelper.sensitivity_and_specificity_calculation(
                     groundtruth=mask, predictImage=outImage)
                 trainSensitivityList.list_pushback(sensitivity)
                 trainSpecificityList.list_pushback(specificity)
@@ -174,7 +169,7 @@ if __name__ == '__main__':
                         testLoss = lossFunction(outImage, mask)
                         testLossList.list_pushback(testLoss.item())
 
-                        sensitivity, specificity = sensitivity_and_specificity_calculation(
+                        sensitivity, specificity = trainHelper.sensitivity_and_specificity_calculation(
                             groundtruth=mask, predictImage=outImage)
 
                         testSensitivityList.list_pushback(sensitivity)

@@ -7,11 +7,11 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-__basePath = r''
-__dataPath = os.path.join(__basePath, 'data')
-__modelPath = os.path.join(__basePath, 'model')
-__savePath = os.path.join(__dataPath, 'train_monitor_image_AX')
-__predictPath = os.path.join(__dataPath, 'test_image_AX')
+basePath = os.path.dirname(__file__)
+dataPath = os.path.join(basePath, 'data')
+modelPath = os.path.join(basePath, 'model')
+savePath = os.path.join(dataPath, 'train_monitor_image_AX')
+predictPath = os.path.join(dataPath, 'test_image_AX')
 
 def sendmail(content, subject):
     # setting mail server information
@@ -126,7 +126,7 @@ class trainHelper():
         plt.title(
             f'{self.train_or_test}_epoch{epoch}:{self.monitor_para.capitalize()}')
         plt.xlabel(self.monitor_para.capitalize())
-        plt.savefig(os.path.join(__savePath if self.train_or_test == 'train' else __predictPath, self.MRI_series_this,
+        plt.savefig(os.path.join(savePath if self.train_or_test == 'train' else predictPath, self.MRI_series_this,
                     f'{self.train_or_test}_{self.monitor_para}_monitor', f'epoch{epoch}_{self.monitor_para.capitalize()}.png'))
         plt.close(fig)
 
@@ -143,16 +143,16 @@ class trainHelper():
         plt.xlabel('epoch')
         plt.ylabel(self.monitor_para)
         plt.plot(averageList_x, self.averageList)
-        plt.savefig(os.path.join(__savePath if self.train_or_test == 'train' else __predictPath, self.MRI_series_this, f'{self.train_or_test}_{self.monitor_para}_monitor',
+        plt.savefig(os.path.join(savePath if self.train_or_test == 'train' else predictPath, self.MRI_series_this, f'{self.train_or_test}_{self.monitor_para}_monitor',
                     f'epoch{self.begin}_epoch{epoch}_{self.monitor_para.capitalize()}.png'))
         plt.close(fig)
 
     def list_write_into_log(self, epoch):
-        if not os.path.isfile(os.path.join(__savePath if self.train_or_test == 'train' else __predictPath, self.MRI_series_this, f'{self.train_or_test}_{self.monitor_para}_monitor', f'log_epoch{epoch}.txt')):
-            f = open(os.path.join(__savePath if self.train_or_test == 'train' else __predictPath, self.MRI_series_this,
+        if not os.path.isfile(os.path.join(savePath if self.train_or_test == 'train' else predictPath, self.MRI_series_this, f'{self.train_or_test}_{self.monitor_para}_monitor', f'log_epoch{epoch}.txt')):
+            f = open(os.path.join(savePath if self.train_or_test == 'train' else predictPath, self.MRI_series_this,
                      f'{self.train_or_test}_{self.monitor_para}_monitor', f'log_epoch{epoch}.txt'), "x")
             f.close()
-        f = open(os.path.join(__savePath if self.train_or_test == 'train' else __predictPath, self.MRI_series_this,
+        f = open(os.path.join(savePath if self.train_or_test == 'train' else predictPath, self.MRI_series_this,
                               f'{self.train_or_test}_{self.monitor_para}_monitor', f'log_epoch{epoch}.txt'), "w")
         f.write(f'epoch{epoch}:\n')
         for monitor_para_ in self.list:
@@ -167,17 +167,14 @@ class trainHelper():
         else:
             averageList_x = np.arange(
                 start=self.begin, stop=self.begin + len(self.averageList))
-        if not os.path.isfile(os.path.join(__savePath if self.train_or_test == 'train' else __predictPath, self.MRI_series_this, f'{self.train_or_test}_{self.monitor_para}_monitor', f'log.txt')):
-            f = open(os.path.join(__savePath if self.train_or_test == 'train' else __predictPath, self.MRI_series_this,
+        if not os.path.isfile(os.path.join(savePath if self.train_or_test == 'train' else predictPath, self.MRI_series_this, f'{self.train_or_test}_{self.monitor_para}_monitor', f'log.txt')):
+            f = open(os.path.join(savePath if self.train_or_test == 'train' else predictPath, self.MRI_series_this,
                      f'{self.train_or_test}_{self.monitor_para}_monitor', 'log.txt'), "x")
             f.close()
-        f = open(os.path.join(__savePath if self.train_or_test == 'train' else __predictPath, self.MRI_series_this,
+        f = open(os.path.join(savePath if self.train_or_test == 'train' else predictPath, self.MRI_series_this,
                               f'{self.train_or_test}_{self.monitor_para}_monitor', 'log.txt'), "a")
         f.write(f'epoch{self.begin}-epoch{epoch}:\n')
         for i, monitor_para_ in enumerate(self.averageList):
             f.write(f'epoch{averageList_x[i]}:{monitor_para_}\n')
         f.write('\n')
         f.close()
-
-if __name__ == '__main__':
-    pass

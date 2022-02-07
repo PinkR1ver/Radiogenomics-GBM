@@ -44,7 +44,8 @@ iters = 0
 cmat_all = np.array([[0, 0],[0, 0]])
 
 if __name__ == '__main__':
-    PredictDataset = Test_T1_AX_ImageDataset(dataPath, 'GBM_MRI_Dataset.csv')
+    PredictDataset = eval(f'Test_{MRI_series_this}_AX_ImageDataset(dataPath, \'GBM_MRI_Dataset.csv\')')
+    print(len(PredictDataset))
     PredictDataLoader = DataLoader(
         PredictDataset, batch_size=batch_size, shuffle=False)
 

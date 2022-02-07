@@ -1,3 +1,4 @@
+from ntpath import join
 import os
 from data import *
 from utils import *
@@ -23,14 +24,19 @@ else:
     print("Using CPU")
 
 MRI_series_this = sys.argv[1]
+epoch = sys.argv[2]
+
 
 basePath = r''
 dataPath = os.path.join(basePath, 'data')
 weightPath = os.path.join(basePath, 'model', f'{MRI_series_this}_unet.pth')
 assessmentPath = os.path.join(dataPath, 'assessment')
-cmatPath = os.path.join(assessmentPath, MRI_series_this, 'confusion_matrix')
-predictMaskPath = os.path.join(assessmentPath, MRI_series_this, 'predict_mask')
+epochPath = os.path.join(assessmentPath, MRI_series_this, epoch)
+cmatPath = os.path.join(epochPath, 'confusion_matrix')
+predictMaskPath = os.path.join(epochPath, 'predict_mask')
 
+if not os.path.isdir(epochPath):
+    os.mkdir(epochPath)
 if not os.path.isdir(cmatPath):
     os.mkdir(cmatPath)
 if not os.path.isdir(predictMaskPath):
@@ -49,7 +55,7 @@ if __name__ == '__main__':
     PredictDataLoader = DataLoader(
         PredictDataset, batch_size=batch_size, shuffle=False)
 
-    f = open(os.path.join(assessmentPath, MRI_series_this, 'log.txt'), "w")
+    f = open(os.path.join(epochPath, 'log.txt'), "w")
     f.close()
 
     net = UNet().to(device)
@@ -106,7 +112,7 @@ if __name__ == '__main__':
                     '_' + fig_series.Plane + '_' + \
                     str(fig_series.Slice) + '.png'
 
-                f = open(os.path.join(assessmentPath, MRI_series_this, 'log.txt'), "a")
+                f = open(os.path.join(epochPath, 'log.txt'), "a")
                 f.write(
                     f'{fig_name} sensitivity:{sensitivity}, specificity:{specificity}\n')
                 f.close()
@@ -137,7 +143,7 @@ if __name__ == '__main__':
     print('Done')
     plt.close(fig)
 
-    f = open(os.path.join(assessmentPath, MRI_series_this,'log.txt'), "a")
+    f = open(os.path.join(epochPath, 'log.txt'), "a")
     f.write(
         f'sensitivity_mean:{sensitivity_all/iters}, specificity_mean:{specificity/iters}')
     f.close()

@@ -12,6 +12,8 @@ import seaborn as sns
 import cv2
 from matplotlib import pyplot as plt
 import gc
+import sys
+import operator
 
 if torch.cuda.is_available():
     device = 'cuda'
@@ -20,12 +22,20 @@ else:
     device = 'cpu'
     print("Using CPU")
 
+MRI_series_this = sys.argv[1]
+
 basePath = r''
 dataPath = os.path.join(basePath, 'data')
-weightPath = os.path.join(basePath, 'model', 'unet.pth')
+weightPath = os.path.join(basePath, 'model', f'{MRI_series_this}_unet.pth')
 assessmentPath = os.path.join(dataPath, 'assessment')
-cmatPath = os.path.join(assessmentPath, 'confusion_matrix')
-predictMaskPath = os.path.join(assessmentPath, 'predict_mask')
+cmatPath = os.path.join(assessmentPath, MRI_series_this, 'confusion_matrix')
+predictMaskPath = os.path.join(assessmentPath, MRI_series_this, 'predict_mask')
+
+if not os.path.isdir(cmatPath):
+    os.mkdir(cmatPath)
+if not os.path.isdir(predictMaskPath):
+    os.mkdir(predictMaskPath)
+
 
 batch_size = 1
 sensitivity_all = 0
@@ -34,11 +44,11 @@ iters = 0
 cmat_all = np.array([[0, 0],[0, 0]])
 
 if __name__ == '__main__':
-    PredictDataset = ImageDataSet(dataPath, 'GBM_MRI_Dataset.csv')
+    PredictDataset = Test_T1_AX_ImageDataset(dataPath, 'GBM_MRI_Dataset.csv')
     PredictDataLoader = DataLoader(
         PredictDataset, batch_size=batch_size, shuffle=False)
 
-    f = open(os.path.join(assessmentPath, 'log.txt'), "w")
+    f = open(os.path.join(assessmentPath, MRI_series_this, 'log.txt'), "w")
     f.close()
 
     net = UNet().to(device)
@@ -52,13 +62,15 @@ if __name__ == '__main__':
             print("Loading Weight Successful")
     else:
         print("Loading Weight Failed")
+        print("Exception!!")
+        exit(0)
 
     for i, (image, mask) in enumerate(PredictDataLoader):
         image, mask = image.to(device), mask.to(device)
 
         predictMask = net(image)
 
-        for j in range(batch_size):
+        for j in range(predictMask.size(dim=0)):
             predictMask_arr = torch.squeeze(
                 predictMask[j].cpu()).detach().numpy()
             predictMask_arr[predictMask_arr > 0.5] = 1
@@ -87,13 +99,13 @@ if __name__ == '__main__':
                 iters += 1
                 sensitivity_all += sensitivity
                 specificity_all += specificity
-
-                fig_series = PredictDataset.AxInfo.iloc[i*batch_size + j]
+                
+                fig_series = operator.attrgetter(f"{MRI_series_this}_AXInfo")(PredictDataset).iloc[i*batch_size + j]
                 fig_name = fig_series.Patient + '_' + fig_series.MRISeries + \
                     '_' + fig_series.Plane + '_' + \
                     str(fig_series.Slice) + '.png'
 
-                f = open(os.path.join(assessmentPath, 'log.txt'), "a")
+                f = open(os.path.join(assessmentPath, MRI_series_this, 'log.txt'), "a")
                 f.write(
                     f'{fig_name} sensitivity:{sensitivity}, specificity:{specificity}\n')
                 f.close()
@@ -124,7 +136,7 @@ if __name__ == '__main__':
     print('Done')
     plt.close(fig)
 
-    f = open(os.path.join(assessmentPath, 'log.txt'), "a")
+    f = open(os.path.join(assessmentPath, MRI_series_this,'log.txt'), "a")
     f.write(
         f'sensitivity_mean:{sensitivity_all/iters}, specificity_mean:{specificity/iters}')
     f.close()

@@ -1,10 +1,17 @@
 import os
 import imageio
+import sys
+
+MRI_series_this = sys.argv[1]
+epoch = sys.argv[2]
 
 
 basePath = r''
-resultPath = os.path.join(basePath, 'data', 'assessment', 'predict_mask')
-gifSavePath = os.path.join(basePath, 'data', 'assessment', 'segmentation_gif')
+resultPath = os.path.join(basePath, 'data', 'assessment', MRI_series_this, epoch, 'predict_mask')
+gifSavePath = os.path.join(basePath, 'data', 'assessment', MRI_series_this, epoch, 'segmentation_gif')
+
+if not os.path.isdir(gifSavePath):
+    os.mkdir(gifSavePath)
 
 if __name__ == '__main__':
     f = open(os.path.join(gifSavePath, 'log.txt'), "w")

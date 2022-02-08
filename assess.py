@@ -145,5 +145,5 @@ if __name__ == '__main__':
 
     f = open(os.path.join(epochPath, 'log.txt'), "a")
     f.write(
-        f'sensitivity_mean:{sensitivity_all/iters}, specificity_mean:{specificity/iters}')
+        f'sensitivity_mean:{sensitivity_all/iters}, specificity_mean:{specificity_all/iters}')
     f.close()

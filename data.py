@@ -139,6 +139,30 @@ class Train_Stack_AX_ImageDataset(Dataset):
         mask = gray2Binary(mask)
         return transform(image), transform(mask)
 
+class Train_Messy_AX_ImageDataset(Dataset):
+    def __init__(self, path, Dataset_file):
+        self.path = path
+        self.Info = pd.read_csv(os.path.join(self.path, Dataset_file))
+        AXInfo = self.Info[self.Info['Plane'] == 'AX']
+        Messy_AXInfo = AXInfo[AXInfo['Patient'] < 'W5']
+        self.Messy_AXInfo = Messy_AXInfo.reset_index(drop=True)
+
+
+    def __len__(self):
+        return len(self.Messy_AXInfo)
+
+    def __getitem__(self, index):
+        if platform.system() == 'Windows':
+            maskPath = os.path.join(self.path, (((self.Messy_AXInfo).iloc[index]).MaskPath))
+            imagePath = os.path.join(self.path, (((self.Messy_AXInfo).iloc[index]).ImagePath))
+        elif platform.system() == 'Linux' or platform.system() == 'Darwin':
+            maskPath = os.path.join(self.path, ((((self.Messy_AXInfo).iloc[index]).MaskPath).replace('\\', '/')))
+            imagePath = os.path.join(self.path, ((((self.Messy_AXInfo).iloc[index]).ImagePath).replace('\\', '/')))
+        image = keep_image_size_open_gray(imagePath)
+        mask = keep_image_size_open_gray(maskPath)
+        mask = gray2Binary(mask)
+        return transform(image), transform(mask)
+
 class Test_T1_AX_ImageDataset(Dataset):
     def __init__(self, path, Dataset_file):
         self.path = path
@@ -256,6 +280,30 @@ class Test_Stack_AX_ImageDataset(Dataset):
         #print(image_stack.T.shape) (256, 256, 3)
         #print(image_stack.shape) (3, 256, 256)
         #image = Image.fromarray(image_stack.T, mode='RGB')
+        mask = keep_image_size_open_gray(maskPath)
+        mask = gray2Binary(mask)
+        return transform(image), transform(mask)
+
+class Test_Messy_AX_ImageDataset(Dataset):
+    def __init__(self, path, Dataset_file):
+        self.path = path
+        self.Info = pd.read_csv(os.path.join(self.path, Dataset_file))
+        AXInfo = self.Info[self.Info['Plane'] == 'AX']
+        Messy_AXInfo = AXInfo[AXInfo['Patient'] >= 'W5']
+        self.Messy_AXInfo = Messy_AXInfo.reset_index(drop=True)
+
+
+    def __len__(self):
+        return len(self.Messy_AXInfo)
+
+    def __getitem__(self, index):
+        if platform.system() == 'Windows':
+            maskPath = os.path.join(self.path, (((self.Messy_AXInfo).iloc[index]).MaskPath))
+            imagePath = os.path.join(self.path, (((self.Messy_AXInfo).iloc[index]).ImagePath))
+        elif platform.system() == 'Linux' or platform.system() == 'Darwin':
+            maskPath = os.path.join(self.path, ((((self.Messy_AXInfo).iloc[index]).MaskPath).replace('\\', '/')))
+            imagePath = os.path.join(self.path, ((((self.Messy_AXInfo).iloc[index]).ImagePath).replace('\\', '/')))
+        image = keep_image_size_open_gray(imagePath)
         mask = keep_image_size_open_gray(maskPath)
         mask = gray2Binary(mask)
         return transform(image), transform(mask)

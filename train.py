@@ -8,15 +8,19 @@ from net import *
 import numpy as np
 import traceback
 import trainHelper
+import sys
 
-MRI_series_this = 'Stack'
+MRI_series_this = sys.argv[1]
 
 basePath = os.path.dirname(__file__)
 dataPath = os.path.join(basePath, 'data')
-modelPath = os.path.join(basePath, 'model')
+modelPath = os.path.join(basePath, 'model', MRI_series_this)
 weightPath = os.path.join(modelPath, f'{MRI_series_this}_unet.pth')
 savePath = os.path.join(dataPath, 'train_monitor_image_AX')
 predictPath = os.path.join(dataPath, 'test_image_AX')
+
+if not os.path.isdir(modelPath):
+    os.mkdir(modelPath)
 
 
 if torch.cuda.is_available():
@@ -35,8 +39,7 @@ if __name__ == '__main__':
     #                                                              #
     #--------------------------------------------------------------#
 
-    fullTrainDataset = Train_Stack_AX_ImageDataset(
-        dataPath, 'GBM_MRI_Dataset.csv')
+    fullTrainDataset = eval(f'Train_{MRI_series_this}_AX_ImageDataset(dataPath, \'GBM_MRI_Dataset.csv\')')
     trainingDataSize = 0.8
 
     trainSize = int(trainingDataSize * len(fullTrainDataset))
@@ -256,6 +259,9 @@ if __name__ == '__main__':
 
             # for every epoch end, save model and add epoch
 
+
+            if epoch % 10 == 0:
+                torch.save(net.state_dict(), os.path.join(modelPath, f'{MRI_series_this}_epoch_{epoch}.pth'))
             torch.save(net.state_dict(), weightPath)
 
             epoch += 1

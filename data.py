@@ -1,6 +1,5 @@
 import os
 from PIL import Image
-from cv2 import selectROIs
 
 from torch.utils.data import Dataset
 from utils import *

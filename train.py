@@ -11,7 +11,7 @@ import trainHelper
 import sys
 
 MRI_series_this = sys.argv[1]
-epoches = sys.argv[2]
+epoches = int(sys.argv[2])
 
 basePath = os.path.dirname(__file__)
 dataPath = os.path.join(basePath, 'data')

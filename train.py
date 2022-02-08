@@ -11,6 +11,7 @@ import trainHelper
 import sys
 
 MRI_series_this = sys.argv[1]
+epoches = sys.argv[2]
 
 basePath = os.path.dirname(__file__)
 dataPath = os.path.join(basePath, 'data')
@@ -93,7 +94,7 @@ if __name__ == '__main__':
     #---------------------------------------------------------------------------------------------------#
 
     try:
-        for iter_out in range(1001):
+        for iter_out in range(1, epoches):
 
             for i, (image, mask) in enumerate(trainLoader):
 
@@ -229,7 +230,7 @@ if __name__ == '__main__':
             # ---------------------------------------------------------------
             # for every 100 epoches, we will plot the parameter change
 
-            if iter_out != 0 and iter_out % 100 == 0:
+            if iter_out % 100 == 0:
 
                 trainLossList.averageList_plot(epoch)
                 trainSensitivityList.averageList_plot(epoch)

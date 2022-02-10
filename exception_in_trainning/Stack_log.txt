@@ -1,0 +1,24 @@
+exception in epoch1
+Traceback (most recent call last):
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\Stack_train.py", line 264, in <module>
+    for iter_out in raFnge(1001):
+NameError: name 'raFnge' is not defined
+
+exception in epoch1
+Traceback (most recent call last):
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\Stack_train.py", line 304, in <module>
+    testImage = torch.stack([_image, _mask, _outImage], dim=0)
+RuntimeError: stack expects each tensor to be equal size, but got [3, 256, 256] at entry 0 and [1, 256, 256] at entry 1
+
+exception in epoch1
+Traceback (most recent call last):
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\Stack_train.py", line 369, in <module>
+    testImage = torch.stack(
+RuntimeError: stack expects each tensor to be equal size, but got [3, 256, 256] at entry 0 and [1, 256, 256] at entry 1
+
+exception in epoch12
+Traceback (most recent call last):
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\Stack_train.py", line 288, in <module>
+    print(f'{epoch}-{i}_train loss=====>>{trainLoss.item()}')
+KeyboardInterrupt
+

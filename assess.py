@@ -58,7 +58,10 @@ if __name__ == '__main__':
     f = open(os.path.join(epochPath, 'log.txt'), "w")
     f.close()
 
-    net = UNet().to(device)
+    if MRI_series_this == 'Stack':
+        net = UNet_three_in().to(device)
+    else:
+        net = UNet().to(device)
     if os.path.exists(weightPath):
         if device == 'cpu':
             net.load_state_dict(torch.load(

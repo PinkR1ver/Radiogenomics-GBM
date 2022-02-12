@@ -54,7 +54,10 @@ if __name__ == '__main__':
     trainLoader = DataLoader(trainDataset, batch_size=batchSize, shuffle=True)
     testLoader = DataLoader(testDataset, batch_size=batchSize, shuffle=False)
 
-    net = UNet().to(device)
+    if MRI_series_this == 'Stack':
+        net = UNet_three_in().to(device)
+    else:
+        net = UNet().to(device)
     if os.path.exists(weightPath):
         net.load_state_dict(torch.load(weightPath))
         print("Loading Weight Successful")

@@ -1,4 +1,5 @@
 import os
+import matplotlib
 import torch
 import numpy as np
 import matplotlib.pyplot as plt
@@ -6,6 +7,8 @@ import seaborn as sns
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+
+matplotlib.use('Agg')
 
 basePath = os.path.dirname(__file__)
 dataPath = os.path.join(basePath, 'data')

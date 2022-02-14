@@ -134,8 +134,12 @@ if __name__ == '__main__':
                         print(f'{epoch}-{i}_specificity=====>>{np.NaN}')
 
                 _image = image[0]
-                _mask = mask[0]
-                _outImage = outImage[0]
+                if MRI_series_this == 'Stack':
+                    _mask = gray2RGB(mask[0])
+                    _outImage = gray2RGB(outImage[0])
+                else:
+                    _mask = mask[0]
+                    _outImage = outImage[0]
 
                 testImage = torch.stack([_image, _mask, _outImage], dim=0)
                 torchvision.utils.save_image(
@@ -181,10 +185,14 @@ if __name__ == '__main__':
 
                         testSensitivityList.list_pushback(sensitivity)
                         testSpecificityList.list_pushback(specificity)
-
+                       
                         _image = image[0]
-                        _mask = mask[0]
-                        _outImage = outImage[0]
+                        if MRI_series_this == 'Stack':
+                            _mask = gray2RGB(mask[0])
+                            _outImage = gray2RGB(outImage[0])
+                        else:
+                            _mask = mask[0]
+                            _outImage = outImage[0]
 
                         print(
                             f'test-{int(iter_out / 5) + 1}_{i}_test_loss=====>>{testLoss.item()}')

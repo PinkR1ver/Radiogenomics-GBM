@@ -51,16 +51,24 @@ if __name__ == '__main__':
 
         feature = extractor.execute(imageName, mask_merged)
         feature_row = pd.DataFrame({})
+        '''
         for key, val in feature.items():
             if 'diagnostics' not in key:
                 feature_row[key.replace('original_', '')] = pd.Series(val)
+        '''
+        for key, val in feature.items():
+            feature_row[key] = pd.Series(val)
         
         result = pd.concat([i, feature_row], axis=1)
         result_all = pd.DataFrame({}, columns=result.columns)
 
     for i in FeatureDataset:
-        imageName = os.path.join(dataPath, (i['ImagePath'].loc[0]))
-        maskName = os.path.join(dataPath, (i['MaskPath'].loc[0]))
+        if platform.system() == 'Linux' or platform.system() == 'Darwin':
+            imageName = os.path.join(dataPath, (i['ImagePath'].loc[0]).replace('\\', '/'))
+            maskName = os.path.join(dataPath, (i['MaskPath'].loc[0]).replace('\\', '/'))
+        elif platform.system() == 'Windows':
+            imageName = os.path.join(dataPath, i['ImagePath'].loc[0])
+            maskName = os.path.join(dataPath, i['MaskPath'].loc[0])
         #print(imageName)
         extractor = featureextractor.RadiomicsFeatureExtractor(params)
 
@@ -75,9 +83,13 @@ if __name__ == '__main__':
 
             feature = extractor.execute(imageName, mask_merged)
             feature_row = pd.DataFrame({})
+            '''
             for key, val in feature.items():
                 if 'diagnostics' not in key:
                     feature_row[key.replace('original_', '')] = pd.Series(val)
+            '''
+            for key, val in feature.items():
+                feature_row[key] = pd.Series(val)
             
             result = pd.concat([i, feature_row], axis=1)
             result_all = result_all.append(result, ignore_index=True)

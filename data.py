@@ -10,7 +10,10 @@ import pandas as pd
 
 import platform
 
+import cv2
+from collections import defaultdict
 import matplotlib.pyplot as plt
+import albumentations as albu
 
 transform = transforms.Compose([
     transforms.ToTensor()
@@ -391,62 +394,84 @@ def built_Dataset_csv(path):
     
     ImageDatasetTable.to_csv(os.path.join(path,'GBM_MRI_Dataset.csv'), index=False)
 
+# New version dataset, you can choose MRI axis and MRI series and can do resize or not, also support data augmentation
+class MSRf_Net_Dataset(Dataset):
+    def __init__(self, path, Dataset_file, axis, MRI_series, n_classes, mode='train', augmentation=True, resize=None):
+        self.path = path
+        self.MRI_series = MRI_series
+        self.axis = axis
+        self.Info = pd.read_csv(os.path.join(self.path, Dataset_file))
+        self.Info = self.Info[self.Info['Plane'] == self.axis]
+        self.Info = self.Info[(self.Info)['MRISeries'] == self.MRI_series]
+        if mode == 'train':
+            self.Info = self.Info[self.Info['Patient'] <= 'W5']
+        elif mode == 'test':
+            self.Info = self.Info[self.Info['Patient'] > 'W5']
+        self.Info = self.Info.reset_index(drop=True)
+        self.n_classes = n_classes
+        self.mode = mode
+        self.augmentation = augmentation
+        self.resize = resize
+        if self.augmentation:
+            self.augs = albu.OneOf([albu.ElasticTransform(p=0.5, alpha=120, sigma=280 * 0.05, alpha_affine=120 * 0.03),
+                                albu.GridDistortion(p=0.5, border_mode=cv2.BORDER_CONSTANT, distort_limit=0.2),
+                                albu.Rotate(p=0.5, limit=(-5, 5), interpolation=1, border_mode=cv2.BORDER_CONSTANT),
+                                ],)
+    def __len__(self):
+        return len(self.Info)
+
+    def class_weights(self):
+        counts = defaultdict(lambda : 0)
+        for i in range(len(self)):
+            if platform.system() == 'Windows':
+                maskPath = os.path.join(self.path, (((self.Info).iloc[i]).MaskPath))
+            elif platform.system() == 'Linux' or platform.system() == 'Darwin':
+                maskPath = os.path.join(self.path, ((((self.Info).iloc[i]).MaskPath).replace('\\', '/')))
+            msk = cv2.imread(maskPath, -1)
+            for c in range(self.n_classes):
+                counts[c] += np.sum(msk == c)
+
+        counts = dict(sorted(counts.items()))
+        weights = [1 - (x/sum(list(counts.values()))) for x in counts.values()]
+
+        return torch.FloatTensor(weights)
+    
+    def __getitem__(self, index):
+        if platform.system() == 'Windows':
+            maskPath = os.path.join(self.path, (((self.Info).iloc[index]).MaskPath))
+            imagePath = os.path.join(self.path, (((self.Info).iloc[index]).ImagePath))
+        elif platform.system() == 'Linux' or platform.system() == 'Darwin':
+            maskPath = os.path.join(self.path, ((((self.Info).iloc[index]).MaskPath).replace('\\', '/')))
+            imagePath = os.path.join(self.path, ((((self.Info).iloc[index]).ImagePath).replace('\\', '/')))
+
+        img = cv2.imread(imagePath, 0)
+        msk = cv2.imread(maskPath, 0)
+        if self.resize is not None:
+            img = cv2.resize(img, self.resize, interpolation=cv2.INTER_CUBIC)
+            msk = cv2.resize(msk, self.resize, interpolation=cv2.INTER_NEAREST)
+
+        if self.augmentation:
+            augmented = self.augs(image=img, mask=msk)
+            img = augmented['image']
+            msk = augmented['mask']
+        
+        canny = cv2.Canny(img, 10, 100)
+        canny = np.asarray(canny, np.float32)
+        canny /= 255.0
+
+        return torch.FloatTensor(img).unsqueeze(0), torch.FloatTensor(canny).unsqueeze(0), torch.LongTensor(msk), torch.FloatTensor(canny)
+
 
 
 if __name__ == '__main__':
-    #image_location_transfer(r'C:\Users\83549\OneDrive\Documents\Research Data\Multi-institutional Paired Expert Segmentations MNI images-atlas-annotations')
-    # built_Dataset_csv(r'C:\Users\RTX 3090\Desktop\WangYichong\U-net for Ivy Gap\data')
-    GBMDataset = Train_T1_AX_ImageDataset('data', 'GBM_MRI_Dataset.csv')
-    GBMDataset2 = Train_T2_AX_ImageDataset('data', 'GBM_MRI_Dataset.csv')
-    GBMDataset3 = Train_FLAIR_AX_ImageDataset('data', 'GBM_MRI_Dataset.csv')
-
-    print(len(GBMDataset))
-    print(len(GBMDataset2))
-    print(len(GBMDataset3))
-
-    GBMDataset = Test_T1_AX_ImageDataset('data', 'GBM_MRI_Dataset.csv')
-    GBMDataset2 = Test_T2_AX_ImageDataset('data', 'GBM_MRI_Dataset.csv')
-    GBMDataset3 = Test_FLAIR_AX_ImageDataset('data', 'GBM_MRI_Dataset.csv')
-    
-    print(len(GBMDataset))
-    print(len(GBMDataset2))
-    print(len(GBMDataset3))
-
-
-    GBMDataset4 = Train_Stack_AX_ImageDataset('data', 'GBM_MRI_Dataset.csv')
-    print(len(GBMDataset4))
-    print(GBMDataset4[3][0].shape)
-
-    MRI_series_this = 'T1'
-    print(eval(f'{MRI_series_this}_AXInfo'))
-    print(len(GBMDataset))
-
-    #for i in range(len(GBMDataset4)):
-    #    print(GBMDataset4.Stack_AXInfo.iloc[i])
-    plt.imshow(GBMDataset4[3][0].detach().numpy()[1])
+    exp = MSRf_Net_Dataset('data', 'GBM_MRI_Dataset.csv', 'AX', 'T1', 4, 'train', True, (256, 256))
+    img, canny, msk, canny_label = exp[20]
+    plt.imshow(img.detach().numpy()[0])
     plt.show()
-    plt.imshow(GBMDataset4[3][1].detach().numpy()[0])
+    plt.imshow(canny.detach().numpy()[0])
     plt.show()
-
-    plt.imshow(GBMDataset[3][0].detach().numpy()[0])
+    plt.imshow(msk.detach().numpy())
     plt.show()
-    plt.imshow(GBMDataset2[3][0].detach().numpy()[0])
+    plt.imshow(canny_label.detach().numpy())
     plt.show()
-    plt.imshow(GBMDataset3[3][0].detach().numpy()[0])
-    plt.show()
-    
-    # print(GBMDataset[5])
-    # pass
-    #FeatureDataset = FeatureExtractionDataset(r'/home/pinkr1ver/Documents/Github Projects/Radiogenemics--on-Ivy-Gap/data', 'GBM_MRI_Dataset.csv')
-    #df = FeatureDataset[5631]
-    #mask = sitk.ReadImage(os.path.join(r'/home/pinkr1ver/Documents/Github Projects/Radiogenemics--on-Ivy-Gap/data', (df['MaskPath'].loc[0]).replace('\\', '/')))
-    #sitk.Show(mask)
-    #df = df.to_frame()
-    #df2 = FeatureDataset[8]
-    #df2 = df2.to_frame()
-    #df = df.append(df2)
-    #print(df.values.flatten().tolist())
-    #print(df)
-    #print(df2)
-    #df = df.append(df2, ignore_index=True)
-    #print(df)
+    print(exp.class_weights())

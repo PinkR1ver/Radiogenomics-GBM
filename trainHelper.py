@@ -1,5 +1,4 @@
 import os
-import matplotlib
 import torch
 import numpy as np
 import matplotlib.pyplot as plt
@@ -7,8 +6,6 @@ import seaborn as sns
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-
-matplotlib.use('Agg')
 
 basePath = os.path.dirname(__file__)
 dataPath = os.path.join(basePath, 'data')
@@ -136,18 +133,18 @@ class trainHelper():
     def averageList_plot(self, epoch):
         if self.train_or_test == 'test':
             averageList_x = np.arange(
-                start=self.begin, stop=self.begin + 5 * len(self.averageList), step=5)
+                start=epoch - 5 * len(self.averageList) + 5, stop=epoch + 5, step=5)
         else:
             averageList_x = np.arange(
-                start=self.begin, stop=self.begin + len(self.averageList))
+                start=epoch - len(self.averageList) + 1, stop=epoch + 1)
         fig = plt.figure(figsize=(6, 6))
         plt.title(
-            f'epoch{self.begin} - epoch{epoch}: {self.monitor_para.capitalize()}')
+            f'epoch{averageList_x[0]} - epoch{epoch}: {self.monitor_para.capitalize()}')
         plt.xlabel('epoch')
         plt.ylabel(self.monitor_para)
         plt.plot(averageList_x, self.averageList)
         plt.savefig(os.path.join(savePath if self.train_or_test == 'train' else predictPath, self.MRI_series_this, f'{self.train_or_test}_{self.monitor_para}_monitor',
-                    f'epoch{self.begin}_epoch{epoch}_{self.monitor_para.capitalize()}.png'))
+                    f'epoch{averageList_x[0]}_epoch{epoch}_{self.monitor_para.capitalize()}.png'))
         plt.close(fig)
 
     def list_write_into_log(self, epoch):
@@ -166,18 +163,24 @@ class trainHelper():
     def averageList_write_into_log(self, epoch):
         if self.train_or_test == 'test':
             averageList_x = np.arange(
-                start=self.begin, stop=self.begin + 5 * len(self.averageList), step=5)
+                start=epoch - 5 * len(self.averageList) + 5, stop=epoch + 5, step=5)
         else:
             averageList_x = np.arange(
-                start=self.begin, stop=self.begin + len(self.averageList))
+                start=epoch - len(self.averageList) + 1, stop=epoch + 1)
         if not os.path.isfile(os.path.join(savePath if self.train_or_test == 'train' else predictPath, self.MRI_series_this, f'{self.train_or_test}_{self.monitor_para}_monitor', f'log.txt')):
             f = open(os.path.join(savePath if self.train_or_test == 'train' else predictPath, self.MRI_series_this,
                      f'{self.train_or_test}_{self.monitor_para}_monitor', 'log.txt'), "x")
             f.close()
         f = open(os.path.join(savePath if self.train_or_test == 'train' else predictPath, self.MRI_series_this,
                               f'{self.train_or_test}_{self.monitor_para}_monitor', 'log.txt'), "a")
-        f.write(f'epoch{self.begin}-epoch{epoch}:\n')
+        f.write(f'epoch{averageList_x[0]}-epoch{epoch}:\n')
         for i, monitor_para_ in enumerate(self.averageList):
             f.write(f'epoch{averageList_x[i]}:{monitor_para_}\n')
         f.write('\n')
         f.close()
+
+if __name__ == '__main__':
+    s = trainHelper(np.array([1,2,3,4,5,6,7]), np.array([0.80,0.89,0.88,0.86]), "Stack", "loss", "train", 1)
+    s.averageList_pushback()
+    s.averageList_plot(50)
+    s.averageList_write_into_log(50)

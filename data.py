@@ -19,7 +19,7 @@ transform = transforms.Compose([
 ])
 
 class GBMImageDataset(Dataset):
-    def __init__(self, path, Dataset_file, axis='AX', MRI_series='T1', n_classes=2, mode='train', resize=None, augmentation=False, canny_edge=False):
+    def __init__(self, path, Dataset_file, axis='AX', MRI_series='T1', n_classes=2, label_value=[0,255], mode='train', resize=None, augmentation=False, canny_edge=False):
         self.path = path
         self.MRI_series = MRI_series
         self.axis = axis
@@ -32,15 +32,16 @@ class GBMImageDataset(Dataset):
             self.Info = self.Info[self.Info['Patient'] > 'W5']
         self.Info = self.Info.reset_index(drop=True)
         self.n_classes = n_classes
+        self.label_value = label_value
         self.mode = mode
         self.augmentation = augmentation
         self.resize = resize
         self.canny_edge = canny_edge
         if self.augmentation:
-            self.augs = albu.OneOf([albu.ElasticTransform(p=0.5, alpha=120, sigma=280 * 0.05, alpha_affine=120 * 0.03),
-                                albu.GridDistortion(p=0.5, border_mode=cv2.BORDER_CONSTANT, distort_limit=0.2),
-                                albu.Rotate(p=0.5, limit=(-5, 5), interpolation=1, border_mode=cv2.BORDER_CONSTANT),
-                                ],)
+            self.augs = albu.OneOf([albu.ElasticTransform(p=1.0, alpha=120, sigma=280 * 0.05, alpha_affine=120 * 0.03),
+                                albu.GridDistortion(p=1.0, border_mode=cv2.BORDER_CONSTANT, distort_limit=0.2),
+                                albu.Rotate(p=1.0, limit=(-5, 5), interpolation=1, border_mode=cv2.BORDER_CONSTANT),
+                                ],p=1.0)
     def __len__(self):
         return len(self.Info)
 
@@ -53,7 +54,7 @@ class GBMImageDataset(Dataset):
                 maskPath = os.path.join(self.path, ((((self.Info).iloc[i]).MaskPath).replace('\\', '/')))
             msk = cv2.imread(maskPath, -1)
             for c in range(self.n_classes):
-                counts[c] += np.sum(msk == c)
+                counts[c] += np.sum(msk == self.label_value[c])
 
         counts = dict(sorted(counts.items()))
         weights = [1 - (x/sum(list(counts.values()))) for x in counts.values()]
@@ -76,8 +77,7 @@ class GBMImageDataset(Dataset):
 
         if self.augmentation:
             augmented = self.augs(image=img, mask=msk)
-            img = augmented['image']
-            msk = augmented['mask']
+            img_aug, msk_aug = augmented['image'], augmented['mask']
 
 
         if self.canny_edge:
@@ -87,22 +87,46 @@ class GBMImageDataset(Dataset):
 
         if self.canny_edge:
             #return torch.FloatTensor(img).unsqueeze(0), torch.FloatTensor(canny).unsqueeze(0), torch.LongTensor(msk), torch.FloatTensor(canny)
-            return transform(img), transform(msk), transform(canny)
+            if self.augmentation:
+                return transform(img), transform(msk), transform(img_aug), transform(msk_aug),transform(canny)
+            else:
+                return transform(img), transform(msk), transform(canny)
         
+        elif self.augmentation:
+            return transform(img), transform(msk), transform(img_aug), transform(msk_aug)
         else:
-            #return torch.FloatTensor(img).unsqueeze(0), torch.LongTensor(msk)
             return transform(img), transform(msk)
 
 
 
 if __name__ == '__main__':
-    IMGDataset = GBMImageDataset('./data', 'GBM_MRI_Dataset.csv', augmentation=True)
+    IMGDataset = GBMImageDataset('./data', 'GBM_MRI_Dataset.csv', n_classes=4, label_value=[], augmentation=True, canny_edge=True)
     #plt.imshow(IMGDataset[20][1])
     #plt.show()
 
+    print(IMGDataset.class_weights())
+
     print(IMGDataset[20][0].size())
     print(IMGDataset[20][1].size())
-    print(IMGDataset[20][0].max())
+    print(IMGDataset[20][1].max())
+
+    plt.imshow(IMGDataset[20][1].squeeze(0))
+    plt.show()
+
+    plt.imshow(IMGDataset[20][3].squeeze(0))
+    plt.show()
+
+    plt.imshow(IMGDataset[20][1].squeeze(0) - IMGDataset[20][3].squeeze(0))
+    plt.show()
 
     plt.imshow(IMGDataset[20][0].squeeze(0))
+    plt.show()
+
+    plt.imshow(IMGDataset[20][2].squeeze(0))
+    plt.show()
+
+    plt.imshow(IMGDataset[20][2].squeeze(0) - IMGDataset[20][0].squeeze(0))
+    plt.show()
+
+    plt.imshow(IMGDataset[20][4].squeeze(0))
     plt.show()

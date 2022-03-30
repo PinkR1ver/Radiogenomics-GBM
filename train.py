@@ -222,6 +222,8 @@ if __name__ == '__main__':
             evalution_list_test.average_list_plot(epoch)
             evalution_list_test.average_list_write_into_log(epoch)
 
+            evalution_list_train.average_list_plot(epoch, [evalution_list_valitaion, evalution_list_test])
+
         trainHelper.sendmail(content=r'Your train.py went something wrong', subject=r'train.py go wrong')
     
     else:
@@ -235,5 +237,7 @@ if __name__ == '__main__':
 
             evalution_list_test.average_list_plot(epoch)
             evalution_list_test.average_list_write_into_log(epoch)
+
+            evalution_list_train.average_list_plot(epoch, [evalution_list_valitaion, evalution_list_test])
 
         trainHelper.sendmail(content=r'Your train.py run success', subject=r'train.py finished')

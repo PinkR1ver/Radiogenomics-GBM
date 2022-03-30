@@ -198,6 +198,8 @@ if __name__ == '__main__':
         evalution_list_test.average_list_plot(epoch)
         evalution_list_test.average_list_write_into_log(epoch)
 
+        evalution_list_train.average_list_plot(epoch, [evalution_list_valitaion, evalution_list_test])
+
     except:
         print('Exception!!!')
         if not os.path.isfile(os.path.join(base_path, 'exception_in_trainning', f'{MRI_series_this}_log.txt')):

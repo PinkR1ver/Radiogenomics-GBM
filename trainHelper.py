@@ -167,17 +167,17 @@ class trainHelper():
         self.begin = begin
         self.MRI_series_this = MRI_series_this
 
-        if not os.path.isdir(os.path.join(data_path, f'{self.mode}_result')):
-            os.mkdir(os.path.join(data_path, f'{self.mode}_result'))
-        if not os.path.isdir(os.path.join(data_path, f'{self.mode}_result', MRI_series_this)):
-            os.mkdir(os.path.join(data_path, f'{self.mode}_result', MRI_series_this))
-        if not os.path.isdir(os.path.join(data_path, f'{self.mode}_result', MRI_series_this, 'detail')):
-            os.mkdir(os.path.join(data_path, f'{self.mode}_result', MRI_series_this, 'detail'))
+        if not os.path.isdir(os.path.join(data_path, self.MRI_series_this)):
+            os.mkdir(os.path.join(data_path, self.MRI_series_this))
+        if not os.path.isdir(os.path.join(data_path, self.MRI_series_this,  f'{self.mode}_result')):
+            os.mkdir(os.path.join(data_path, self.MRI_series_this,  f'{self.mode}_result'))
+        if not os.path.isdir(os.path.join(data_path, self.MRI_series_this,  f'{self.mode}_result', 'detail')):
+            os.mkdir(os.path.join(data_path, self.MRI_series_this,  f'{self.mode}_result', 'detail'))
 
         evalution_params = ['loss', 'accuracy', 'precision', 'sensitivity', 'specificity', 'balance_accuracy', 'IoU', 'f1score']
         for i in evalution_params:
-            if not os.path.isdir(os.path.join(data_path, f'{self.mode}_result', MRI_series_this, 'detail', i)):
-                os.mkdir(os.path.join(data_path, f'{self.mode}_result', MRI_series_this, 'detail', i))
+            if not os.path.isdir(os.path.join(data_path, self.MRI_series_this,  f'{self.mode}_result', 'detail', i)):
+                os.mkdir(os.path.join(data_path, self.MRI_series_this,  f'{self.mode}_result', 'detail', i))
 
 
     def list_pushback(self, predict_image, groud_truth, loss):
@@ -257,11 +257,11 @@ class trainHelper():
             sns.histplot(eval(f'self.{i}_list'), stat="probability", kde=True)
             plt.title(f'{self.mode}_epoch{epoch}')
             plt.ylabel(i)
-            plt.savefig(os.path.join(data_path, f'{self.mode}_result', self.MRI_series_this, 'detail', i, f'epoch{epoch}_{i}.png'))
+            plt.savefig(os.path.join(data_path, self.MRI_series_this,  f'{self.mode}_result', 'detail', i, f'epoch{epoch}_{i}.png'))
             plt.close(fig)
 
 
-    def average_list_plot(self, epoch, step=1):
+    def average_list_plot(self, epoch, other_trainHelpers=None, step=1):
         average_list_x = np.arange(
             start=epoch - step * len(self.loss_average_list) + step, stop=epoch + step, step=step)
         
@@ -272,17 +272,24 @@ class trainHelper():
             plt.xlabel('epoch')
             plt.ylabel(i)
             plt.plot(average_list_x, eval(f'self.{i}_average_list'))
-            plt.savefig(os.path.join(data_path, f'{self.mode}_result', self.MRI_series_this, f'epoch{average_list_x[0]}_epoch{epoch}_{i}.png'))
+            if other_trainHelpers != None:
+                for other_trainHelper in other_trainHelpers:
+                    plt.plot(average_list_x, eval(f'other_trainHelper.{i}_average_list'))
+                plt.legend(titel='Lines', loc='upper right', labels=['train', 'validation', 'test'])
+            if other_trainHelpers == None:
+                plt.savefig(os.path.join(data_path, self.MRI_series_this,  f'{self.mode}_result', f'epoch{average_list_x[0]}_epoch{epoch}_{i}.png'))
+            else:
+                plt.savefig(os.path.join(data_path, self.MRI_series_this, f'epoch{average_list_x[0]}_epoch{epoch}_{i}.png'))
             plt.close(fig)
 
     def list_write_into_log(self, epoch):
         evalution_params = ['loss', 'accuracy', 'precision', 'sensitivity', 'specificity', 'balance_accuracy', 'IoU', 'f1score']
         for i in evalution_params:
-            if not os.path.isfile(os.path.join(data_path, f'{self.mode}_result', self.MRI_series_this, 'detail', i, f'log_epoch{epoch}.txt')):
-                f = open(os.path.join(data_path, f'{self.mode}_result', self.MRI_series_this, 'detail', i, f'log_epoch{epoch}.txt'), "x")
+            if not os.path.isfile(os.path.join(data_path, self.MRI_series_this,  f'{self.mode}_result', 'detail', i, f'log_epoch{epoch}.txt')):
+                f = open(os.path.join(data_path, self.MRI_series_this,  f'{self.mode}_result', 'detail', i, f'log_epoch{epoch}.txt'), "x")
                 f.close()
 
-            f = open(os.path.join(data_path, f'{self.mode}_result', self.MRI_series_this, 'detail', i, f'log_epoch{epoch}.txt'), "w")
+            f = open(os.path.join(data_path, self.MRI_series_this,  f'{self.mode}_result', 'detail', i, f'log_epoch{epoch}.txt'), "w")
             for val in eval(f'self.{i}_list'):
                 f.write(f'{val}\n')
             f.write('\n')
@@ -293,11 +300,11 @@ class trainHelper():
         average_list_x = np.arange(
             start=epoch - step * len(self.loss_average_list) + step, stop=epoch + step, step=step)
         evalution_params = ['loss', 'accuracy', 'precision', 'sensitivity', 'specificity', 'balance_accuracy', 'IoU', 'f1score']
-        if not os.path.isfile(os.path.join(data_path, f'{self.mode}_result', self.MRI_series_this, f'log.txt')):
-            f = open(os.path.join(data_path, f'{self.mode}_result', self.MRI_series_this, 'log.txt'), "x")
+        if not os.path.isfile(os.path.join(data_path, self.MRI_series_this,  f'{self.mode}_result', f'log.txt')):
+            f = open(os.path.join(data_path, self.MRI_series_this,  f'{self.mode}_result', 'log.txt'), "x")
             f.close()
 
-        f = open(os.path.join(data_path, f'{self.mode}_result', self.MRI_series_this, 'log.txt'), "a")
+        f = open(os.path.join(data_path, self.MRI_series_this,  f'{self.mode}_result', 'log.txt'), "a")
 
         f.write(f'epoch{average_list_x[0]}-epoch{epoch}:\n\n\n')
         for i in range(len(average_list_x)):
@@ -311,17 +318,27 @@ class trainHelper():
 
 if __name__ == '__main__':
     s = trainHelper("Stack", "train", 1)
+    t = trainHelper("Stack", "train", 1)
     x = torch.rand(4, 1, 64, 256, 256)
     y = torch.rand(4, 1, 64, 256, 256)
 
     y[y >= 0.5] = 1
     y[y < 0.5] = 0
 
-    s.list_pushback(x, y, nn.BCELoss())
-    s.list_pushback(x, y, nn.BCELoss())
-    s.list_pushback(x, y, nn.BCELoss())
-    s.list_pushback(x, y, nn.BCELoss())
+    s.list_pushback(x, y, 0.05)
+    s.list_pushback(x, y, 0.04)
+    s.list_pushback(x, y, 0.03)
+    s.list_pushback(x, y, 0.02)
     s.list_plot(1)
     s.list_write_into_log(1)
     s.average_list_pushback()
-    s.average_list_write_into_log(50)
+
+    
+    t.list_pushback(x, y, 0.05)
+    t.list_pushback(x, y, 0.04)
+    t.list_pushback(x, y, 0.03)
+    t.list_pushback(x, y, 0.02)
+    t.average_list_pushback()
+
+    s.average_list_plot(20, [t])
+

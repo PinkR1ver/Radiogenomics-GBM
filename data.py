@@ -18,7 +18,7 @@ transform = transforms.Compose([
     transforms.ToTensor()
 ])
 
-class GBMImageDataset(Dataset):
+class ImageDataset(Dataset):
     def __init__(self, path, Dataset_file, axis='AX', MRI_series='T1', n_classes=2, label_value=[0,255], mode='train', resize=None, augmentation=False, canny_edge=False):
         self.path = path
         self.MRI_series = MRI_series
@@ -71,6 +71,7 @@ class GBMImageDataset(Dataset):
 
         img = cv2.imread(imagePath, 0)
         msk = cv2.imread(maskPath, 0)
+        msk = gray2Binary(msk)
         if self.resize is not None:
             img = cv2.resize(img, self.resize, interpolation=cv2.INTER_CUBIC)
             msk = cv2.resize(msk, self.resize, interpolation=cv2.INTER_NEAREST)
@@ -100,7 +101,7 @@ class GBMImageDataset(Dataset):
 
 
 if __name__ == '__main__':
-    IMGDataset = GBMImageDataset('./data', 'GBM_MRI_Dataset.csv', n_classes=4, label_value=[], augmentation=True, canny_edge=True)
+    IMGDataset = ImageDataset('./data', 'GBM_MRI_Dataset.csv', n_classes=2, label_value=[0, 255], augmentation=True, canny_edge=True)
     #plt.imshow(IMGDataset[20][1])
     #plt.show()
 

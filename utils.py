@@ -8,6 +8,9 @@ from PIL import GifImagePlugin
 import torch
 import numpy as np
 
+import nibabel as nib
+import imageio  # transfer nii to image
+from PIL import Image
 
 
 def keep_image_size_open(path, size=(256, 256)):
@@ -39,7 +42,7 @@ def gray2Binary(img):
         for j in range(img.shape[1]):
             if img[i, j] > 0:
                 img[i, j] = 255
-    return Image.fromarray(img)
+    return img
                 
 
 if __name__ == '__main__':
@@ -53,3 +56,12 @@ if __name__ == '__main__':
     ggimage = np.array(ggimage)
     io.imshow(ggimage)
     plt.show()
+
+def read_nii_image(niifile, plane='AX'):
+    img = nib.load(niifile)
+    img_fdata = img.get_fdata()
+
+    return img_fdata
+
+if __name__ == '__main__':
+    pass

@@ -92,7 +92,7 @@ if __name__ == '__main__':
 
     try:
         for iter_out in range(1, epoches + 1):
-            for i, (image, mask) in tqdm(enumerate(train_loader), desc =f"train_{epoch}", total=len(train_dataset)):
+            for i, (image, mask) in tqdm(enumerate(train_loader), desc =f"train_{epoch}", total=len(train_loader)):
                 image, mask = image.to(device), mask.to(device)
 
                 predict_image = net(image)
@@ -123,7 +123,7 @@ if __name__ == '__main__':
             evalution_list_train.average_list_pushback()
             evalution_list_train.clear_list()
 
-            for i, (image, mask) in tqdm(enumerate(validation_loader), desc =f"validation_{epoch}", total=len(validation_dataset)):
+            for i, (image, mask) in tqdm(enumerate(validation_loader), desc =f"validation_{epoch}", total=len(validation_loader)):
                 image, mask = image.to(device), mask.to(device)
 
                 predict_image = net(image)
@@ -155,7 +155,7 @@ if __name__ == '__main__':
             evalution_list_valitaion.clear_list()
 
 
-            for i, (image, mask) in tqdm(enumerate(test_loader), desc =f"test_{epoch}", total=len(test_dataset)):
+            for i, (image, mask) in tqdm(enumerate(test_loader), desc =f"test_{epoch}", total=len(test_loader)):
                 image, mask = image.to(device), mask.to(device)
 
                 predict_image = net(image)

@@ -2,7 +2,7 @@ from ntpath import join
 import os
 from data import *
 from utils import *
-from net import *
+from unet import *
 import os
 import torch
 from torch.utils.data import DataLoader, sampler

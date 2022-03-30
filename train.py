@@ -129,10 +129,6 @@ if __name__ == '__main__':
                 predict_image = net(image)
                 train_loss = loss_function(predict_image, mask)
 
-                opt.zero_grad()
-                train_loss.backward()
-                opt.step()
-
                 evalution_list_valitaion.list_pushback(predict_image, mask, train_loss.item())
 
                 predict_image[predict_image >= 0.5] = 1
@@ -160,10 +156,6 @@ if __name__ == '__main__':
 
                 predict_image = net(image)
                 train_loss = loss_function(predict_image, mask)
-
-                opt.zero_grad()
-                train_loss.backward()
-                opt.step()
 
                 evalution_list_test.list_pushback(predict_image, mask, train_loss.item())
 

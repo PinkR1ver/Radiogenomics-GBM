@@ -171,11 +171,23 @@ if __name__ == '__main__':
 
                 visual_image = torch.stack([_image, _mask, _pred_Image], dim=0)
                 torchvision.utils.save_image(visual_image, os.path.join(validation_path, MRI_series_this, f'{i}.png'))
+      
 
             evalution_list_test.list_plot(epoch) 
             evalution_list_test.list_write_into_log(epoch)
             evalution_list_test.average_list_pushback()
             evalution_list_test.clear_list()
+
+            if epoch % 25 == 0:
+                torch.save(net.state_dict(), os.path.join(model_path, f'{MRI_series_this}_epoch_{epoch}.pth'))
+            
+            torch.save(net.state_dict(), weight_path)
+            epoch += 1
+
+            f = open(os.path.join(
+                model_path, f'{MRI_series_this}_epoch.txt'), "w")
+            f.write(f'{epoch}')
+            f.close()
 
         evalution_list_train.average_list_plot(epoch)
         evalution_list_train.average_list_write_into_log(epoch)

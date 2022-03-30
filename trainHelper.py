@@ -1,5 +1,4 @@
 import os
-from nbformat import write
 from sklearn.feature_extraction import grid_to_graph
 import torch
 import numpy as np
@@ -22,7 +21,7 @@ def sendmail(content, subject):
     mail_host = 'smtp.gmail.com'
 
     # password
-    mail_pass = '*******'
+    mail_pass = '585Goo521'
 
     # sender mail
     sender = 'fakelspwang@gmail.com'
@@ -68,6 +67,7 @@ def evalution_result(predict_image: torch.Tensor, ground_truth: torch.Tensor):
     sensitivity = 0
     specificity = 0
     iters = 0
+    FPR = 0
 
     for i in range(predict_image.size(dim=0)):
 
@@ -91,6 +91,8 @@ def evalution_result(predict_image: torch.Tensor, ground_truth: torch.Tensor):
             balance_accuracy += (TP / (TP + FN) + TN / (TN + FP)) / 2
             IoU += TP / (TP + FN + FP)
             f1score += (2 * TP) / (2 * TP + FP + FN)
+            FPR += FP / (FP + TN)
+            
 
 
 
@@ -131,8 +133,12 @@ def evalution_result(predict_image: torch.Tensor, ground_truth: torch.Tensor):
     else:
         f1score = np.nan
     
+    if FPR != 0:
+        FPR = FPR / iters
+    else:
+        FPR = np.nan
 
-    return accuracy, precision, sensitivity, specificity, balance_accuracy, IoU, f1score
+    return accuracy, precision, sensitivity, specificity, balance_accuracy, IoU, f1score, FPR
 
 
 # TrainHelper type is to store processing parameters and plot them
@@ -162,6 +168,9 @@ class trainHelper():
         
         self.f1score_list = np.array([])
         self.f1score_average_list = np.array([])
+
+        self.FPR_list = np.array([])
+        self.FPR_average_list = np.array([])
         
         self.mode = mode
         self.begin = begin
@@ -183,7 +192,7 @@ class trainHelper():
     def list_pushback(self, predict_image, groud_truth, loss):
         self.loss_list = np.append(self.loss_list, loss)
 
-        accuracy, precision, sensitivity, specificity, balance_accuracy, IoU, f1score = evalution_result(predict_image, groud_truth)
+        accuracy, precision, sensitivity, specificity, balance_accuracy, IoU, f1score, FPR = evalution_result(predict_image, groud_truth)
 
         self.accuracy_list = np.append(self.accuracy_list, accuracy)
         self.precision_list = np.append(self.precision_list, precision)
@@ -192,6 +201,7 @@ class trainHelper():
         self.balance_accuracy_list = np.append(self.balance_accuracy_list, balance_accuracy)
         self.IoU_list = np.append(self.IoU_list, IoU)
         self.f1score_list = np.append(self.f1score_list, f1score)
+        self.FPR_list = np.append(self.FPR_list, FPR)
 
     def average_list_pushback(self):
         
@@ -220,6 +230,9 @@ class trainHelper():
         self.f1score_average_list = np.append(
             self.f1score_average_list, self.f1score_list.sum() / len(self.f1score_list))
 
+        self.FPR_average_list = np.append(
+            self.FPR_average_list, self.FPR_list.sum() / len(self.FPR_list))
+
     def clear_list(self):
         self.loss_list = np.array([])
         self.accuracy_list = np.array([])
@@ -229,6 +242,8 @@ class trainHelper():
         self.balance_accuracy_list = np.array([])
         self.IoU_list = np.array([])
         self.f1score_list = np.array([])
+        self.FPR_list = np.array([])
+
 
     def clear_average_list(self):
         self.loss_average_list = np.array([])
@@ -239,6 +254,7 @@ class trainHelper():
         self.balance_accuracy_average_list = np.array([])
         self.IoU_average_list = np.array([])
         self.f1score_average_list = np.array([])
+        self.FPR_average_list = np.array([])
 
     def delete_nan_list(self):
         self.loss_list = self.loss_list[~(np.isnan(self.loss_list))]
@@ -249,6 +265,7 @@ class trainHelper():
         self.balance_accuracy_list = self.balance_accuracy_list[~(np.isnan(self.balance_accuracy_list))]
         self.IoU_list = self.IoU_list[~(np.isnan(self.IoU_list))]
         self.f1score_list = self.f1score_list[~(np.isnan(self.f1score_list))]
+        self.FPR_list = self.FPR_list[~(np.isnan(self.FPR_list))]
 
     def list_plot(self, epoch):
         evalution_params = ['loss', 'accuracy', 'precision', 'sensitivity', 'specificity', 'balance_accuracy', 'IoU', 'f1score']
@@ -261,7 +278,7 @@ class trainHelper():
             plt.close(fig)
 
 
-    def average_list_plot(self, epoch, other_trainHelpers=None, step=1):
+    def average_list_plot(self, epoch, step=1):
         average_list_x = np.arange(
             start=epoch - step * len(self.loss_average_list) + step, stop=epoch + step, step=step)
         
@@ -272,14 +289,7 @@ class trainHelper():
             plt.xlabel('epoch')
             plt.ylabel(i)
             plt.plot(average_list_x, eval(f'self.{i}_average_list'))
-            if other_trainHelpers != None:
-                for other_trainHelper in other_trainHelpers:
-                    plt.plot(average_list_x, eval(f'other_trainHelper.{i}_average_list'))
-                plt.legend(titel='Lines', loc='upper right', labels=['train', 'validation', 'test'])
-            if other_trainHelpers == None:
-                plt.savefig(os.path.join(data_path, self.MRI_series_this,  f'{self.mode}_result', f'epoch{average_list_x[0]}_epoch{epoch}_{i}.png'))
-            else:
-                plt.savefig(os.path.join(data_path, self.MRI_series_this, f'epoch{average_list_x[0]}_epoch{epoch}_{i}.png'))
+            plt.savefig(os.path.join(data_path, self.MRI_series_this, f'epoch{average_list_x[0]}_epoch{epoch}_{i}.png'))
             plt.close(fig)
 
     def list_write_into_log(self, epoch):
@@ -314,7 +324,35 @@ class trainHelper():
                 f.write(f'{eval_para}:{val}\n')
             f.write('\n\n')
         f.close()
-    
+
+def compare_train_validation_test(trainHelpers, epoch, step=1):
+    average_list_x = np.arange(
+        start=epoch - step * len(trainHelpers[0].loss_average_list) + step, stop=epoch + step, step=step)
+    evalution_params = ['loss', 'accuracy', 'precision', 'sensitivity', 'specificity', 'balance_accuracy', 'IoU', 'f1score']
+    for i in evalution_params:
+        fig = plt.figure(figsize=(6, 6))
+        for trainHelper in trainHelpers:
+            plt.plot(average_list_x, eval(f'trainHelper.{i}_average_list'))
+        
+        plt.title(f'epoch{average_list_x[0]} - epoch{epoch} {i}')
+        plt.xlabel('epoch')
+        plt.ylabel(i)
+        
+        plt.legend(titel='Lines', loc='upper right', labels=['train', 'validation', 'test'])
+        plt.savefig(os.path.join(data_path, trainHelpers[0].MRI_series_this, f'epoch{average_list_x[0]}_epoch{epoch}_{i}.png'))
+        plt.close(fig)
+
+def ROC_curve(trainHelpers):
+    fig = plt.figure(figsize=(6, 6))
+    for trainHelper in trainHelpers:
+        plt.plot(trainHelper.FPR_average_list, trainHelper.sensitivity_average_list)
+
+    plt.title('ROC Curve')
+    plt.xlabel('Flase Positive Rate')
+    plt.ylabel('True Postive Rate')
+    plt.savefig(os.path.join(data_path, trainHelpers[0].MRI_series_this, f'ROC_Curve.png'))
+    plt.close(fig)
+
 
 if __name__ == '__main__':
     s = trainHelper("Stack", "train", 1)

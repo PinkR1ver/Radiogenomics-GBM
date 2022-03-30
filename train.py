@@ -25,14 +25,23 @@ validation_path = os.path.join(data_path, 'validation_result')
 if not os.path.isdir(model_path):
     os.mkdir(model_path)
 
+if not os.path.isdir(train_path):
+    os.mkdir(train_path)
+
+if not os.path.isdir(test_path):
+    os.mkdir(test_path)
+
+if not os.path.isdir(validation_path):
+    os.mkdir(validation_path)
+
 if not os.path.isdir(os.path.join(train_path, MRI_series_this)):
     os.mkdir(os.path.join(train_path, MRI_series_this))
 
 if not os.path.isdir(os.path.join(validation_path, MRI_series_this)):
-    os.mkdir(os.path.join(train_path, MRI_series_this))
+    os.mkdir(os.path.join(validation_path, MRI_series_this))
 
 if not os.path.isdir(os.path.join(test_path, MRI_series_this)):
-    os.mkdir(os.path.join(train_path, MRI_series_this))
+    os.mkdir(os.path.join(test_path, MRI_series_this))
 
 
 if torch.cuda.is_available():
@@ -45,7 +54,7 @@ else:
 
 if __name__ == '__main__':
 
-    GBM_Dataset = ImageDataset(data_path, 'GBM_MRI_Dataset.csv', MRI_series=MRI_series_this, mode='train', resize=(255, 255))
+    GBM_Dataset = ImageDataset(data_path, 'GBM_MRI_Dataset.csv', MRI_series=MRI_series_this, mode='train', resize=(256, 256))
 
     training_data_size = 0.8
 
@@ -54,7 +63,7 @@ if __name__ == '__main__':
 
     train_dataset, validation_dataset = torch.utils.data.random_split(GBM_Dataset, [train_size, validation_size])
 
-    test_dataset = ImageDataset(data_path, 'GBM_MRI_Dataset.csv', MRI_series=MRI_series_this, mode='test', resize=(255, 255))
+    test_dataset = ImageDataset(data_path, 'GBM_MRI_Dataset.csv', MRI_series=MRI_series_this, mode='test', resize=(256, 256))
 
     batch_size = 4
 
@@ -82,8 +91,8 @@ if __name__ == '__main__':
     evalution_list_test =  trainHelper.trainHelper(MRI_series_this=MRI_series_this, mode='test', begin=epoch)
 
     try:
-        for iter_out in tqdm(range(1, epoches + 1)):
-            for i, (image, mask) in enumerate(train_loader):
+        for iter_out in range(1, epoches + 1):
+            for i, (image, mask) in tqdm(enumerate(train_loader)):
                 image, mask = image.to(device), mask.to(device)
 
                 predict_image = net(image)
@@ -95,9 +104,6 @@ if __name__ == '__main__':
 
                 evalution_list_train.list_pushback(predict_image, mask, train_loss.item())
 
-                mask[mask >= 0.5] = 1
-                mask[mask < 0.5] = 0
-
                 _image = image[0]
                 if MRI_series_this == 'Stack':
                     _mask = gray2RGB(mask[0])
@@ -105,6 +111,9 @@ if __name__ == '__main__':
                 else:
                     _mask = mask[0]
                     _pred_Image = predict_image[0]
+                
+                predict_image[predict_image >= 0.5] = 1
+                predict_image[predict_image < 0.5] = 0
 
                 visual_image = torch.stack([_image, _mask, _pred_Image], dim=0)
                 torchvision.utils.save_image(visual_image, os.path.join(train_path, MRI_series_this, f'{i}.png'))
@@ -126,8 +135,8 @@ if __name__ == '__main__':
 
                 evalution_list_valitaion.list_pushback(predict_image, mask, train_loss.item())
 
-                mask[mask >= 0.5] = 1
-                mask[mask < 0.5] = 0
+                predict_image[predict_image >= 0.5] = 1
+                predict_image[predict_image < 0.5] = 0
 
                 _image = image[0]
                 if MRI_series_this == 'Stack':
@@ -158,8 +167,8 @@ if __name__ == '__main__':
 
                 evalution_list_test.list_pushback(predict_image, mask, train_loss.item())
 
-                mask[mask >= 0.5] = 1
-                mask[mask < 0.5] = 0
+                predict_image[predict_image >= 0.5] = 1
+                predict_image[predict_image < 0.5] = 0
 
                 _image = image[0]
                 if MRI_series_this == 'Stack':
@@ -170,7 +179,7 @@ if __name__ == '__main__':
                     _pred_Image = predict_image[0]
 
                 visual_image = torch.stack([_image, _mask, _pred_Image], dim=0)
-                torchvision.utils.save_image(visual_image, os.path.join(validation_path, MRI_series_this, f'{i}.png'))
+                torchvision.utils.save_image(visual_image, os.path.join(test_path, MRI_series_this, f'{i}.png'))
       
 
             evalution_list_test.list_plot(epoch) 
@@ -198,7 +207,8 @@ if __name__ == '__main__':
         evalution_list_test.average_list_plot(epoch)
         evalution_list_test.average_list_write_into_log(epoch)
 
-        evalution_list_train.average_list_plot(epoch, [evalution_list_valitaion, evalution_list_test])
+        trainHelper.compare_train_validation_test([evalution_list_train, evalution_list_valitaion, evalution_list_test], epoch)
+        trainHelper.ROC_curve([evalution_list_train, evalution_list_valitaion, evalution_list_test])
 
     except:
         print('Exception!!!')
@@ -212,6 +222,8 @@ if __name__ == '__main__':
         f.write('\n')
         f.close()
 
+        torch.save(net.state_dict(), weight_path)
+
         if evalution_list_train.loss_average_list.size !=0:
             evalution_list_train.average_list_plot(epoch)
             evalution_list_train.average_list_write_into_log(epoch)
@@ -222,22 +234,11 @@ if __name__ == '__main__':
             evalution_list_test.average_list_plot(epoch)
             evalution_list_test.average_list_write_into_log(epoch)
 
-            evalution_list_train.average_list_plot(epoch, [evalution_list_valitaion, evalution_list_test])
+            trainHelper.compare_train_validation_test([evalution_list_train, evalution_list_valitaion, evalution_list_test], epoch)
+            trainHelper.ROC_curve([evalution_list_train, evalution_list_valitaion, evalution_list_test])
 
         trainHelper.sendmail(content=r'Your train.py went something wrong', subject=r'train.py go wrong')
     
     else:
         print("Train finishing")
-        if evalution_list_train.loss_average_list.size !=0:
-            evalution_list_train.average_list_plot(epoch)
-            evalution_list_train.average_list_write_into_log(epoch)
-
-            evalution_list_valitaion.average_list_plot(epoch)
-            evalution_list_valitaion.average_list_write_into_log(epoch)
-
-            evalution_list_test.average_list_plot(epoch)
-            evalution_list_test.average_list_write_into_log(epoch)
-
-            evalution_list_train.average_list_plot(epoch, [evalution_list_valitaion, evalution_list_test])
-
         trainHelper.sendmail(content=r'Your train.py run success', subject=r'train.py finished')

@@ -27,50 +27,23 @@ ROC_path = os.path.join(result_path, 'ROC_curve')
 if not os.path.isdir(model_path):
     os.mkdir(model_path)
 
+if not os.path.isdir(result_path):
+    os.mkdir(result_path)
+
+if not os.path.isdir(os.path.join(result_path, 'tmp')):
+    os.mkdir(os.path.join(result_path, 'tmp'))
+
 if not os.path.isdir(ROC_path):
     os.mkdir(ROC_path)
 
-if not os.pardir(result_path):
-    os.mkdir(result_path)
+for mode1 in ['train', 'validation', 'test']:
+    if not os.path.isdir(eval(f'{mode1}_path')):
+        os.mkdir(eval(f'{mode1}_path'))
 
-if not os.path.isdir(train_path):
-    os.mkdir(train_path)
-
-if not os.path.isdir(train_path, 'Images'):
-    os.mkdir(train_path, 'Images')
-
-if not os.path.isdir(train_path, 'Masks'):
-    os.mkdir(train_path, 'Masks')
-
-if not os.path.isdir(train_path, 'Preds'):
-    os.mkdir(train_path, 'Preds')
-
-if not os.path.isdir(train_path, 'Monitor'):
-    os.mkdir(train_path, 'Monitor')
-
-if not os.path.isdir(validation_path, 'Images'):
-    os.mkdir(validation_path, 'Images')
-
-if not os.path.isdir(validation_path, 'Masks'):
-    os.mkdir(validation_path, 'Masks')
-
-if not os.path.isdir(validation_path, 'Preds'):
-    os.mkdir(validation_path, 'Preds')
-
-if not os.path.isdir(validation_path, 'Monitor'):
-    os.mkdir(validation_path, 'Monitor')
-
-if not os.path.isdir(test_path, 'Images'):
-    os.mkdir(test_path, 'Images')
-
-if not os.path.isdir(test_path, 'Masks'):
-    os.mkdir(test_path, 'Masks')
-
-if not os.path.isdir(test_path, 'Preds'):
-    os.mkdir(test_path, 'Preds')
-
-if not os.path.isdir(test_path, 'Monitor'):
-    os.mkdir(test_path, 'Monitor')
+for mode1 in ['Images', 'Masks', 'Preds', 'Monitor']:
+    for mode2 in ['train', 'validation', 'test']:
+        if not os.path.isdir(os.path.join(eval(f'{mode2}_path'), mode1)):
+            os.mkdir(os.path.join(eval(f'{mode2}_path'), mode1))
 
 if torch.cuda.is_available():
     device = 'cuda'
@@ -131,7 +104,7 @@ if __name__ == '__main__':
 
                 predict_image = net(image)
                 train_loss = loss_function(predict_image, mask)
-                loss_list = np.append(loss_list, train_loss)
+                loss_list = np.append(loss_list, train_loss.item)
 
                 opt.zero_grad()
                 train_loss.backward()
@@ -140,7 +113,7 @@ if __name__ == '__main__':
                 if i % 5 == 0:
                     print(f'{epoch}-{i} train loss=====>>{train_loss.item()}')
 
-                for j in image.shape[0]:
+                for j in range(image.shape[0]):
                     _image = image[j]
                     _mask = mask[j]
                     _pred_Image = predict_image[j]
@@ -161,11 +134,12 @@ if __name__ == '__main__':
 
                 predict_image = net(image)
                 train_loss = loss_function(predict_image, mask)
+                loss_list = np.append(loss_list, train_loss.item())
 
                 if i % 5 == 0:
                     print(f'{epoch}-{i} validation loss=====>>{train_loss.item()}')
 
-                for j in image.shape[0]:
+                for j in range(image.shape[0]):
                     _image = image[j]
                     _mask = mask[j]
                     _pred_Image = predict_image[j]
@@ -186,11 +160,12 @@ if __name__ == '__main__':
 
                 predict_image = net(image)
                 train_loss = loss_function(predict_image, mask)
+                loss_list = np.append(loss_list, train_loss.item())
 
                 if i % 5 == 0:
                     print(f'{epoch}-{i} test loss=====>>{train_loss.item()}')
 
-                for j in image.shape[0]:
+                for j in range(image.shape[0]):
                     _image = image[j]
                     _mask = mask[j]
                     _pred_Image = predict_image[j]

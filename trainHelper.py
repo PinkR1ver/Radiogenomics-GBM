@@ -11,7 +11,6 @@ from email.mime.text import MIMEText
 import math
 import cv2
 import gc
-from tabulate import tabulate
 import pandas as pd
 
 base_path = os.path.dirname(__file__)

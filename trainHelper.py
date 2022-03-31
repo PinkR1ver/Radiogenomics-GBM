@@ -289,7 +289,7 @@ class trainHelper():
             plt.xlabel('epoch')
             plt.ylabel(i)
             plt.plot(average_list_x, eval(f'self.{i}_average_list'))
-            plt.savefig(os.path.join(data_path, self.MRI_series_this, f'epoch{average_list_x[0]}_epoch{epoch}_{i}.png'))
+            plt.savefig(os.path.join(data_path, self.MRI_series_this,  f'{self.mode}_result', f'epoch{average_list_x[0]}_epoch{epoch}_{i}.png'))
             plt.close(fig)
 
     def list_write_into_log(self, epoch):
@@ -338,7 +338,7 @@ def compare_train_validation_test(trainHelpers, epoch, step=1):
         plt.xlabel('epoch')
         plt.ylabel(i)
         
-        plt.legend(titel='Lines', loc='upper right', labels=['train', 'validation', 'test'])
+        plt.legend(title='Lines', loc='upper right', labels=['train', 'validation', 'test'])
         plt.savefig(os.path.join(data_path, trainHelpers[0].MRI_series_this, f'epoch{average_list_x[0]}_epoch{epoch}_{i}.png'))
         plt.close(fig)
 
@@ -350,6 +350,7 @@ def ROC_curve(trainHelpers):
     plt.title('ROC Curve')
     plt.xlabel('Flase Positive Rate')
     plt.ylabel('True Postive Rate')
+    plt.legend(title='Lines', loc='upper right', labels=['train', 'validation', 'test'])
     plt.savefig(os.path.join(data_path, trainHelpers[0].MRI_series_this, f'ROC_Curve.png'))
     plt.close(fig)
 
@@ -378,5 +379,8 @@ if __name__ == '__main__':
     t.list_pushback(x, y, 0.02)
     t.average_list_pushback()
 
-    s.average_list_plot(20, [t])
+    s.average_list_plot(20)
+
+    compare_train_validation_test([s,t,t], 10)
+    ROC_curve([s,t,t])
 

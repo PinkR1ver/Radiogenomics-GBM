@@ -10,7 +10,7 @@ from email.mime.text import MIMEText
 from torch import nn
 
 base_path = os.path.dirname(__file__)
-data_path = os.path.join(base_path, 'data', 'Unet_evaluation')
+data_path = os.path.join(base_path, 'data', 'UNet_evaluation')
 model_path = os.path.join(base_path, 'model')
 train_path = os.path.join(data_path, 'train_result')
 validation_path = os.path.join(data_path, 'validation_result')
@@ -175,7 +175,9 @@ class trainHelper():
         self.mode = mode
         self.begin = begin
         self.MRI_series_this = MRI_series_this
-
+        
+        if not os.path.isdir(data_path):
+            os.mkdir(data_path)   
         if not os.path.isdir(os.path.join(data_path, self.MRI_series_this)):
             os.mkdir(os.path.join(data_path, self.MRI_series_this))
         if not os.path.isdir(os.path.join(data_path, self.MRI_series_this,  f'{self.mode}_result')):

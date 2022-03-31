@@ -110,9 +110,6 @@ if __name__ == '__main__':
                 train_loss.backward()
                 opt.step()
 
-                if i % 5 == 0:
-                    print(f'{epoch}-{i} train loss=====>>{train_loss.item()}')
-
                 for j in range(image.shape[0]):
                     _image = image[j]
                     _mask = mask[j]
@@ -136,9 +133,6 @@ if __name__ == '__main__':
                 train_loss = loss_function(predict_image, mask)
                 loss_list = np.append(loss_list, train_loss.item())
 
-                if i % 5 == 0:
-                    print(f'{epoch}-{i} validation loss=====>>{train_loss.item()}')
-
                 for j in range(image.shape[0]):
                     _image = image[j]
                     _mask = mask[j]
@@ -161,9 +155,6 @@ if __name__ == '__main__':
                 predict_image = net(image)
                 train_loss = loss_function(predict_image, mask)
                 loss_list = np.append(loss_list, train_loss.item())
-
-                if i % 5 == 0:
-                    print(f'{epoch}-{i} test loss=====>>{train_loss.item()}')
 
                 for j in range(image.shape[0]):
                     _image = image[j]

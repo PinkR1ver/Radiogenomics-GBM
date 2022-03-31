@@ -16,33 +16,61 @@ epoches = int(sys.argv[2])
 
 base_path = os.path.dirname(__file__)
 data_path = os.path.join(base_path, 'data')
+result_path = os.path.join(data_path, 'result', MRI_series_this)
 model_path = os.path.join(base_path, 'model', MRI_series_this)
 weight_path = os.path.join(model_path, f'{MRI_series_this}_unet.pth')
-train_path = os.path.join(data_path, 'train_result')
-test_path = os.path.join(data_path, 'test_result')
-validation_path = os.path.join(data_path, 'validation_result')
+train_path = os.path.join(result_path, 'tmp', 'train')
+test_path = os.path.join(result_path, 'tmp', 'test')
+validation_path = os.path.join(result_path, 'tmp', 'validation')
+ROC_path = os.path.join(result_path, 'ROC_curve')
 
 if not os.path.isdir(model_path):
     os.mkdir(model_path)
 
+if not os.path.isdir(ROC_path):
+    os.mkdir(ROC_path)
+
+if not os.pardir(result_path):
+    os.mkdir(result_path)
+
 if not os.path.isdir(train_path):
     os.mkdir(train_path)
 
-if not os.path.isdir(test_path):
-    os.mkdir(test_path)
+if not os.path.isdir(train_path, 'Images'):
+    os.mkdir(train_path, 'Images')
 
-if not os.path.isdir(validation_path):
-    os.mkdir(validation_path)
+if not os.path.isdir(train_path, 'Masks'):
+    os.mkdir(train_path, 'Masks')
 
-if not os.path.isdir(os.path.join(train_path, MRI_series_this)):
-    os.mkdir(os.path.join(train_path, MRI_series_this))
+if not os.path.isdir(train_path, 'Preds'):
+    os.mkdir(train_path, 'Preds')
 
-if not os.path.isdir(os.path.join(validation_path, MRI_series_this)):
-    os.mkdir(os.path.join(validation_path, MRI_series_this))
+if not os.path.isdir(train_path, 'Monitor'):
+    os.mkdir(train_path, 'Monitor')
 
-if not os.path.isdir(os.path.join(test_path, MRI_series_this)):
-    os.mkdir(os.path.join(test_path, MRI_series_this))
+if not os.path.isdir(validation_path, 'Images'):
+    os.mkdir(validation_path, 'Images')
 
+if not os.path.isdir(validation_path, 'Masks'):
+    os.mkdir(validation_path, 'Masks')
+
+if not os.path.isdir(validation_path, 'Preds'):
+    os.mkdir(validation_path, 'Preds')
+
+if not os.path.isdir(validation_path, 'Monitor'):
+    os.mkdir(validation_path, 'Monitor')
+
+if not os.path.isdir(test_path, 'Images'):
+    os.mkdir(test_path, 'Images')
+
+if not os.path.isdir(test_path, 'Masks'):
+    os.mkdir(test_path, 'Masks')
+
+if not os.path.isdir(test_path, 'Preds'):
+    os.mkdir(test_path, 'Preds')
+
+if not os.path.isdir(test_path, 'Monitor'):
+    os.mkdir(test_path, 'Monitor')
 
 if torch.cuda.is_available():
     device = 'cuda'
@@ -54,22 +82,28 @@ else:
 
 if __name__ == '__main__':
 
-    GBM_Dataset = ImageDataset(data_path, 'GBM_MRI_Dataset.csv', MRI_series=MRI_series_this, mode='train', resize=(256, 256))
+    GBM_Dataset = ImageDataset(data_path, 'GBM_MRI_Dataset.csv',
+                               MRI_series=MRI_series_this, mode='train', resize=(256, 256))
 
     training_data_size = 0.8
 
     train_size = int(training_data_size * len(GBM_Dataset))
     validation_size = len(GBM_Dataset) - train_size
 
-    train_dataset, validation_dataset = torch.utils.data.random_split(GBM_Dataset, [train_size, validation_size])
+    train_dataset, validation_dataset = torch.utils.data.random_split(
+        GBM_Dataset, [train_size, validation_size])
 
-    test_dataset = ImageDataset(data_path, 'GBM_MRI_Dataset.csv', MRI_series=MRI_series_this, mode='test', resize=(256, 256))
+    test_dataset = ImageDataset(data_path, 'GBM_MRI_Dataset.csv',
+                                MRI_series=MRI_series_this, mode='test', resize=(256, 256))
 
     batch_size = 4
 
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-    validation_loader = DataLoader(validation_dataset, batch_size=batch_size, shuffle=False)
-    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
+    train_loader = DataLoader(
+        train_dataset, batch_size=batch_size, shuffle=True)
+    validation_loader = DataLoader(
+        validation_dataset, batch_size=batch_size, shuffle=False)
+    test_loader = DataLoader(
+        test_dataset, batch_size=batch_size, shuffle=False)
 
     net = UNet().to(device)
 
@@ -86,103 +120,115 @@ if __name__ == '__main__':
     epoch = int(f.read())
     f.close()
 
-    evalution_list_train = trainHelper.trainHelper(MRI_series_this=MRI_series_this, mode='train', begin=epoch)
-    evalution_list_valitaion = trainHelper.trainHelper(MRI_series_this=MRI_series_this, mode='validation', begin=epoch)
-    evalution_list_test =  trainHelper.trainHelper(MRI_series_this=MRI_series_this, mode='test', begin=epoch)
+    evl_list = trainHelper.evaluation_list()
+    loss_list = np.array([])
+    average_loss_list = np.array([])
 
     try:
         for iter_out in range(1, epoches + 1):
-            for i, (image, mask) in tqdm(enumerate(train_loader), desc =f"train_{epoch}", total=len(train_loader)):
+            for i, (image, mask) in tqdm(enumerate(train_loader), desc=f"train_{epoch}", total=len(train_loader)):
                 image, mask = image.to(device), mask.to(device)
 
                 predict_image = net(image)
                 train_loss = loss_function(predict_image, mask)
+                loss_list = np.append(loss_list, train_loss)
 
                 opt.zero_grad()
                 train_loss.backward()
                 opt.step()
 
-                evalution_list_train.list_pushback(predict_image, mask, train_loss.item())
+                if i % 5 == 0:
+                    print(f'{epoch}-{i} train loss=====>>{train_loss.item()}')
 
-                _image = image[0]
-                if MRI_series_this == 'Stack':
-                    _mask = gray2RGB(mask[0])
-                    _pred_Image = gray2RGB(predict_image[0])
-                else:
-                    _mask = mask[0]
-                    _pred_Image = predict_image[0]
-                
-                predict_image[predict_image >= 0.5] = 1
-                predict_image[predict_image < 0.5] = 0
+                for j in image.shape[0]:
+                    _image = image[j]
+                    _mask = mask[j]
+                    _pred_Image = predict_image[j]
 
-                visual_image = torch.stack([_image, _mask, _pred_Image], dim=0)
-                torchvision.utils.save_image(visual_image, os.path.join(train_path, MRI_series_this, f'{i}.png'))
+                    torchvision.utils.save_image(_image, os.path.join(
+                        train_path, 'Images', f'{i * batch_size + j}.png'))
+                    torchvision.utils.save_image(_mask, os.path.join(
+                        train_path, 'Masks', f'{i * batch_size + j}.png'))
+                    torchvision.utils.save_image(_pred_Image, os.path.join(
+                        train_path, 'Preds', f'{i * batch_size + j}.png'))
 
-            evalution_list_train.list_plot(epoch) 
-            evalution_list_train.list_write_into_log(epoch)
-            evalution_list_train.average_list_pushback()
-            evalution_list_train.clear_list()
+            average_loss_list = np.append(
+                average_loss_list, loss_list.sum() / len(loss_list))
+            loss_list = np.array([])
 
-            for i, (image, mask) in tqdm(enumerate(validation_loader), desc =f"validation_{epoch}", total=len(validation_loader)):
+            for i, (image, mask) in tqdm(enumerate(validation_loader), desc=f"validation_{epoch}", total=len(validation_loader)):
                 image, mask = image.to(device), mask.to(device)
 
                 predict_image = net(image)
                 train_loss = loss_function(predict_image, mask)
 
-                evalution_list_valitaion.list_pushback(predict_image, mask, train_loss.item())
+                if i % 5 == 0:
+                    print(f'{epoch}-{i} validation loss=====>>{train_loss.item()}')
 
-                predict_image[predict_image >= 0.5] = 1
-                predict_image[predict_image < 0.5] = 0
+                for j in image.shape[0]:
+                    _image = image[j]
+                    _mask = mask[j]
+                    _pred_Image = predict_image[j]
 
-                _image = image[0]
-                if MRI_series_this == 'Stack':
-                    _mask = gray2RGB(mask[0])
-                    _pred_Image = gray2RGB(predict_image[0])
-                else:
-                    _mask = mask[0]
-                    _pred_Image = predict_image[0]
+                    torchvision.utils.save_image(_image, os.path.join(
+                        validation_path, 'Images', f'{i * batch_size + j}.png'))
+                    torchvision.utils.save_image(_mask, os.path.join(
+                        validation_path, 'Masks', f'{i * batch_size + j}.png'))
+                    torchvision.utils.save_image(_pred_Image, os.path.join(
+                        validation_path, 'Preds', f'{i * batch_size + j}.png'))
 
-                visual_image = torch.stack([_image, _mask, _pred_Image], dim=0)
-                torchvision.utils.save_image(visual_image, os.path.join(validation_path, MRI_series_this, f'{i}.png'))
+            average_loss_list = np.append(
+                average_loss_list, loss_list.sum() / len(loss_list))
+            loss_list = np.array([])
 
-            evalution_list_valitaion.list_plot(epoch) 
-            evalution_list_valitaion.list_write_into_log(epoch)
-            evalution_list_valitaion.average_list_pushback()
-            evalution_list_valitaion.clear_list()
-
-
-            for i, (image, mask) in tqdm(enumerate(test_loader), desc =f"test_{epoch}", total=len(test_loader)):
+            for i, (image, mask) in tqdm(enumerate(test_loader), desc=f"test_{epoch}", total=len(test_loader)):
                 image, mask = image.to(device), mask.to(device)
 
                 predict_image = net(image)
                 train_loss = loss_function(predict_image, mask)
 
-                evalution_list_test.list_pushback(predict_image, mask, train_loss.item())
+                if i % 5 == 0:
+                    print(f'{epoch}-{i} test loss=====>>{train_loss.item()}')
 
-                predict_image[predict_image >= 0.5] = 1
-                predict_image[predict_image < 0.5] = 0
+                for j in image.shape[0]:
+                    _image = image[j]
+                    _mask = mask[j]
+                    _pred_Image = predict_image[j]
 
-                _image = image[0]
-                if MRI_series_this == 'Stack':
-                    _mask = gray2RGB(mask[0])
-                    _pred_Image = gray2RGB(predict_image[0])
-                else:
-                    _mask = mask[0]
-                    _pred_Image = predict_image[0]
+                    torchvision.utils.save_image(_image, os.path.join(
+                        test_path, 'Images', f'{i * batch_size + j}.png'))
+                    torchvision.utils.save_image(_mask, os.path.join(
+                        test_path, 'Masks', f'{i * batch_size + j}.png'))
+                    torchvision.utils.save_image(_pred_Image, os.path.join(
+                        test_path, 'Preds', f'{i * batch_size + j}.png'))
+            
+            average_loss_list = np.append(
+                average_loss_list, loss_list.sum() / len(loss_list))
+            loss_list = np.array([])
+            
+            
+            evl_dict = trainHelper.evalation_all(train_path=[os.path.join(train_path, 'Preds'), os.path.join(train_path, 'Masks')], validation_path=[os.path.join(validation_path, 'Preds'), os.path.join(validation_path, 'Masks')], test_path=[os.path.join(test_path, 'Preds'), os.path.join(test_path, 'Masks')], ROC_cruve_save_path=ROC_path)
+            evl_dict['loss'] = average_loss_list
+            evl_list.push(evl_dict)
 
-                visual_image = torch.stack([_image, _mask, _pred_Image], dim=0)
-                torchvision.utils.save_image(visual_image, os.path.join(test_path, MRI_series_this, f'{i}.png'))
-      
-
-            evalution_list_test.list_plot(epoch) 
-            evalution_list_test.list_write_into_log(epoch)
-            evalution_list_test.average_list_pushback()
-            evalution_list_test.clear_list()
+            average_loss_list = np.array([])
 
             if epoch % 25 == 0:
-                torch.save(net.state_dict(), os.path.join(model_path, f'{MRI_series_this}_epoch_{epoch}.pth'))
-            
+                torch.save(net.state_dict(), os.path.join(
+                    model_path, f'{MRI_series_this}_epoch_{epoch}.pth'))
+
             torch.save(net.state_dict(), weight_path)
+
+            if epoch % 20 == 0:
+                monitor_train_path = []
+                monitor_validation_path = []
+                monitor_test_path = []
+                for mode in ['Images', 'Masks', 'Preds', 'Monitor']:
+                    monitor_train_path.append(os.path.join(train_path, mode))
+                    monitor_validation_path.append(os.path.join(validation_path, mode))
+                    monitor_test_path.append(os.path.join(test_path, mode))
+                trainHelper.updata_monitor(train_path=monitor_train_path, validation_path=monitor_validation_path, test_path=monitor_test_path)
+
             epoch += 1
 
             f = open(os.path.join(
@@ -190,22 +236,11 @@ if __name__ == '__main__':
             f.write(f'{epoch}')
             f.close()
 
-        evalution_list_train.average_list_plot(epoch)
-        evalution_list_train.average_list_write_into_log(epoch)
-
-        evalution_list_valitaion.average_list_plot(epoch)
-        evalution_list_valitaion.average_list_write_into_log(epoch)
-
-        evalution_list_test.average_list_plot(epoch)
-        evalution_list_test.average_list_write_into_log(epoch)
-
-        trainHelper.compare_train_validation_test([evalution_list_train, evalution_list_valitaion, evalution_list_test], epoch)
-        trainHelper.ROC_curve([evalution_list_train, evalution_list_valitaion, evalution_list_test])
-
     except:
         print('Exception!!!')
         if not os.path.isfile(os.path.join(base_path, 'exception_in_trainning', f'{MRI_series_this}_log.txt')):
-            f = open(os.path.join(base_path, 'exception_in_trainning', f'{MRI_series_this}_log.txt'), 'x')
+            f = open(os.path.join(base_path, 'exception_in_trainning',
+                     f'{MRI_series_this}_log.txt'), 'x')
             f.close()
         f = open(os.path.join(base_path, 'exception_in_trainning',
                  f'{MRI_series_this}_log.txt'), 'a')
@@ -216,21 +251,22 @@ if __name__ == '__main__':
 
         torch.save(net.state_dict(), weight_path)
 
-        if evalution_list_train.loss_average_list.size !=0:
-            evalution_list_train.average_list_plot(epoch)
-            evalution_list_train.average_list_write_into_log(epoch)
+        if iter_out != 1:
+            evl_list.single_plot(epoch)
+            evl_list.all_plot(epoch)
+            evl_list.single_log(epoch)
+            evl_list.all_log(epoch)
 
-            evalution_list_valitaion.average_list_plot(epoch)
-            evalution_list_valitaion.average_list_write_into_log(epoch)
+        trainHelper.sendmail(
+            content=r'Your train.py went something wrong', subject=r'train.py go wrong')
 
-            evalution_list_test.average_list_plot(epoch)
-            evalution_list_test.average_list_write_into_log(epoch)
-
-            trainHelper.compare_train_validation_test([evalution_list_train, evalution_list_valitaion, evalution_list_test], epoch)
-            trainHelper.ROC_curve([evalution_list_train, evalution_list_valitaion, evalution_list_test])
-
-        trainHelper.sendmail(content=r'Your train.py went something wrong', subject=r'train.py go wrong')
-    
     else:
         print("Train finishing")
-        trainHelper.sendmail(content=r'Your train.py run success', subject=r'train.py finished')
+
+        evl_list.single_plot(epoch)
+        evl_list.all_plot(epoch)
+        evl_list.single_log(epoch)
+        evl_list.all_log(epoch)
+
+        trainHelper.sendmail(
+            content=r'Your train.py run success', subject=r'train.py finished')

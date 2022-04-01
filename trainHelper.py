@@ -15,13 +15,16 @@ import pandas as pd
 
 base_path = os.path.dirname(__file__)
 data_path = os.path.join(base_path, 'data', 'result')
+train_path = os.path.join(data_path, 'tmp', 'train')
+test_path = os.path.join(data_path, 'tmp', 'test')
+validation_path = os.path.join(data_path, 'tmp', 'validation')
 
 def sendmail(content, subject):
     # setting mail server information
     mail_host = 'smtp.gmail.com'
 
     # password
-    mail_pass = '***********'
+    mail_pass = '585Goo521'
 
     # sender mail
     sender = 'fakelspwang@gmail.com'
@@ -59,47 +62,41 @@ def sendmail(content, subject):
             smtpObj.quit()
 
 
-def ROC_to_calculate_thresold(pred_path, truth_path, save_path=None, save_or_not=False):
-    preds = []
-    truths = []
-    for i in os.listdir(pred_path):
-        pred = cv2.imread(os.path.join(pred_path, i), cv2.IMREAD_GRAYSCALE)
-        preds.append(pred)
-
-        truth = cv2.imread(os.path.join(truth_path, i), cv2.IMREAD_GRAYSCALE)
-        truths.append(truth)
-    
+def ROC_to_calculate_thresold(preds, truths, save_path=None, save_or_not=False):
 
     FPR = np.array([])
     TPR = np.array([])
     G_mean_flag = (0, 0)
     G_mean_max = 0
     threshold_flag = 0
-    for i in len(preds):
-        FP, FN, TP, TN = 0
-        for threshold in np.arange(0, 255, 1):
-            tmp_pred = preds[i]
-            tmp_pred = tmp_pred[tmp_pred >= threshold] = 255
-            tmp_pred = tmp_pred[tmp_pred < threshold] = 0
+    for threshold in np.arange(0, 1, 0.0001):
+        FP, FN, TP, TN = 0, 0, 0, 0
 
-            tmp_truth = truths[i]
-            tmp_truth = tmp_truth[tmp_truth >= threshold] = 255
-            tmp_truth = tmp_truth[tmp_truth < threshold] = 0
+        for i in range(len(preds)):
+            tmp_pred = torch.squeeze(preds[i].cpu()).detach().numpy()
+            tmp_pred[tmp_pred >= threshold] = 1
+            tmp_pred[tmp_pred < threshold] = 0
 
-            FP += len(np.where(tmp_pred - tmp_truth == -255)[0])
-            FN += len(np.where(tmp_pred - tmp_truth == 255)[0])
-            TP += len(np.where(tmp_pred + tmp_truth == 510)[0])
+            tmp_truth = torch.squeeze(truths[i].cpu()).detach().numpy()
+            tmp_truth[tmp_truth >= threshold] = 1
+            tmp_truth[tmp_truth < threshold] = 0
+
+
+            FP += len(np.where(tmp_pred - tmp_truth == -1)[0])
+            FN += len(np.where(tmp_pred - tmp_truth == 1)[0])
+            TP += len(np.where(tmp_pred + tmp_truth == 2)[0])
             TN += len(np.where(tmp_pred + tmp_truth == 0)[0])
         
-        FPR = np.append(FPR, FP / (FP + TN))
-        TPR = np.append(TPR, TP / (TP + FN))
-        recall = TP / (TP + TN)
-        specificity = TN / (TN + FP)
-        G_mean = math.sqrt(recall * specificity)
-        if G_mean > G_mean_max:
-            G_mean_max = G_mean
-            G_mean_flag = (FPR[-1], TPR[-1])
-            threshold_flag = threshold
+        if FP + TN != 0 and TP + FN != 0 and TP + TN != 0 and TN + FP != 0:
+            FPR = np.append(FPR, FP / (FP + TN))
+            TPR = np.append(TPR, TP / (TP + FN))
+            recall = TP / (TP + TN)
+            specificity = TN / (TN + FP)
+            G_mean = math.sqrt(recall * specificity)
+            if G_mean > G_mean_max:
+                G_mean_max = G_mean
+                G_mean_flag = (FPR[-1], TPR[-1])
+                threshold_flag = threshold
 
     if save_or_not:
         fig = plt.figure()
@@ -114,6 +111,7 @@ def ROC_to_calculate_thresold(pred_path, truth_path, save_path=None, save_or_not
 
     return threshold_flag
 
+'''
 def f1score_to_calculate_thresold(pred_path, truth_path, save_path=None, save_or_not=False):
     preds = []
     truths = []
@@ -129,32 +127,35 @@ def f1score_to_calculate_thresold(pred_path, truth_path, save_path=None, save_or
     f1score_flag = (0, 0)
     f1score_max = 0
     threshold_flag = 0
-    for i in len(preds):
-        FP, FN, TP, TN = 0
-        for threshold in np.arange(0, 255, 1):
+    x = np.array([])
+    for threshold in np.arange(0, 255, 1):
+        FP, FN, TP, TN = 0, 0, 0, 0
+        for i in range(len(preds)):
+
             tmp_pred = preds[i]
-            tmp_pred = tmp_pred[tmp_pred >= threshold] = 255
-            tmp_pred = tmp_pred[tmp_pred < threshold] = 0
+            tmp_pred[tmp_pred >= threshold] = 1
+            tmp_pred[tmp_pred < threshold] = 0
 
             tmp_truth = truths[i]
-            tmp_truth = tmp_truth[tmp_truth >= threshold] = 255
-            tmp_truth = tmp_truth[tmp_truth < threshold] = 0
+            tmp_truth[tmp_truth >= threshold] = 1
+            tmp_truth[tmp_truth < threshold] = 0
 
-            FP += len(np.where(tmp_pred - tmp_truth == -255)[0])
-            FN += len(np.where(tmp_pred - tmp_truth == 255)[0])
-            TP += len(np.where(tmp_pred + tmp_truth == 510)[0])
+            FP += len(np.where(tmp_pred - tmp_truth == -1)[0])
+            FN += len(np.where(tmp_pred - tmp_truth == 1)[0])
+            TP += len(np.where(tmp_pred + tmp_truth == 2)[0])
             TN += len(np.where(tmp_pred + tmp_truth == 0)[0])
         
-
-        f1score = np.append(f1score, (2 * TP) / (2 * TP + FP + FN))
-        if f1score[-1] > f1score_max:
-            f1score_max = f1score[-1]
-            f1score_flag = (threshold, f1score[-1])
-            threshold_flag = threshold
+        if 2 * TP + FP + FN != 0:
+            x = np.append(x, threshold)
+            f1score = np.append(f1score, (2 * TP) / (2 * TP + FP + FN))
+            if f1score[-1] > f1score_max:
+                f1score_max = f1score[-1]
+                f1score_flag = (threshold, f1score[-1])
+                threshold_flag = threshold
 
     if save_or_not:
         fig = plt.figure()
-        plt.plot(np.arange(0.0, 1.0, 0.0001), f1score)
+        plt.plot(x, f1score)
         plt.title('Threshold Tuning Curve')
         plt.xlim((0, 255))
         plt.ylim((0, 1))
@@ -164,31 +165,25 @@ def f1score_to_calculate_thresold(pred_path, truth_path, save_path=None, save_or
         plt.savefig(save_path)
 
     return threshold_flag
+'''
 
 
-def evalation_all(train_path, validation_path, test_path, ROC_cruve_save_path):
-    thresold = ROC_to_calculate_thresold(pred_path=train_path[0], truth_path=train_path[1], save_path=ROC_cruve_save_path, save_or_not=True)
+def evalation_all(train_preds, train_truths, validation_preds, validation_truths, test_preds, test_truths, threshold):
 
-    train_preds = []
-    train_truths = []
-    for i in os.listdir(train_path[0]):
-        train_pred = cv2.imread(os.path.join(train_path[0], i), cv2.IMREAD_GRAYSCALE)
-        train_pred = train_pred[train_pred >= thresold] = 255
-        train_pred = train_pred[train_pred < thresold] = 0
-        train_preds.append(train_pred)
+    train_preds[train_preds >= threshold] = 1
+    train_preds[train_preds < threshold] = 0
 
-        train_truth = cv2.imread(os.path.join(train_path[1], i), cv2.IMREAD_GRAYSCALE)
-        train_truth = train_truth[train_truth >= thresold] = 255
-        train_truth = train_truth[train_truth < thresold] = 0
-        train_truths.append(train_truth)
 
-    for i in len(train_preds):
-        FP, FN, TP, TN = 0
+    FP, FN, TP, TN = 0, 0, 0, 0
 
-        FP += len(np.where(train_preds[i] - train_truth[i] == -255)[0])
-        FN += len(np.where(train_preds[i] - train_truth[i] == 255)[0])
-        TP += len(np.where(train_preds[i] + train_truth[i] == 510)[0])
-        TN += len(np.where(train_preds[i] + train_truth[i] == 0)[0])
+    for i in range(len(train_preds)):
+        train_pred_arr = torch.squeeze(train_preds[i].cpu()).detach().numpy()
+        train_truth_arr = torch.squeeze(train_truths[i].cpu()).detach().numpy()
+
+        FP += len(np.where(train_pred_arr - train_truth_arr == -1)[0])
+        FN += len(np.where(train_pred_arr - train_truth_arr == 1)[0])
+        TP += len(np.where(train_pred_arr + train_truth_arr == 2)[0])
+        TN += len(np.where(train_pred_arr + train_truth_arr == 0)[0])
 
 
     train_accuracy = (TP + TN) / (TP + TN + FN + FP)
@@ -199,31 +194,23 @@ def evalation_all(train_path, validation_path, test_path, ROC_cruve_save_path):
     train_IoU = TP / (TP + FN + FP)
     train_f1score = (2 * TP) / (2 * TP + FP + FN)
 
-    del train_pred
-    del train_truth
     gc.collect()
 
+    
+    validation_preds[validation_preds >= threshold] = 1
+    validation_preds[validation_preds < threshold] = 0
 
-    validation_preds = []
-    validation_truths = []
-    for i in os.listdir(validation_path[0]):
-        validation_pred = cv2.imread(os.path.join(validation_path[0], i), cv2.IMREAD_GRAYSCALE)
-        validation_pred = validation_pred[validation_pred >= thresold] = 255
-        validation_pred = validation_pred[validation_pred < thresold] = 0
-        validation_preds.append(validation_pred)
 
-        validation_truth = cv2.imread(os.path.join(validation_path[1], i), cv2.IMREAD_GRAYSCALE)
-        validation_truth = validation_truth[validation_truth >= thresold] = 255
-        validation_truth = validation_truth[validation_truth < thresold] = 0
-        validation_truths.append(validation_truth)
+    FP, FN, TP, TN = 0, 0, 0, 0
 
-    for i in len(validation_preds):
-        FP, FN, TP, TN = 0
+    for i in range(len(validation_preds)):
+        validation_pred_arr = torch.squeeze(validation_preds[i].cpu()).detach().numpy()
+        validation_truth_arr = torch.squeeze(validation_truths[i].cpu()).detach().numpy()
 
-        FP += len(np.where(validation_preds[i] - validation_truth[i] == -255)[0])
-        FN += len(np.where(validation_preds[i] - validation_truth[i] == 255)[0])
-        TP += len(np.where(validation_preds[i] + validation_truth[i] == 510)[0])
-        TN += len(np.where(validation_preds[i] + validation_truth[i] == 0)[0])
+        FP += len(np.where(validation_pred_arr - validation_truth_arr == -1)[0])
+        FN += len(np.where(validation_pred_arr - validation_truth_arr == 1)[0])
+        TP += len(np.where(validation_pred_arr + validation_truth_arr == 2)[0])
+        TN += len(np.where(validation_pred_arr + validation_truth_arr == 0)[0])
 
 
     validation_accuracy = (TP + TN) / (TP + TN + FN + FP)
@@ -234,30 +221,23 @@ def evalation_all(train_path, validation_path, test_path, ROC_cruve_save_path):
     validation_IoU = TP / (TP + FN + FP)
     validation_f1score = (2 * TP) / (2 * TP + FP + FN)
 
-    del validation_pred
-    del validation_truth
     gc.collect()
 
-    test_preds = []
-    test_truths = []
-    for i in os.listdir(test_path[0]):
-        test_pred = cv2.imread(os.path.join(test_path[0], i), cv2.IMREAD_GRAYSCALE)
-        test_pred = test_pred[test_pred >= thresold] = 255
-        test_pred = test_pred[test_pred < thresold] = 0
-        test_preds.append(test_pred)
 
-        test_truth = cv2.imread(os.path.join(test_path[1], i), cv2.IMREAD_GRAYSCALE)
-        test_truth = test_truth[test_truth >= thresold] = 255
-        test_truth = test_truth[test_truth < thresold] = 0
-        test_truths.append(test_truth)
+    test_preds[test_preds >= threshold] = 1
+    test_preds[test_preds < threshold] = 0
 
-    for i in len(test_preds):
-        FP, FN, TP, TN = 0
 
-        FP += len(np.where(test_preds[i] - test_truth[i] == -255)[0])
-        FN += len(np.where(test_preds[i] - test_truth[i] == 255)[0])
-        TP += len(np.where(test_preds[i] + test_truth[i] == 510)[0])
-        TN += len(np.where(test_preds[i] + test_truth[i] == 0)[0])
+    FP, FN, TP, TN = 0, 0, 0, 0
+
+    for i in range(len(test_preds)):
+        test_pred_arr = torch.squeeze(test_preds[i].cpu()).detach().numpy()
+        test_truth_arr = torch.squeeze(test_truths[i].cpu()).detach().numpy()
+
+        FP += len(np.where(test_pred_arr - test_truth_arr == -1)[0])
+        FN += len(np.where(test_pred_arr - test_truth_arr == 1)[0])
+        TP += len(np.where(test_pred_arr + test_truth_arr == 2)[0])
+        TN += len(np.where(test_pred_arr + test_truth_arr == 0)[0])
 
 
     test_accuracy = (TP + TN) / (TP + TN + FN + FP)
@@ -268,13 +248,11 @@ def evalation_all(train_path, validation_path, test_path, ROC_cruve_save_path):
     test_IoU = TP / (TP + FN + FP)
     test_f1score = (2 * TP) / (2 * TP + FP + FN)
 
-    del test_pred
-    del test_truth
     gc.collect()
 
     evaluation_param = {
         "accuracy": [train_accuracy, validation_accuracy, test_accuracy],
-        "sensitivity": [train_accuracy, validation_sensitivity, test_sensitivity],
+        "sensitivity": [train_sensitivity, validation_sensitivity, test_sensitivity],
         "specificity": [train_specificity, validation_specificity, test_specificity],
         "precision": [train_precision, validation_precision, test_precision],
         "balance_accuracy": [train_balance_accuracy, validation_balance_accuracy, test_balance_accuracy],
@@ -303,7 +281,7 @@ class evaluation_list():
             os.mkdir(data_path)
         if not os.path.isdir(os.path.join(data_path, self.MRI_series_this)):
             os.mkdir(os.path.join(data_path, self.MRI_series_this))
-        for i in ['train', 'validation', 'test', 'ROC']:
+        for i in ['train', 'validation', 'test']:
             if not os.path.isdir(os.path.join(data_path, self.MRI_series_this, i)):
                 os.mkdir(os.path.join(data_path, self.MRI_series_this, i))
     
@@ -417,6 +395,7 @@ class evaluation_list():
         f.write('-------------------------------------------------------------------------------\n\n')
         f.close()
 
+'''
 def updata_monitor(train_path, validation_path, test_path):
     thresold = ROC_to_calculate_thresold(pred_path=train_path[2], truth_path=train_path[1])
 
@@ -430,8 +409,10 @@ def updata_monitor(train_path, validation_path, test_path):
 
             monitor_img = cv2.hconcat([img, msk, pred])
             cv2.imwrite(os.path.join(eval('f{mode}_path[3]'), i), monitor_img)
+'''
 
 
 
 if __name__ == '__main__':
-    pass
+    evl_dict = evalation_all(train_path=[os.path.join(train_path, 'Preds'), os.path.join(train_path, 'Masks')], validation_path=[os.path.join(validation_path, 'Preds'), os.path.join(validation_path, 'Masks')], test_path=[os.path.join(test_path, 'Preds'), os.path.join(test_path, 'Masks')], ROC_cruve_save_path='./ROC.png')
+    print(evl_dict)

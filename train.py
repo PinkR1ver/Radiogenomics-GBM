@@ -1,4 +1,6 @@
 import os
+from re import S
+from cv2 import threshold
 from torch import nn, optim
 import torch
 from torch.utils.data import DataLoader
@@ -10,6 +12,7 @@ import traceback
 import trainHelper
 import sys
 from tqdm import tqdm
+import gc
 
 MRI_series_this = sys.argv[1]
 epoches = int(sys.argv[2])
@@ -19,10 +22,8 @@ data_path = os.path.join(base_path, 'data')
 result_path = os.path.join(data_path, 'result', MRI_series_this)
 model_path = os.path.join(base_path, 'model', MRI_series_this)
 weight_path = os.path.join(model_path, f'{MRI_series_this}_unet.pth')
-train_path = os.path.join(result_path, 'tmp', 'train')
-test_path = os.path.join(result_path, 'tmp', 'test')
-validation_path = os.path.join(result_path, 'tmp', 'validation')
 ROC_path = os.path.join(result_path, 'ROC_curve')
+monitor_path = os.path.join(result_path, 'monitor')
 
 if not os.path.isdir(model_path):
     os.mkdir(model_path)
@@ -30,20 +31,15 @@ if not os.path.isdir(model_path):
 if not os.path.isdir(result_path):
     os.mkdir(result_path)
 
-if not os.path.isdir(os.path.join(result_path, 'tmp')):
-    os.mkdir(os.path.join(result_path, 'tmp'))
-
 if not os.path.isdir(ROC_path):
     os.mkdir(ROC_path)
 
-for mode1 in ['train', 'validation', 'test']:
-    if not os.path.isdir(eval(f'{mode1}_path')):
-        os.mkdir(eval(f'{mode1}_path'))
+if not os.path.isdir(monitor_path):
+    os.mkdir(monitor_path)
 
-for mode1 in ['Images', 'Masks', 'Preds', 'Monitor']:
-    for mode2 in ['train', 'validation', 'test']:
-        if not os.path.isdir(os.path.join(eval(f'{mode2}_path'), mode1)):
-            os.mkdir(os.path.join(eval(f'{mode2}_path'), mode1))
+for mode in ['train', 'validation', 'test']:
+    if not os.path.isdir(os.path.join(monitor_path, mode)):
+        os.mkdir(os.path.join(monitor_path, mode))
 
 if torch.cuda.is_available():
     device = 'cuda'
@@ -69,7 +65,7 @@ if __name__ == '__main__':
     test_dataset = ImageDataset(data_path, 'GBM_MRI_Dataset.csv',
                                 MRI_series=MRI_series_this, mode='test', resize=(256, 256))
 
-    batch_size = 4
+    batch_size = 2
 
     train_loader = DataLoader(
         train_dataset, batch_size=batch_size, shuffle=True)
@@ -93,39 +89,49 @@ if __name__ == '__main__':
     epoch = int(f.read())
     f.close()
 
-    evl_list = trainHelper.evaluation_list()
+    evl_list = trainHelper.evaluation_list(MRI_series_this, epoch)
     loss_list = np.array([])
     average_loss_list = np.array([])
 
     try:
+        threshold = 0.5
         for iter_out in range(1, epoches + 1):
+
+            train_preds = torch.tensor([])
+            train_truths = torch.tensor([])
             for i, (image, mask) in tqdm(enumerate(train_loader), desc=f"train_{epoch}", total=len(train_loader)):
                 image, mask = image.to(device), mask.to(device)
 
                 predict_image = net(image)
                 train_loss = loss_function(predict_image, mask)
-                loss_list = np.append(loss_list, train_loss.item)
+                loss_list = np.append(loss_list, train_loss.item())
 
                 opt.zero_grad()
                 train_loss.backward()
                 opt.step()
 
-                for j in range(image.shape[0]):
-                    _image = image[j]
-                    _mask = mask[j]
-                    _pred_Image = predict_image[j]
+                train_preds = torch.cat((train_preds, predict_image.cpu().detach()), 0)
+                train_truths = torch.cat((train_truths, mask.cpu().detach()), 0)
 
-                    torchvision.utils.save_image(_image, os.path.join(
-                        train_path, 'Images', f'{i * batch_size + j}.png'))
-                    torchvision.utils.save_image(_mask, os.path.join(
-                        train_path, 'Masks', f'{i * batch_size + j}.png'))
-                    torchvision.utils.save_image(_pred_Image, os.path.join(
-                        train_path, 'Preds', f'{i * batch_size + j}.png'))
+                _image = image[0]
+                _mask = mask[0]
+                _pred_image = predict_image[0]
+
+                _pred_image[_pred_image >= threshold] = 1
+                _pred_image[_pred_image < threshold] = 0
+
+                vaisual_image = torch.stack([_image, _mask, _pred_image], dim=0)
+                torchvision.utils.save_image(vaisual_image, os.path.join(monitor_path, 'train', f'{i}.png'))
+
 
             average_loss_list = np.append(
                 average_loss_list, loss_list.sum() / len(loss_list))
             loss_list = np.array([])
 
+            gc.collect()
+
+            validation_preds = torch.tensor([])
+            validation_truths = torch.tensor([])
             for i, (image, mask) in tqdm(enumerate(validation_loader), desc=f"validation_{epoch}", total=len(validation_loader)):
                 image, mask = image.to(device), mask.to(device)
 
@@ -133,22 +139,28 @@ if __name__ == '__main__':
                 train_loss = loss_function(predict_image, mask)
                 loss_list = np.append(loss_list, train_loss.item())
 
-                for j in range(image.shape[0]):
-                    _image = image[j]
-                    _mask = mask[j]
-                    _pred_Image = predict_image[j]
+                validation_preds = torch.cat((validation_preds, predict_image.cpu().detach()), 0)
+                validation_truths = torch.cat((validation_truths, mask.cpu().detach()), 0)
 
-                    torchvision.utils.save_image(_image, os.path.join(
-                        validation_path, 'Images', f'{i * batch_size + j}.png'))
-                    torchvision.utils.save_image(_mask, os.path.join(
-                        validation_path, 'Masks', f'{i * batch_size + j}.png'))
-                    torchvision.utils.save_image(_pred_Image, os.path.join(
-                        validation_path, 'Preds', f'{i * batch_size + j}.png'))
+                _image = image[0]
+                _mask = mask[0]
+                _pred_image = predict_image[0]
+
+                _pred_image[_pred_image >= threshold] = 1
+                _pred_image[_pred_image < threshold] = 0
+
+                vaisual_image = torch.stack([_image, _mask, _pred_image], dim=0)
+                torchvision.utils.save_image(vaisual_image, os.path.join(monitor_path, 'validation', f'{i}.png'))
 
             average_loss_list = np.append(
                 average_loss_list, loss_list.sum() / len(loss_list))
             loss_list = np.array([])
 
+            gc.collect()
+
+
+            test_preds = torch.tensor([])
+            test_truths = torch.tensor([])
             for i, (image, mask) in tqdm(enumerate(test_loader), desc=f"test_{epoch}", total=len(test_loader)):
                 image, mask = image.to(device), mask.to(device)
 
@@ -156,24 +168,27 @@ if __name__ == '__main__':
                 train_loss = loss_function(predict_image, mask)
                 loss_list = np.append(loss_list, train_loss.item())
 
-                for j in range(image.shape[0]):
-                    _image = image[j]
-                    _mask = mask[j]
-                    _pred_Image = predict_image[j]
+                test_preds = torch.cat((test_preds, predict_image.cpu().detach()), 0)
+                test_truths = torch.cat((test_truths, mask.cpu().detach()), 0)
 
-                    torchvision.utils.save_image(_image, os.path.join(
-                        test_path, 'Images', f'{i * batch_size + j}.png'))
-                    torchvision.utils.save_image(_mask, os.path.join(
-                        test_path, 'Masks', f'{i * batch_size + j}.png'))
-                    torchvision.utils.save_image(_pred_Image, os.path.join(
-                        test_path, 'Preds', f'{i * batch_size + j}.png'))
+                _image = image[0]
+                _mask = mask[0]
+                _pred_image = predict_image[0]
+
+                _pred_image[_pred_image >= threshold] = 1
+                _pred_image[_pred_image < threshold] = 0
+
+                vaisual_image = torch.stack([_image, _mask, _pred_image], dim=0)
+                torchvision.utils.save_image(vaisual_image, os.path.join(monitor_path, 'test', f'{i}.png'))
             
             average_loss_list = np.append(
                 average_loss_list, loss_list.sum() / len(loss_list))
             loss_list = np.array([])
+
+            gc.collect()
             
             
-            evl_dict = trainHelper.evalation_all(train_path=[os.path.join(train_path, 'Preds'), os.path.join(train_path, 'Masks')], validation_path=[os.path.join(validation_path, 'Preds'), os.path.join(validation_path, 'Masks')], test_path=[os.path.join(test_path, 'Preds'), os.path.join(test_path, 'Masks')], ROC_cruve_save_path=ROC_path)
+            evl_dict = trainHelper.evalation_all(train_preds, train_truths, validation_preds, validation_truths, test_preds, test_truths, threshold)
             evl_dict['loss'] = average_loss_list
             evl_list.push(evl_dict)
 
@@ -185,15 +200,8 @@ if __name__ == '__main__':
 
             torch.save(net.state_dict(), weight_path)
 
-            if epoch % 20 == 0:
-                monitor_train_path = []
-                monitor_validation_path = []
-                monitor_test_path = []
-                for mode in ['Images', 'Masks', 'Preds', 'Monitor']:
-                    monitor_train_path.append(os.path.join(train_path, mode))
-                    monitor_validation_path.append(os.path.join(validation_path, mode))
-                    monitor_test_path.append(os.path.join(test_path, mode))
-                trainHelper.updata_monitor(train_path=monitor_train_path, validation_path=monitor_validation_path, test_path=monitor_test_path)
+            if epoch % 10 == 0:
+                threshold = trainHelper.ROC_to_calculate_thresold(train_preds, train_truths, os.path.join(ROC_path, f'epoch{epoch}.png'), True)
 
             epoch += 1
 
@@ -201,6 +209,8 @@ if __name__ == '__main__':
                 model_path, f'{MRI_series_this}_epoch.txt'), "w")
             f.write(f'{epoch}')
             f.close()
+
+            gc.collect()
 
     except:
         print('Exception!!!')

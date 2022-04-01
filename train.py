@@ -28,6 +28,9 @@ monitor_path = os.path.join(result_path, 'monitor')
 if not os.path.isdir(model_path):
     os.mkdir(model_path)
 
+if  not os.path.isdir(os.path.join(data_path, 'result')):
+    os.mkdir(os.path.join(data_path, 'result'))
+
 if not os.path.isdir(result_path):
     os.mkdir(result_path)
 

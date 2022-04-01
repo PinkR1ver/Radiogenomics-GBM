@@ -25,7 +25,7 @@ class ImageDataset(Dataset):
         self.axis = axis
         self.Info = pd.read_csv(os.path.join(self.path, Dataset_file))
         self.Info = self.Info[self.Info['Plane'] == self.axis]
-        self.Info = self.Info[self.Info['MRISeries'] == self.MRI_series]
+        self.Info = self.Info[(self.Info)['MRISeries'] == self.MRI_series]
         self.Info = self.Info[self.Info['Slice'] > 20]
         self.Info = self.Info[self.Info['Slice'] < 150]
         if mode == 'train':
@@ -99,6 +99,90 @@ class ImageDataset(Dataset):
             return transform(img), transform(msk), transform(img_aug), transform(msk_aug)
         else:
             return transform(img), transform(msk)
+
+class FeatureExtractionDataset(Dataset):
+    def __init__(self, path, Dataset_file):
+        self.path = path
+        self.Info = pd.read_csv(os.path.join(self.path, Dataset_file))
+        self.AXInfo = self.Info[self.Info['Plane'] == 'AX']
+    
+    def __len__(self):
+        return len(self.AXInfo)
+    
+    def __getitem__(self, index):
+        return pd.DataFrame([self.AXInfo.iloc[index].values.flatten().tolist()], columns=self.AXInfo.columns)
+
+
+def image_location_transfer(rootdir):
+    for root, dirs, files in os.walk(os.path.join(rootdir)):
+        for file in files:
+            imageSavePath = os.path.join('data', 'Images')
+            maskSavePath = os.path.join('data', 'Masks')
+            if "1_Images_MNI" in root and '.png' in file:
+                imagePath = os.path.join(root, file)
+                print(f'Image:{imagePath}')
+
+                dirTmp = root.split('\\')[-1]
+                dirTmp = dirTmp.split('_')
+                dirNeed = dirTmp[0] + '_' + dirTmp[-2] + '_' + dirTmp[-1]
+
+                fileNeed = dirTmp[0] + '_' + dirTmp[-2] + '_' + dirTmp[-1] + '_' + file
+
+                # print(dirNeed)
+                # print(fileNeed)
+
+                if not os.path.isdir(os.path.join(imageSavePath, dirNeed)):
+                    os.mkdir(os.path.join(imageSavePath, dirNeed))
+
+
+                image = Image.open(imagePath)
+                imageSavePath = os.path.join(imageSavePath, dirNeed, fileNeed)
+                image.save(imageSavePath)
+            elif "3_Annotations_MNI" in root and '.png' in file:
+                maskPath = os.path.join(root, file)
+                print(f'Mask:{maskPath}')
+
+                dirTmp = root.split('\\')[-1]
+                dirTmp = dirTmp.split('_')
+                dirNeed = dirTmp[0] + '_' + dirTmp[-1] 
+
+                fileNeed = dirTmp[0] + '_' + dirTmp[-1] + '_' + file
+
+                if not os.path.isdir(os.path.join(maskSavePath, dirNeed)):
+                    os.mkdir(os.path.join(maskSavePath, dirNeed))
+
+                mask = Image.open(maskPath)
+                maskSavePath = os.path.join(maskSavePath, dirNeed, fileNeed)
+                mask.save(maskSavePath)
+
+def built_Dataset_csv(path):
+    ImageDatasetTable = pd.DataFrame(
+        {
+            "Patient":[],
+            "Plane":[],
+            "MRISeries":[],
+            "Slice":[],
+            "ImagePath":[],
+            "MaskPath":[]
+        }
+    )
+    for root, dirs, files in os.walk(path):
+        for file in files:
+            if "Images" in root and ".png" in file:
+                ImagePathTmp = root.split('\\')
+                ImagePath = ImagePathTmp[-2] + '\\' + ImagePathTmp[-1] + '\\' + file
+                Info = file.split('_')
+                Patient = Info[0]
+                MRISeries = Info[1]
+                Plane = Info[2]
+                Slice = Info[3].replace('.png','')
+                MaskPath = ImagePath.replace('Images','Masks')
+                MaskPath = MaskPath.replace('_' + MRISeries, '')
+                ImageDatasetTableRow = pd.DataFrame([[Patient, Plane, MRISeries, Slice, ImagePath, MaskPath]], columns=ImageDatasetTable.columns)
+                # print(ImageDatasetTable)
+                ImageDatasetTable = ImageDatasetTable.append(ImageDatasetTableRow, ignore_index=True)
+    
+    ImageDatasetTable.to_csv(os.path.join(path,'GBM_MRI_Dataset.csv'), index=False)
 
 
 

@@ -24,7 +24,9 @@ def sendmail(content, subject):
     mail_host = 'smtp.gmail.com'
 
     # password
-    mail_pass = '585Goo521'
+    
+    mail_pass = '*********'
+
 
     # sender mail
     sender = 'fakelspwang@gmail.com'

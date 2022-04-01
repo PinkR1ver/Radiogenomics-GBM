@@ -69,7 +69,7 @@ def ROC_to_calculate_thresold(preds, truths, save_path=None, save_or_not=False):
     G_mean_flag = (0, 0)
     G_mean_max = 0
     threshold_flag = 0
-    for threshold in np.arange(0, 1, 0.0001):
+    for threshold in np.arange(0, 1, 0.002):
         FP, FN, TP, TN = 0, 0, 0, 0
 
         for i in range(len(preds)):
@@ -350,7 +350,7 @@ class evaluation_list():
                     start=epoch - length + 1, stop=epoch + 1, step=1)
                 f.write(f'{i} epoch{x[0]} - epoch{epoch}: \n\n')
                 for j in range(len(x)):
-                    val = eval(f'self.{mode}_list[{param}')[j]
+                    val = eval(f'self.{mode}_list[{param}]')[j]
                     f.write(f'epoch{x[j]}: {val}\n')
                 f.write('-------------------------------------------------------------------------------\n\n')
                 f.close()

@@ -195,7 +195,7 @@ if __name__ == '__main__':
             gc.collect()
             
             
-            print(torch.unique(train_preds))
+            # print(torch.unique(train_preds))
             evl_dict = trainHelper.evalation_all(train_preds, train_truths, validation_preds, validation_truths, test_preds, test_truths, threshold)
             evl_dict['loss'] = average_loss_list
             evl_list.push(evl_dict)
@@ -208,8 +208,10 @@ if __name__ == '__main__':
 
             torch.save(net.state_dict(), weight_path)
 
-            print(torch.unique(train_preds))
-            threshold = trainHelper.ROC_to_calculate_thresold(train_preds, train_truths, os.path.join(ROC_path, f'epoch{epoch}.png'), True)
+            # print(torch.unique(train_preds))
+
+            if epoch % 10 == 0:
+                threshold = trainHelper.ROC_to_calculate_thresold(train_preds, train_truths, os.path.join(ROC_path, f'epoch{epoch}.png'), True)
 
             epoch += 1
 

@@ -64,7 +64,7 @@ def sendmail(content, subject):
 
 def ROC_to_calculate_thresold(preds, truths, save_path=None, save_or_not=False):
 
-    print(torch.unique(preds))
+    # print(torch.unique(preds))
 
     FPR = np.array([])
     TPR = np.array([])
@@ -88,8 +88,8 @@ def ROC_to_calculate_thresold(preds, truths, save_path=None, save_or_not=False):
             TP += len(np.where(tmp_pred + tmp_truth == 2)[0])
             TN += len(np.where(tmp_pred + tmp_truth == 0)[0])
         
-        print(threshold)
-        print(FP, FN, TP, TN)
+        # print(threshold)
+        # print(FP, FN, TP, TN)
         
         if FP + TN != 0 and TP + FN != 0 and TP + TN != 0 and TN + FP != 0:
             FPR = np.append(FPR, FP / (FP + TN))

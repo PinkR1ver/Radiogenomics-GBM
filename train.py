@@ -14,11 +14,8 @@ import sys
 from tqdm import tqdm
 import gc
 
-#MRI_series_this = sys.argv[1]
-#epoches = int(sys.argv[2])
-
-MRI_series_this = 'FLAIR'
-epoches = 20
+MRI_series_this = sys.argv[1]
+epoches = int(sys.argv[2])
 
 base_path = os.path.dirname(__file__)
 data_path = os.path.join(base_path, 'data')

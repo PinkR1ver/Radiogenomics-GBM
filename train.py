@@ -14,8 +14,11 @@ import sys
 from tqdm import tqdm
 import gc
 
-MRI_series_this = sys.argv[1]
-epoches = int(sys.argv[2])
+#MRI_series_this = sys.argv[1]
+#epoches = int(sys.argv[2])
+
+MRI_series_this = 'FLAIR'
+epoches = 20
 
 base_path = os.path.dirname(__file__)
 data_path = os.path.join(base_path, 'data')
@@ -116,6 +119,7 @@ if __name__ == '__main__':
                 train_preds = torch.cat((train_preds, predict_image.cpu().detach()), 0)
                 train_truths = torch.cat((train_truths, mask.cpu().detach()), 0)
 
+
                 _image = image[0]
                 _mask = mask[0]
                 _pred_image = predict_image[0]
@@ -191,6 +195,7 @@ if __name__ == '__main__':
             gc.collect()
             
             
+            print(torch.unique(train_preds))
             evl_dict = trainHelper.evalation_all(train_preds, train_truths, validation_preds, validation_truths, test_preds, test_truths, threshold)
             evl_dict['loss'] = average_loss_list
             evl_list.push(evl_dict)
@@ -203,8 +208,8 @@ if __name__ == '__main__':
 
             torch.save(net.state_dict(), weight_path)
 
-            if epoch % 10 == 0:
-                threshold = trainHelper.ROC_to_calculate_thresold(train_preds, train_truths, os.path.join(ROC_path, f'epoch{epoch}.png'), True)
+            print(torch.unique(train_preds))
+            threshold = trainHelper.ROC_to_calculate_thresold(train_preds, train_truths, os.path.join(ROC_path, f'epoch{epoch}.png'), True)
 
             epoch += 1
 
@@ -212,6 +217,8 @@ if __name__ == '__main__':
                 model_path, f'{MRI_series_this}_epoch.txt'), "w")
             f.write(f'{epoch}')
             f.close()
+
+            print('--------------------------------------------------\n\n')
 
             gc.collect()
 

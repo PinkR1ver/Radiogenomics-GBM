@@ -83,8 +83,8 @@ def ROC_to_calculate_thresold(preds, truths, save_path=None, save_or_not=False):
             tmp_truth = torch.squeeze(truths[i].cpu()).detach().clone().numpy()
 
 
-            FP += len(np.where(tmp_pred - tmp_truth == -1)[0])
-            FN += len(np.where(tmp_pred - tmp_truth == 1)[0])
+            FP += len(np.where(tmp_pred - tmp_truth == 1)[0])
+            FN += len(np.where(tmp_pred - tmp_truth == -1)[0])
             TP += len(np.where(tmp_pred + tmp_truth == 2)[0])
             TN += len(np.where(tmp_pred + tmp_truth == 0)[0])
         
@@ -137,8 +137,8 @@ def f1score_to_calculate_thresold(preds, truths, save_path=None, save_or_not=Fal
             tmp_truth = torch.squeeze(truths[i].cpu()).detach().clone().numpy()
 
 
-            FP += len(np.where(tmp_pred - tmp_truth == -1)[0])
-            FN += len(np.where(tmp_pred - tmp_truth == 1)[0])
+            FP += len(np.where(tmp_pred - tmp_truth == 1)[0])
+            FN += len(np.where(tmp_pred - tmp_truth == -1)[0])
             TP += len(np.where(tmp_pred + tmp_truth == 2)[0])
             TN += len(np.where(tmp_pred + tmp_truth == 0)[0])
         
@@ -180,8 +180,8 @@ def evalation_all(train_preds, train_truths, validation_preds, validation_truths
         train_pred_arr = torch.squeeze(train_preds_copy[i].cpu()).detach().clone().numpy()
         train_truth_arr = torch.squeeze(train_truths[i].cpu()).detach().clone().numpy()
 
-        FP += len(np.where(train_pred_arr - train_truth_arr == -1)[0])
-        FN += len(np.where(train_pred_arr - train_truth_arr == 1)[0])
+        FP += len(np.where(train_pred_arr - train_truth_arr == 1)[0])
+        FN += len(np.where(train_pred_arr - train_truth_arr == -1)[0])
         TP += len(np.where(train_pred_arr + train_truth_arr == 2)[0])
         TN += len(np.where(train_pred_arr + train_truth_arr == 0)[0])
 
@@ -208,8 +208,8 @@ def evalation_all(train_preds, train_truths, validation_preds, validation_truths
         validation_pred_arr = torch.squeeze(validation_preds_copy[i].cpu()).detach().clone().numpy()
         validation_truth_arr = torch.squeeze(validation_truths[i].cpu()).detach().clone().numpy()
 
-        FP += len(np.where(validation_pred_arr - validation_truth_arr == -1)[0])
-        FN += len(np.where(validation_pred_arr - validation_truth_arr == 1)[0])
+        FP += len(np.where(validation_pred_arr - validation_truth_arr == 1)[0])
+        FN += len(np.where(validation_pred_arr - validation_truth_arr == -1)[0])
         TP += len(np.where(validation_pred_arr + validation_truth_arr == 2)[0])
         TN += len(np.where(validation_pred_arr + validation_truth_arr == 0)[0])
 
@@ -236,8 +236,8 @@ def evalation_all(train_preds, train_truths, validation_preds, validation_truths
         test_pred_arr = torch.squeeze(test_preds_copy[i].cpu()).detach().clone().numpy()
         test_truth_arr = torch.squeeze(test_truths[i].cpu()).detach().clone().numpy()
 
-        FP += len(np.where(test_pred_arr - test_truth_arr == -1)[0])
-        FN += len(np.where(test_pred_arr - test_truth_arr == 1)[0])
+        FP += len(np.where(test_pred_arr - test_truth_arr == 1)[0])
+        FN += len(np.where(test_pred_arr - test_truth_arr == -1)[0])
         TP += len(np.where(test_pred_arr + test_truth_arr == 2)[0])
         TN += len(np.where(test_pred_arr + test_truth_arr == 0)[0])
 

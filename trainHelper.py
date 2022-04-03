@@ -121,7 +121,7 @@ def f1score_to_calculate_thresold(preds, truths, save_path=None, save_or_not=Fal
 
     # print(torch.unique(preds))
 
-    f1socre = np.array([])
+    f1score = np.array([])
     f1score_flag = (0, 0)
     f1score_max = 0
     threshold_flag = 0

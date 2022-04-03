@@ -331,7 +331,7 @@ class evaluation_list():
             plt.title(f'epoch{x[0]} - epoch{epoch} {i}')
             plt.ylabel(i)
             plt.xlabel('epoch')
-            plt.legend(title='Lines', loc='upper right', labels=['train', 'validation', 'test'])
+            plt.legend(title='Lines', loc='best', labels=['train', 'validation', 'test'])
             plt.savefig(os.path.join(data_path, self.MRI_series_this, f'epoch{x[0]}_epoch{epoch}_{i}.png'))
             plt.close(fig)
         

@@ -16,17 +16,20 @@ epoches = int(sys.argv[2])
 
 base_path = os.path.dirname(__file__)
 data_path = os.path.join(base_path, 'data')
+result_path = os.path.join(data_path, 'result', MRI_series_this)
 model_path = os.path.join(base_path, 'model', MRI_series_this)
 weight_path = os.path.join(model_path, f'{MRI_series_this}_unet.pth')
-train_path = os.path.join(data_path, 'train_result')
-test_path = os.path.join(data_path, 'test_result')
-validation_path = os.path.join(data_path, 'validation_result')
+ROC_path = os.path.join(result_path, 'ROC_curve')
+monitor_path = os.path.join(result_path, 'monitor')
 
 if not os.path.isdir(model_path):
     os.mkdir(model_path)
+    
+if  not os.path.isdir(os.path.join(data_path, 'result')):
+    os.mkdir(os.path.join(data_path, 'result'))
 
-if not os.path.isdir(train_path):
-    os.mkdir(train_path)
+if not os.path.isdir(result_path):
+    os.mkdir(result_path)
 
 if not os.path.isdir(test_path):
     os.mkdir(test_path)
@@ -104,6 +107,7 @@ if __name__ == '__main__':
 
                 evalution_list_train.list_pushback(predict_image, mask, train_loss.item())
 
+
                 _image = image[0]
                 if MRI_series_this == 'Stack':
                     _mask = gray2RGB(mask[0])
@@ -159,8 +163,21 @@ if __name__ == '__main__':
 
                 evalution_list_test.list_pushback(predict_image, mask, train_loss.item())
 
-                predict_image[predict_image >= 0.5] = 1
-                predict_image[predict_image < 0.5] = 0
+
+                vaisual_image = torch.stack([_image, _mask, _pred_image], dim=0)
+                torchvision.utils.save_image(vaisual_image, os.path.join(monitor_path, 'test', f'{i}.png'))
+            
+            average_loss_list = np.append(
+                average_loss_list, loss_list.sum() / len(loss_list))
+            loss_list = np.array([])
+
+            gc.collect()
+            
+            
+            # print(torch.unique(train_preds))
+            evl_dict = trainHelper.evalation_all(train_preds, train_truths, validation_preds, validation_truths, test_preds, test_truths, threshold)
+            evl_dict['loss'] = average_loss_list
+            evl_list.push(evl_dict)
 
                 _image = image[0]
                 if MRI_series_this == 'Stack':
@@ -183,6 +200,13 @@ if __name__ == '__main__':
                 torch.save(net.state_dict(), os.path.join(model_path, f'{MRI_series_this}_epoch_{epoch}.pth'))
             
             torch.save(net.state_dict(), weight_path)
+
+            # print(torch.unique(train_preds))
+
+            if epoch % 10 == 0:
+                threshold = trainHelper.ROC_to_calculate_thresold(train_preds, train_truths, os.path.join(ROC_path, f'epoch{epoch}.png'), True)
+
+
             epoch += 1
 
             f = open(os.path.join(
@@ -190,17 +214,10 @@ if __name__ == '__main__':
             f.write(f'{epoch}')
             f.close()
 
-        evalution_list_train.average_list_plot(epoch)
-        evalution_list_train.average_list_write_into_log(epoch)
 
-        evalution_list_valitaion.average_list_plot(epoch)
-        evalution_list_valitaion.average_list_write_into_log(epoch)
+            print('--------------------------------------------------\n\n')
 
-        evalution_list_test.average_list_plot(epoch)
-        evalution_list_test.average_list_write_into_log(epoch)
-
-        trainHelper.compare_train_validation_test([evalution_list_train, evalution_list_valitaion, evalution_list_test], epoch)
-        trainHelper.ROC_curve([evalution_list_train, evalution_list_valitaion, evalution_list_test])
+            gc.collect()
 
     except:
         print('Exception!!!')

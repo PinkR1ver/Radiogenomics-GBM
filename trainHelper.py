@@ -375,7 +375,7 @@ class evaluation_list():
         f.write(f'epoch{x[0]} - epoch{epoch}: \n\n')
 
         for i, epoch_now in enumerate(x):
-            f.write('epoch{epoch_now}:\n')
+            f.write(f'epoch{epoch_now}:\n')
             toWrite = {
                 'loss':[], 
                 'accuracy': [], 

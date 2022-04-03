@@ -12,6 +12,7 @@ import math
 import cv2
 import gc
 import pandas as pd
+from tqdm import tqdm
 
 base_path = os.path.dirname(__file__)
 data_path = os.path.join(base_path, 'data', 'result')
@@ -64,33 +65,37 @@ def sendmail(content, subject):
 
 def ROC_to_calculate_thresold(preds, truths, save_path=None, save_or_not=False):
 
+    # print(torch.unique(preds))
+
     FPR = np.array([])
     TPR = np.array([])
     G_mean_flag = (0, 0)
     G_mean_max = 0
     threshold_flag = 0
-    for threshold in np.arange(0, 1, 0.002):
+
+    for threshold in tqdm(np.arange(0, 1, 0.002), desc='Calculating ROC curve'):
         FP, FN, TP, TN = 0, 0, 0, 0
 
-        for i in range(len(preds)):
-            tmp_pred = torch.squeeze(preds[i].cpu()).detach().numpy()
+        for i in range(preds.size(dim=0)):
+            tmp_pred = torch.squeeze(preds[i].cpu()).detach().clone().numpy()
             tmp_pred[tmp_pred >= threshold] = 1
             tmp_pred[tmp_pred < threshold] = 0
 
-            tmp_truth = torch.squeeze(truths[i].cpu()).detach().numpy()
-            tmp_truth[tmp_truth >= threshold] = 1
-            tmp_truth[tmp_truth < threshold] = 0
+            tmp_truth = torch.squeeze(truths[i].cpu()).detach().clone().numpy()
 
 
-            FP += len(np.where(tmp_pred - tmp_truth == -1)[0])
-            FN += len(np.where(tmp_pred - tmp_truth == 1)[0])
+            FP += len(np.where(tmp_pred - tmp_truth == 1)[0])
+            FN += len(np.where(tmp_pred - tmp_truth == -1)[0])
             TP += len(np.where(tmp_pred + tmp_truth == 2)[0])
             TN += len(np.where(tmp_pred + tmp_truth == 0)[0])
+        
+        # print(threshold)
+        # print(FP, FN, TP, TN)
         
         if FP + TN != 0 and TP + FN != 0 and TP + TN != 0 and TN + FP != 0:
             FPR = np.append(FPR, FP / (FP + TN))
             TPR = np.append(TPR, TP / (TP + FN))
-            recall = TP / (TP + TN)
+            recall = TP / (TP + FN)
             specificity = TN / (TN + FP)
             G_mean = math.sqrt(recall * specificity)
             if G_mean > G_mean_max:
@@ -102,48 +107,44 @@ def ROC_to_calculate_thresold(preds, truths, save_path=None, save_or_not=False):
         fig = plt.figure()
         plt.plot(FPR, TPR)
         plt.title('ROC Curve')
-        plt.xlim((0, 1))
-        plt.ylim((0, 1))
+        plt.xlim((-0.02, 1.02))
+        plt.ylim((-0.02, 1.02))
         plt.xlabel('False Positive Rate')
         plt.ylabel('Ture Positeve Rate')
         plt.annotate(f'Max G-mean with {G_mean_max}, threshold={threshold_flag}', G_mean_flag)
         plt.savefig(save_path)
+        plt.close(fig)
 
     return threshold_flag
 
-'''
-def f1score_to_calculate_thresold(pred_path, truth_path, save_path=None, save_or_not=False):
-    preds = []
-    truths = []
-    for i in os.listdir(pred_path):
-        pred = cv2.imread(os.path.join(pred_path, i), cv2.IMREAD_GRAYSCALE)
-        preds.append(pred)
+def f1score_to_calculate_thresold(preds, truths, save_path=None, save_or_not=False):
 
-        truth = cv2.imread(os.path.join(truth_path, i), cv2.IMREAD_GRAYSCALE)
-        truths.append(truth)
-    
+    # print(torch.unique(preds))
 
-    f1score = np.array([])
+    f1socre = np.array([])
     f1score_flag = (0, 0)
     f1score_max = 0
     threshold_flag = 0
     x = np.array([])
-    for threshold in np.arange(0, 255, 1):
-        FP, FN, TP, TN = 0, 0, 0, 0
-        for i in range(len(preds)):
 
-            tmp_pred = preds[i]
+    for threshold in np.arange(0, 1, 0.002):
+        FP, FN, TP, TN = 0, 0, 0, 0
+
+        for i in range(preds.size(dim=0)):
+            tmp_pred = torch.squeeze(preds[i].cpu()).detach().clone().numpy()
             tmp_pred[tmp_pred >= threshold] = 1
             tmp_pred[tmp_pred < threshold] = 0
 
-            tmp_truth = truths[i]
-            tmp_truth[tmp_truth >= threshold] = 1
-            tmp_truth[tmp_truth < threshold] = 0
+            tmp_truth = torch.squeeze(truths[i].cpu()).detach().clone().numpy()
 
-            FP += len(np.where(tmp_pred - tmp_truth == -1)[0])
-            FN += len(np.where(tmp_pred - tmp_truth == 1)[0])
+
+            FP += len(np.where(tmp_pred - tmp_truth == 1)[0])
+            FN += len(np.where(tmp_pred - tmp_truth == -1)[0])
             TP += len(np.where(tmp_pred + tmp_truth == 2)[0])
             TN += len(np.where(tmp_pred + tmp_truth == 0)[0])
+        
+        # print(threshold)
+        # print(FP, FN, TP, TN)
         
         if 2 * TP + FP + FN != 0:
             x = np.append(x, threshold)
@@ -157,31 +158,31 @@ def f1score_to_calculate_thresold(pred_path, truth_path, save_path=None, save_or
         fig = plt.figure()
         plt.plot(x, f1score)
         plt.title('Threshold Tuning Curve')
-        plt.xlim((0, 255))
-        plt.ylim((0, 1))
+        plt.xlim((-0.02, 1.02))
+        plt.ylim((-0.02, 1.02))
         plt.xlabel('Threshold')
         plt.ylabel('F1-score')
-        plt.annotate(f'Max F1-score with {f1score_max }, threshold={threshold_flag}', f1score_flag)
+        plt.annotate(f'Max F1-score with {f1score_max}, threshold={threshold_flag}', f1score_flag)
         plt.savefig(save_path)
 
     return threshold_flag
-'''
 
 
 def evalation_all(train_preds, train_truths, validation_preds, validation_truths, test_preds, test_truths, threshold):
+    train_preds_copy = train_preds.clone()
 
-    train_preds[train_preds >= threshold] = 1
-    train_preds[train_preds < threshold] = 0
+    train_preds_copy[train_preds_copy >= threshold] = 1
+    train_preds_copy[train_preds_copy < threshold] = 0
 
 
     FP, FN, TP, TN = 0, 0, 0, 0
 
     for i in range(len(train_preds)):
-        train_pred_arr = torch.squeeze(train_preds[i].cpu()).detach().numpy()
-        train_truth_arr = torch.squeeze(train_truths[i].cpu()).detach().numpy()
+        train_pred_arr = torch.squeeze(train_preds_copy[i].cpu()).detach().clone().numpy()
+        train_truth_arr = torch.squeeze(train_truths[i].cpu()).detach().clone().numpy()
 
-        FP += len(np.where(train_pred_arr - train_truth_arr == -1)[0])
-        FN += len(np.where(train_pred_arr - train_truth_arr == 1)[0])
+        FP += len(np.where(train_pred_arr - train_truth_arr == 1)[0])
+        FN += len(np.where(train_pred_arr - train_truth_arr == -1)[0])
         TP += len(np.where(train_pred_arr + train_truth_arr == 2)[0])
         TN += len(np.where(train_pred_arr + train_truth_arr == 0)[0])
 
@@ -196,19 +197,20 @@ def evalation_all(train_preds, train_truths, validation_preds, validation_truths
 
     gc.collect()
 
-    
-    validation_preds[validation_preds >= threshold] = 1
-    validation_preds[validation_preds < threshold] = 0
+    validation_preds_copy = validation_preds.clone()
+
+    validation_preds_copy[validation_preds_copy >= threshold] = 1
+    validation_preds_copy[validation_preds_copy < threshold] = 0
 
 
     FP, FN, TP, TN = 0, 0, 0, 0
 
     for i in range(len(validation_preds)):
-        validation_pred_arr = torch.squeeze(validation_preds[i].cpu()).detach().numpy()
-        validation_truth_arr = torch.squeeze(validation_truths[i].cpu()).detach().numpy()
+        validation_pred_arr = torch.squeeze(validation_preds_copy[i].cpu()).detach().clone().numpy()
+        validation_truth_arr = torch.squeeze(validation_truths[i].cpu()).detach().clone().numpy()
 
-        FP += len(np.where(validation_pred_arr - validation_truth_arr == -1)[0])
-        FN += len(np.where(validation_pred_arr - validation_truth_arr == 1)[0])
+        FP += len(np.where(validation_pred_arr - validation_truth_arr == 1)[0])
+        FN += len(np.where(validation_pred_arr - validation_truth_arr == -1)[0])
         TP += len(np.where(validation_pred_arr + validation_truth_arr == 2)[0])
         TN += len(np.where(validation_pred_arr + validation_truth_arr == 0)[0])
 
@@ -223,19 +225,20 @@ def evalation_all(train_preds, train_truths, validation_preds, validation_truths
 
     gc.collect()
 
+    test_preds_copy = test_preds.clone()
 
-    test_preds[test_preds >= threshold] = 1
-    test_preds[test_preds < threshold] = 0
+    test_preds_copy[test_preds_copy >= threshold] = 1
+    test_preds_copy[test_preds_copy < threshold] = 0
 
 
     FP, FN, TP, TN = 0, 0, 0, 0
 
     for i in range(len(test_preds)):
-        test_pred_arr = torch.squeeze(test_preds[i].cpu()).detach().numpy()
-        test_truth_arr = torch.squeeze(test_truths[i].cpu()).detach().numpy()
+        test_pred_arr = torch.squeeze(test_preds_copy[i].cpu()).detach().clone().numpy()
+        test_truth_arr = torch.squeeze(test_truths[i].cpu()).detach().clone().numpy()
 
-        FP += len(np.where(test_pred_arr - test_truth_arr == -1)[0])
-        FN += len(np.where(test_pred_arr - test_truth_arr == 1)[0])
+        FP += len(np.where(test_pred_arr - test_truth_arr == 1)[0])
+        FN += len(np.where(test_pred_arr - test_truth_arr == -1)[0])
         TP += len(np.where(test_pred_arr + test_truth_arr == 2)[0])
         TN += len(np.where(test_pred_arr + test_truth_arr == 0)[0])
 
@@ -317,12 +320,12 @@ class evaluation_list():
         evalution_params = ['loss', 'accuracy', 'precision', 'sensitivity', 'specificity', 'balance_accuracy', 'IoU', 'f1score']
 
         for i in evalution_params:
+            fig = plt.figure()
             for mode in ['train', 'validation', 'test']:
                 param = '\'' + i + '\''
                 length = len(eval(f'self.{mode}_list[{param}]'))
                 x = np.arange(
                     start=epoch - length + 1, stop=epoch + 1, step=1)
-                fig = plt.figure()
                 plt.plot(x, eval(f'self.{mode}_list[{param}]'))
 
             plt.title(f'epoch{x[0]} - epoch{epoch} {i}')
@@ -369,7 +372,7 @@ class evaluation_list():
         x = np.arange(
             start=epoch - length + 1, stop=epoch + 1, step=1)
 
-        f.write(f'{i} epoch{x[0]} - epoch{epoch}: \n\n')
+        f.write(f'epoch{x[0]} - epoch{epoch}: \n\n')
 
         for i, epoch_now in enumerate(x):
             f.write('epoch{epoch_now}:\n')
@@ -384,8 +387,9 @@ class evaluation_list():
                 'f1score': []
                 }
             for param in evalution_params:
+                param_str = '\'' + param + '\''
                 for mode in ['train', 'validation', 'test']:
-                    val = eval(f'self.{mode}_list[{param}')[i]
+                    val = eval(f'self.{mode}_list[{param_str}]')[i]
                     toWrite[param].append(val)
 
             toWrite = pd.DataFrame(data=toWrite, index=['train', 'validation', 'test'])

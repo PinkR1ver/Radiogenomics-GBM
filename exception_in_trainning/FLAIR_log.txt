@@ -205,3 +205,9 @@ Traceback (most recent call last):
     train_preds = torch.cat((train_preds, predict_image.cpu().detach()), 0)
 KeyboardInterrupt
 
+exception in epoch12
+Traceback (most recent call last):
+  File "C:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\train.py", line 110, in <module>
+    loss_list = np.append(loss_list, train_loss.item())
+KeyboardInterrupt
+

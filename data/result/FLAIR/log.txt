@@ -1,0 +1,70 @@
+epoch2 - epoch12: 
+
+epoch{epoch_now}:
+                loss  accuracy  precision  sensitivity  specificity  balance_accuracy       IoU   f1score
+train       0.075729  0.974840   0.552760     0.232223     0.994920          0.613572  0.195492  0.327049
+validation  0.060282  0.979797   0.757996     0.396972     0.996391          0.696682  0.352319  0.521059
+test        0.081272  0.974085   0.699685     0.281260     0.996154          0.638707  0.250964  0.401233
+
+epoch{epoch_now}:
+                loss  accuracy  precision  sensitivity  specificity  balance_accuracy       IoU   f1score
+train       0.056494  0.979942   0.696174     0.422541     0.995014          0.708777  0.356754  0.525893
+validation  0.059888  0.978931   0.734542     0.374181     0.996150          0.685165  0.329609  0.495798
+test        0.080315  0.973842   0.719088     0.250552     0.996882          0.623717  0.228214  0.371620
+
+epoch{epoch_now}:
+                loss  accuracy  precision  sensitivity  specificity  balance_accuracy       IoU   f1score
+train       0.053933  0.981005   0.712193     0.467413     0.994893          0.731153  0.393152  0.564406
+validation  0.062265  0.978885   0.848034     0.289082     0.998525          0.643803  0.274844  0.431180
+test        0.073658  0.974686   0.898603     0.202916     0.999271          0.601093  0.198374  0.331072
+
+epoch{epoch_now}:
+                loss  accuracy  precision  sensitivity  specificity  balance_accuracy       IoU   f1score
+train       0.048848  0.982409   0.731742     0.523922     0.994807          0.759364  0.439505  0.610634
+validation  0.052864  0.982913   0.882998     0.441253     0.998335          0.719794  0.416879  0.588446
+test        0.063386  0.978331   0.866322     0.352457     0.998268          0.675362  0.334277  0.501061
+
+epoch{epoch_now}:
+                loss  accuracy  precision  sensitivity  specificity  balance_accuracy       IoU   f1score
+train       0.046096  0.983777   0.749629     0.576273     0.994796          0.785535  0.483260  0.651619
+validation  0.051750  0.981232   0.736170     0.501942     0.994878          0.748410  0.425415  0.596900
+test        0.071597  0.975975   0.718354     0.364812     0.995444          0.680128  0.319161  0.483885
+
+epoch{epoch_now}:
+                loss  accuracy  precision  sensitivity  specificity  balance_accuracy       IoU   f1score
+train       0.041304  0.984962   0.762356     0.623041     0.994749          0.808895  0.521715  0.685694
+validation  0.043233  0.983991   0.722539     0.684617     0.992515          0.838566  0.542099  0.703067
+test        0.050498  0.981128   0.719460     0.637137     0.992086          0.814612  0.510347  0.675801
+
+epoch{epoch_now}:
+                loss  accuracy  precision  sensitivity  specificity  balance_accuracy       IoU   f1score
+train       0.038087  0.986173   0.775039     0.668987     0.994750          0.831868  0.560207  0.718119
+validation  0.042718  0.985482   0.775083     0.670015     0.994464          0.832240  0.560951  0.718730
+test        0.056421  0.981160   0.771713     0.553432     0.994785          0.774109  0.475574  0.644595
+
+epoch{epoch_now}:
+                loss  accuracy  precision  sensitivity  specificity  balance_accuracy       IoU   f1score
+train       0.035368  0.987170   0.785947     0.704574     0.994811          0.849692  0.591139  0.743039
+validation  0.040079  0.985177   0.698475     0.817427     0.989953          0.903690  0.604214  0.753284
+test        0.053471  0.978895   0.641152     0.718450     0.987191          0.852821  0.512406  0.677604
+
+epoch{epoch_now}:
+                loss  accuracy  precision  sensitivity  specificity  balance_accuracy       IoU   f1score
+train       0.032942  0.988014   0.799359     0.727287     0.995064          0.861176  0.615015  0.761622
+validation  0.034803  0.987477   0.811960     0.712681     0.995301          0.853991  0.611718  0.759088
+test        0.043725  0.983865   0.774538     0.673367     0.993756          0.833561  0.563010  0.720418
+
+epoch{epoch_now}:
+                loss  accuracy  precision  sensitivity  specificity  balance_accuracy       IoU   f1score
+train       0.030282  0.988872   0.806669     0.759287     0.995080          0.877183  0.642388  0.782261
+validation  0.035126  0.988275   0.876159     0.671345     0.997298          0.834321  0.613161  0.760198
+test        0.049495  0.984078   0.849778     0.588248     0.996687          0.792468  0.532839  0.695231
+
+epoch{epoch_now}:
+                loss  accuracy  precision  sensitivity  specificity  balance_accuracy       IoU   f1score
+train       0.029441  0.961614   0.403959     0.963225     0.961571          0.962398  0.397823  0.569204
+validation  0.031074  0.952225   0.364662     0.977738     0.951499          0.964618  0.361659  0.531203
+test        0.041534  0.942421   0.345223     0.964827     0.941707          0.953267  0.340932  0.508501
+
+-------------------------------------------------------------------------------
+

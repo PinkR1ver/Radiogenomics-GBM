@@ -106,8 +106,8 @@ def ROC_to_calculate_thresold(preds, truths, save_path=None, save_or_not=False):
         fig = plt.figure()
         plt.plot(FPR, TPR)
         plt.title('ROC Curve')
-        plt.xlim((-0.1, 1.1))
-        plt.ylim((-0.1, 1.1))
+        plt.xlim((-0.02, 1.02))
+        plt.ylim((-0.02, 1.02))
         plt.xlabel('False Positive Rate')
         plt.ylabel('Ture Positeve Rate')
         plt.annotate(f'Max G-mean with {G_mean_max}, threshold={threshold_flag}', G_mean_flag)
@@ -116,39 +116,34 @@ def ROC_to_calculate_thresold(preds, truths, save_path=None, save_or_not=False):
 
     return threshold_flag
 
-'''
-def f1score_to_calculate_thresold(pred_path, truth_path, save_path=None, save_or_not=False):
-    preds = []
-    truths = []
-    for i in os.listdir(pred_path):
-        pred = cv2.imread(os.path.join(pred_path, i), cv2.IMREAD_GRAYSCALE)
-        preds.append(pred)
+def f1score_to_calculate_thresold(preds, truths, save_path=None, save_or_not=False):
 
-        truth = cv2.imread(os.path.join(truth_path, i), cv2.IMREAD_GRAYSCALE)
-        truths.append(truth)
-    
+    # print(torch.unique(preds))
 
-    f1score = np.array([])
+    f1socre = np.array([])
     f1score_flag = (0, 0)
     f1score_max = 0
     threshold_flag = 0
     x = np.array([])
-    for threshold in np.arange(0, 255, 1):
-        FP, FN, TP, TN = 0, 0, 0, 0
-        for i in range(len(preds)):
 
-            tmp_pred = preds[i]
+    for threshold in np.arange(0, 1, 0.002):
+        FP, FN, TP, TN = 0, 0, 0, 0
+
+        for i in range(preds.size(dim=0)):
+            tmp_pred = torch.squeeze(preds[i].cpu()).detach().clone().numpy()
             tmp_pred[tmp_pred >= threshold] = 1
             tmp_pred[tmp_pred < threshold] = 0
 
-            tmp_truth = truths[i]
-            tmp_truth[tmp_truth >= threshold] = 1
-            tmp_truth[tmp_truth < threshold] = 0
+            tmp_truth = torch.squeeze(truths[i].cpu()).detach().clone().numpy()
+
 
             FP += len(np.where(tmp_pred - tmp_truth == -1)[0])
             FN += len(np.where(tmp_pred - tmp_truth == 1)[0])
             TP += len(np.where(tmp_pred + tmp_truth == 2)[0])
             TN += len(np.where(tmp_pred + tmp_truth == 0)[0])
+        
+        # print(threshold)
+        # print(FP, FN, TP, TN)
         
         if 2 * TP + FP + FN != 0:
             x = np.append(x, threshold)
@@ -162,15 +157,14 @@ def f1score_to_calculate_thresold(pred_path, truth_path, save_path=None, save_or
         fig = plt.figure()
         plt.plot(x, f1score)
         plt.title('Threshold Tuning Curve')
-        plt.xlim((0, 255))
-        plt.ylim((0, 1))
+        plt.xlim((-0.02, 1.02))
+        plt.ylim((-0.02, 1.02))
         plt.xlabel('Threshold')
         plt.ylabel('F1-score')
-        plt.annotate(f'Max F1-score with {f1score_max }, threshold={threshold_flag}', f1score_flag)
+        plt.annotate(f'Max F1-score with {f1score_max}, threshold={threshold_flag}', f1score_flag)
         plt.savefig(save_path)
 
     return threshold_flag
-'''
 
 
 def evalation_all(train_preds, train_truths, validation_preds, validation_truths, test_preds, test_truths, threshold):

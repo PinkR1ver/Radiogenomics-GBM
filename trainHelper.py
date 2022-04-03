@@ -127,7 +127,7 @@ def f1score_to_calculate_thresold(preds, truths, save_path=None, save_or_not=Fal
     threshold_flag = 0
     x = np.array([])
 
-    for threshold in np.arange(0, 1, 0.002):
+    for threshold in tqdm(np.arange(0, 1, 0.002), desc='Calculating ROC curve'):
         FP, FN, TP, TN = 0, 0, 0, 0
 
         for i in range(preds.size(dim=0)):

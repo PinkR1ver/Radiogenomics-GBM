@@ -208,7 +208,8 @@ if __name__ == '__main__':
             # print(torch.unique(train_preds))
 
             if epoch % 10 == 0:
-                threshold = trainHelper.ROC_to_calculate_thresold(train_preds, train_truths, os.path.join(ROC_path, f'epoch{epoch}.png'), True)
+                # threshold = trainHelper.ROC_to_calculate_thresold(train_preds, train_truths, os.path.join(ROC_path, f'epoch{epoch}.png'), True)
+                threshold = trainHelper.f1score_to_calculate_thresold(train_preds, train_truths, os.path.join(ROC_path, f'epoch{epoch}.png'), True)
 
             epoch += 1
 

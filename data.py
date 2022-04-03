@@ -25,7 +25,8 @@ class ImageDataset(Dataset):
         self.axis = axis
         self.Info = pd.read_csv(os.path.join(self.path, Dataset_file))
         self.Info = self.Info[self.Info['Plane'] == self.axis]
-        self.Info = self.Info[self.Info['MRISeries'] == self.MRI_series]
+        if not MRI_series == 'ALL':
+            self.Info = self.Info[self.Info['MRISeries'] == self.MRI_series]
         self.Info = self.Info[self.Info['Slice'] > 20]
         self.Info = self.Info[self.Info['Slice'] < 150]
         if mode == 'train':

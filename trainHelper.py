@@ -12,6 +12,7 @@ import math
 import cv2
 import gc
 import pandas as pd
+from tqdm import tqdm
 
 base_path = os.path.dirname(__file__)
 data_path = os.path.join(base_path, 'data', 'result')
@@ -72,7 +73,7 @@ def ROC_to_calculate_thresold(preds, truths, save_path=None, save_or_not=False):
     G_mean_max = 0
     threshold_flag = 0
 
-    for threshold in np.arange(0, 1, 0.002):
+    for threshold in tqdm(np.arange(0, 1, 0.002), desc='Calculating ROC curve'):
         FP, FN, TP, TN = 0, 0, 0, 0
 
         for i in range(preds.size(dim=0)):

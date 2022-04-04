@@ -205,3 +205,23 @@ Traceback (most recent call last):
     train_preds = torch.cat((train_preds, predict_image.cpu().detach()), 0)
 KeyboardInterrupt
 
+exception in epoch46
+Traceback (most recent call last):
+  File "C:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\train.py", line 168, in <module>
+    for i, (image, mask) in tqdm(enumerate(test_loader), desc=f"test_{epoch}", total=len(test_loader)):
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\tqdm\std.py", line 1180, in __iter__
+    for obj in iterable:
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\torch\utils\data\dataloader.py", line 521, in __next__
+    data = self._next_data()
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\torch\utils\data\dataloader.py", line 561, in _next_data
+    data = self._dataset_fetcher.fetch(index)  # may raise StopIteration
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\torch\utils\data\_utils\fetch.py", line 44, in fetch
+    data = [self.dataset[idx] for idx in possibly_batched_index]
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\torch\utils\data\_utils\fetch.py", line 44, in <listcomp>
+    data = [self.dataset[idx] for idx in possibly_batched_index]
+  File "C:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\data.py", line 77, in __getitem__
+    msk = gray2Binary(msk)
+  File "C:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\utils.py", line 43, in gray2Binary
+    if img[i, j] > 0:
+KeyboardInterrupt
+

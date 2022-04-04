@@ -306,7 +306,7 @@ class evaluation_list():
                 param = '\'' + i + '\''
                 length = len(eval(f'self.{mode}_list[{param}]'))
                 x = np.arange(
-                    start=epoch - length + 1, stop=epoch + 1, step=1)
+                    start=epoch - length, stop=epoch, step=1)
                 fig = plt.figure()
                 plt.plot(x, eval(f'self.{mode}_list[{param}]'))
                 plt.title(f'epoch{x[0]} - epoch{epoch} {i}')
@@ -325,7 +325,7 @@ class evaluation_list():
                 param = '\'' + i + '\''
                 length = len(eval(f'self.{mode}_list[{param}]'))
                 x = np.arange(
-                    start=epoch - length + 1, stop=epoch + 1, step=1)
+                    start=epoch - length, stop=epoch, step=1)
                 plt.plot(x, eval(f'self.{mode}_list[{param}]'))
 
             plt.title(f'epoch{x[0]} - epoch{epoch} {i}')
@@ -350,7 +350,7 @@ class evaluation_list():
                 param = '\'' + i + '\''
                 length = len(eval(f'self.{mode}_list[{param}]'))
                 x = np.arange(
-                    start=epoch - length + 1, stop=epoch + 1, step=1)
+                    start=epoch - length, stop=epoch, step=1)
                 f.write(f'{i} epoch{x[0]} - epoch{epoch}: \n\n')
                 for j in range(len(x)):
                     val = eval(f'self.{mode}_list[{param}]')[j]
@@ -370,7 +370,7 @@ class evaluation_list():
 
         length = len(self.train_list['loss'])
         x = np.arange(
-            start=epoch - length + 1, stop=epoch + 1, step=1)
+            start=epoch - length, stop=epoch, step=1)
 
         f.write(f'epoch{x[0]} - epoch{epoch}: \n\n')
 

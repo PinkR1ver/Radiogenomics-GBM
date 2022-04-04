@@ -162,7 +162,7 @@ def f1score_to_calculate_thresold(preds, truths, save_path=None, save_or_not=Fal
         plt.ylim((-0.02, 1.02))
         plt.xlabel('Threshold')
         plt.ylabel('F1-score')
-        plt.annotate(f'Max F1-score with {f1score_max}, threshold={threshold_flag}', f1score_flag)
+        plt.annotate(f'Max F1-score with {f1score_max}, \nthreshold={threshold_flag}', f1score_flag)
         plt.savefig(save_path)
 
     return threshold_flag

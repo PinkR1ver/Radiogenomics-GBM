@@ -121,13 +121,13 @@ def f1score_to_calculate_thresold(preds, truths, save_path=None, save_or_not=Fal
 
     # print(torch.unique(preds))
 
-    f1socre = np.array([])
+    f1score = np.array([])
     f1score_flag = (0, 0)
     f1score_max = 0
     threshold_flag = 0
     x = np.array([])
 
-    for threshold in np.arange(0, 1, 0.002):
+    for threshold in tqdm(np.arange(0, 1, 0.002), desc='Calculating ROC curve'):
         FP, FN, TP, TN = 0, 0, 0, 0
 
         for i in range(preds.size(dim=0)):
@@ -162,7 +162,7 @@ def f1score_to_calculate_thresold(preds, truths, save_path=None, save_or_not=Fal
         plt.ylim((-0.02, 1.02))
         plt.xlabel('Threshold')
         plt.ylabel('F1-score')
-        plt.annotate(f'Max F1-score with {f1score_max}, threshold={threshold_flag}', f1score_flag)
+        plt.annotate(f'Max F1-score with {f1score_max}, \nthreshold={threshold_flag}', f1score_flag)
         plt.savefig(save_path)
 
     return threshold_flag
@@ -306,7 +306,7 @@ class evaluation_list():
                 param = '\'' + i + '\''
                 length = len(eval(f'self.{mode}_list[{param}]'))
                 x = np.arange(
-                    start=epoch - length + 1, stop=epoch + 1, step=1)
+                    start=epoch - length, stop=epoch, step=1)
                 fig = plt.figure()
                 plt.plot(x, eval(f'self.{mode}_list[{param}]'))
                 plt.title(f'epoch{x[0]} - epoch{epoch} {i}')
@@ -325,13 +325,13 @@ class evaluation_list():
                 param = '\'' + i + '\''
                 length = len(eval(f'self.{mode}_list[{param}]'))
                 x = np.arange(
-                    start=epoch - length + 1, stop=epoch + 1, step=1)
+                    start=epoch - length, stop=epoch, step=1)
                 plt.plot(x, eval(f'self.{mode}_list[{param}]'))
 
             plt.title(f'epoch{x[0]} - epoch{epoch} {i}')
             plt.ylabel(i)
             plt.xlabel('epoch')
-            plt.legend(title='Lines', loc='upper right', labels=['train', 'validation', 'test'])
+            plt.legend(title='Lines', loc='best', labels=['train', 'validation', 'test'])
             plt.savefig(os.path.join(data_path, self.MRI_series_this, f'epoch{x[0]}_epoch{epoch}_{i}.png'))
             plt.close(fig)
         
@@ -350,7 +350,7 @@ class evaluation_list():
                 param = '\'' + i + '\''
                 length = len(eval(f'self.{mode}_list[{param}]'))
                 x = np.arange(
-                    start=epoch - length + 1, stop=epoch + 1, step=1)
+                    start=epoch - length, stop=epoch, step=1)
                 f.write(f'{i} epoch{x[0]} - epoch{epoch}: \n\n')
                 for j in range(len(x)):
                     val = eval(f'self.{mode}_list[{param}]')[j]
@@ -370,12 +370,12 @@ class evaluation_list():
 
         length = len(self.train_list['loss'])
         x = np.arange(
-            start=epoch - length + 1, stop=epoch + 1, step=1)
+            start=epoch - length, stop=epoch, step=1)
 
         f.write(f'epoch{x[0]} - epoch{epoch}: \n\n')
 
         for i, epoch_now in enumerate(x):
-            f.write('epoch{epoch_now}:\n')
+            f.write(f'epoch{epoch_now}:\n')
             toWrite = {
                 'loss':[], 
                 'accuracy': [], 

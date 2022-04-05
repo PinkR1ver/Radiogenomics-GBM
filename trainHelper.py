@@ -309,10 +309,10 @@ class evaluation_list():
                     start=epoch - length, stop=epoch, step=1)
                 fig = plt.figure()
                 plt.plot(x, eval(f'self.{mode}_list[{param}]'))
-                plt.title(f'epoch{x[0]} - epoch{epoch} {i}')
+                plt.title(f'epoch{x[0]} - epoch{epoch-1} {i}')
                 plt.ylabel(i)
                 plt.xlabel('epoch')
-                plt.savefig(os.path.join(data_path, self.MRI_series_this, mode, f'epoch{x[0]}_epoch{epoch}_{i}.png'))
+                plt.savefig(os.path.join(data_path, self.MRI_series_this, mode, f'epoch{x[0]}_epoch{epoch-1}_{i}.png'))
                 plt.close(fig)
 
     def all_plot(self, epoch):
@@ -328,11 +328,11 @@ class evaluation_list():
                     start=epoch - length, stop=epoch, step=1)
                 plt.plot(x, eval(f'self.{mode}_list[{param}]'))
 
-            plt.title(f'epoch{x[0]} - epoch{epoch} {i}')
+            plt.title(f'epoch{x[0]} - epoch{epoch-1} {i}')
             plt.ylabel(i)
             plt.xlabel('epoch')
             plt.legend(title='Lines', loc='best', labels=['train', 'validation', 'test'])
-            plt.savefig(os.path.join(data_path, self.MRI_series_this, f'epoch{x[0]}_epoch{epoch}_{i}.png'))
+            plt.savefig(os.path.join(data_path, self.MRI_series_this, f'epoch{x[0]}_epoch{epoch-1}_{i}.png'))
             plt.close(fig)
         
     def single_log(self, epoch):

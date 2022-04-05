@@ -24,6 +24,8 @@ model_path = os.path.join(base_path, 'model', MRI_series_this)
 weight_path = os.path.join(model_path, f'{MRI_series_this}_unet.pth')
 ROC_path = os.path.join(result_path, 'ROC_curve')
 monitor_path = os.path.join(result_path, 'monitor')
+image_path = os.path.join(data_path, 'Images')
+mask_path = os.path.join(data_path, 'Masks')
 
 if not os.path.isdir(model_path):
     os.mkdir(model_path)
@@ -54,8 +56,7 @@ else:
 
 if __name__ == '__main__':
 
-    GBM_Dataset = ImageDataset(data_path, 'GBM_MRI_Dataset.csv',
-                               MRI_series=MRI_series_this, mode='train', resize=(256, 256))
+    GBM_Dataset = NiiDataset(img_path=image_path, msk_path=mask_path, MRI_series=MRI_series_this, mode='train')
 
     training_data_size = 0.8
 

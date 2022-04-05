@@ -38,11 +38,16 @@ def gray2RGB(img):
 
 def gray2Binary(img):
     img = np.array(img)
-    for i in range(img.shape[0]):
-        for j in range(img.shape[1]):
-            if img[i, j] > 0:
-                img[i, j] = 255
+    img[img > 0 ] =  255
+
     return img
+
+def read_nii_image(niifile):
+    # read nii files
+    img = nib.load(niifile)
+    img_fdata = img.get_fdata()
+
+    return img_fdata
                 
 
 if __name__ == '__main__':
@@ -56,12 +61,3 @@ if __name__ == '__main__':
     ggimage = np.array(ggimage)
     io.imshow(ggimage)
     plt.show()
-
-def read_nii_image(niifile, plane='AX'):
-    img = nib.load(niifile)
-    img_fdata = img.get_fdata()
-
-    return img_fdata
-
-if __name__ == '__main__':
-    pass

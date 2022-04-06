@@ -11,7 +11,6 @@ import numpy as np
 import nibabel as nib
 import imageio  # transfer nii to image
 from PIL import Image
-from scipy.ndimage import interpolation as itpl
 
 
 def keep_image_size_open(path, size=(256, 256)):
@@ -39,20 +38,11 @@ def gray2RGB(img):
 
 def gray2Binary(img):
     img = np.array(img)
-    img[img > 0 ] =  255
-
+    for i in range(img.shape[0]):
+        for j in range(img.shape[1]):
+            if img[i, j] > 0:
+                img[i, j] = 255
     return img
-
-def read_nii_image(niifile):
-    # read nii files
-    img = nib.load(niifile)
-    img_fdata = img.get_fdata()
-
-    return img_fdata
-
-def resize_3d_image(img, resize, mode='constant'):
-    resize_img = itpl.zoom(img, (resize[0] / img.shape[0], resize[1] / img.shape[1], resize[2] / img.shape[2]), mode=mode)
-    return resize_img
                 
 
 if __name__ == '__main__':
@@ -66,3 +56,12 @@ if __name__ == '__main__':
     ggimage = np.array(ggimage)
     io.imshow(ggimage)
     plt.show()
+
+def read_nii_image(niifile, plane='AX'):
+    img = nib.load(niifile)
+    img_fdata = img.get_fdata()
+
+    return img_fdata
+
+if __name__ == '__main__':
+    pass

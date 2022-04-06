@@ -270,7 +270,7 @@ class evaluation_list():
         self.train_list = {} 
         self.validation_list = {}
         self.test_list = {}
-        self.path = data_path
+        self.path = path
 
         evalution_params = ['loss', 'accuracy', 'precision', 'sensitivity', 'specificity', 'balance_accuracy', 'IoU', 'f1score']
         for i in evalution_params:

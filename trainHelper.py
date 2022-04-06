@@ -1,257 +1,422 @@
 import os
-from re import S
-from cv2 import threshold
-from torch import nn, optim
+from cv2 import sqrt
+from sklearn.feature_extraction import grid_to_graph
 import torch
-from torch.utils.data import DataLoader
-import torchvision
-from data import *
-from unet import *
 import numpy as np
-import traceback
-import trainHelper
-import sys
-from tqdm import tqdm
+import matplotlib.pyplot as plt
+import seaborn as sns
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+import math
+import cv2
 import gc
-
-MRI_series_this = sys.argv[1]
-epoches = int(sys.argv[2])
+import pandas as pd
+from tqdm import tqdm
 
 base_path = os.path.dirname(__file__)
-data_path = os.path.join(base_path, 'data')
-result_path = os.path.join(data_path, 'result', MRI_series_this)
-model_path = os.path.join(base_path, 'model', MRI_series_this)
-weight_path = os.path.join(model_path, f'{MRI_series_this}_unet.pth')
-ROC_path = os.path.join(result_path, 'ROC_curve')
-monitor_path = os.path.join(result_path, 'monitor')
+data_path = os.path.join(base_path, 'data', 'result')
+train_path = os.path.join(data_path, 'tmp', 'train')
+test_path = os.path.join(data_path, 'tmp', 'test')
+validation_path = os.path.join(data_path, 'tmp', 'validation')
 
-if not os.path.isdir(model_path):
-    os.mkdir(model_path)
+def sendmail(content, subject):
+    # setting mail server information
+    mail_host = 'smtp.gmail.com'
 
-if  not os.path.isdir(os.path.join(data_path, 'result')):
-    os.mkdir(os.path.join(data_path, 'result'))
+    # password
+    mail_pass = '585Goo521'
 
-if not os.path.isdir(result_path):
-    os.mkdir(result_path)
+    # sender mail
+    sender = 'fakelspwang@gmail.com'
 
-if not os.path.isdir(ROC_path):
-    os.mkdir(ROC_path)
+    # receiver mail, you can set a lots of receiver mails in a list
+    receivers = ['pinkr1veroops@gmail.com']
 
-if not os.path.isdir(monitor_path):
-    os.mkdir(monitor_path)
+    # message information
 
-for mode in ['train', 'validation', 'test']:
-    if not os.path.isdir(os.path.join(monitor_path, mode)):
-        os.mkdir(os.path.join(monitor_path, mode))
+    for i in range(len(receivers)):
 
-if torch.cuda.is_available():
-    device = 'cuda'
-    print("Using cuda")
-else:
-    device = 'cpu'
-    print("Using CPU")
+        message = MIMEMultipart()
+        message.attach(MIMEText(content, 'plain', 'utf-8'))
+
+        message['Subject'] = subject
+
+        message['From'] = sender
+
+        message['To'] = receivers[i]
+
+        # try send mail
+        try:
+            # login and send
+            smtpObj = smtplib.SMTP_SSL(mail_host, 465)
+
+            smtpObj.login(sender, mail_pass)
+            smtpObj.sendmail(
+                sender, receivers, message.as_string())
+
+            smtpObj.quit()
+            
+            print('send success')
+        except smtplib.SMTPException as e:
+            print('sending error', e)  
+            smtpObj.quit()
+
+
+def ROC_to_calculate_thresold(preds, truths, save_path=None, save_or_not=False):
+
+    # print(torch.unique(preds))
+
+    FPR = np.array([])
+    TPR = np.array([])
+    G_mean_flag = (0, 0)
+    G_mean_max = 0
+    threshold_flag = 0
+
+    for threshold in tqdm(np.arange(0, 1, 0.002), desc='Calculating ROC curve'):
+        FP, FN, TP, TN = 0, 0, 0, 0
+
+        for i in range(preds.size(dim=0)):
+            tmp_pred = torch.squeeze(preds[i].cpu()).detach().clone().numpy()
+            tmp_pred[tmp_pred >= threshold] = 1
+            tmp_pred[tmp_pred < threshold] = 0
+
+            tmp_truth = torch.squeeze(truths[i].cpu()).detach().clone().numpy()
+
+
+            FP += len(np.where(tmp_pred - tmp_truth == 1)[0])
+            FN += len(np.where(tmp_pred - tmp_truth == -1)[0])
+            TP += len(np.where(tmp_pred + tmp_truth == 2)[0])
+            TN += len(np.where(tmp_pred + tmp_truth == 0)[0])
+        
+        # print(threshold)
+        # print(FP, FN, TP, TN)
+        
+        if FP + TN != 0 and TP + FN != 0 and TP + TN != 0 and TN + FP != 0:
+            FPR = np.append(FPR, FP / (FP + TN))
+            TPR = np.append(TPR, TP / (TP + FN))
+            recall = TP / (TP + FN)
+            specificity = TN / (TN + FP)
+            G_mean = math.sqrt(recall * specificity)
+            if G_mean > G_mean_max:
+                G_mean_max = G_mean
+                G_mean_flag = (FPR[-1], TPR[-1])
+                threshold_flag = threshold
+
+    if save_or_not:
+        fig = plt.figure()
+        plt.plot(FPR, TPR)
+        plt.title('ROC Curve')
+        plt.xlim((-0.02, 1.02))
+        plt.ylim((-0.02, 1.02))
+        plt.xlabel('False Positive Rate')
+        plt.ylabel('Ture Positeve Rate')
+        plt.annotate(f'Max G-mean with {G_mean_max}, threshold={threshold_flag}', G_mean_flag)
+        plt.savefig(save_path)
+        plt.close(fig)
+
+    return threshold_flag
+
+def f1score_to_calculate_thresold(preds, truths, save_path=None, save_or_not=False):
+
+    # print(torch.unique(preds))
+
+    f1score = np.array([])
+    f1score_flag = (0, 0)
+    f1score_max = 0
+    threshold_flag = 0
+    x = np.array([])
+
+    for threshold in tqdm(np.arange(0, 1, 0.002), desc='Calculating ROC curve'):
+        FP, FN, TP, TN = 0, 0, 0, 0
+
+        for i in range(preds.size(dim=0)):
+            tmp_pred = torch.squeeze(preds[i].cpu()).detach().clone().numpy()
+            tmp_pred[tmp_pred >= threshold] = 1
+            tmp_pred[tmp_pred < threshold] = 0
+
+            tmp_truth = torch.squeeze(truths[i].cpu()).detach().clone().numpy()
+
+
+            FP += len(np.where(tmp_pred - tmp_truth == 1)[0])
+            FN += len(np.where(tmp_pred - tmp_truth == -1)[0])
+            TP += len(np.where(tmp_pred + tmp_truth == 2)[0])
+            TN += len(np.where(tmp_pred + tmp_truth == 0)[0])
+        
+        # print(threshold)
+        # print(FP, FN, TP, TN)
+        
+        if 2 * TP + FP + FN != 0:
+            x = np.append(x, threshold)
+            f1score = np.append(f1score, (2 * TP) / (2 * TP + FP + FN))
+            if f1score[-1] > f1score_max:
+                f1score_max = f1score[-1]
+                f1score_flag = (threshold, f1score[-1])
+                threshold_flag = threshold
+
+    if save_or_not:
+        fig = plt.figure()
+        plt.plot(x, f1score)
+        plt.title('Threshold Tuning Curve')
+        plt.xlim((-0.02, 1.02))
+        plt.ylim((-0.02, 1.02))
+        plt.xlabel('Threshold')
+        plt.ylabel('F1-score')
+        plt.annotate(f'Max F1-score with {f1score_max}, \nthreshold={threshold_flag}', f1score_flag)
+        plt.savefig(save_path)
+
+    return threshold_flag
+
+
+def evalation_all(train_preds, train_truths, validation_preds, validation_truths, test_preds, test_truths, threshold):
+    train_preds_copy = train_preds.clone()
+
+    train_preds_copy[train_preds_copy >= threshold] = 1
+    train_preds_copy[train_preds_copy < threshold] = 0
+
+
+    FP, FN, TP, TN = 0, 0, 0, 0
+
+    for i in range(len(train_preds)):
+        train_pred_arr = torch.squeeze(train_preds_copy[i].cpu()).detach().clone().numpy()
+        train_truth_arr = torch.squeeze(train_truths[i].cpu()).detach().clone().numpy()
+
+        FP += len(np.where(train_pred_arr - train_truth_arr == 1)[0])
+        FN += len(np.where(train_pred_arr - train_truth_arr == -1)[0])
+        TP += len(np.where(train_pred_arr + train_truth_arr == 2)[0])
+        TN += len(np.where(train_pred_arr + train_truth_arr == 0)[0])
+
+
+    train_accuracy = (TP + TN) / (TP + TN + FN + FP)
+    train_sensitivity = TP / (TP + FN)
+    train_specificity = TN / (TN + FP)
+    train_precision = TP / (TP + FP)
+    train_balance_accuracy = (TP / (TP + FN) + TN / (TN + FP)) / 2
+    train_IoU = TP / (TP + FN + FP)
+    train_f1score = (2 * TP) / (2 * TP + FP + FN)
+
+    gc.collect()
+
+    validation_preds_copy = validation_preds.clone()
+
+    validation_preds_copy[validation_preds_copy >= threshold] = 1
+    validation_preds_copy[validation_preds_copy < threshold] = 0
+
+
+    FP, FN, TP, TN = 0, 0, 0, 0
+
+    for i in range(len(validation_preds)):
+        validation_pred_arr = torch.squeeze(validation_preds_copy[i].cpu()).detach().clone().numpy()
+        validation_truth_arr = torch.squeeze(validation_truths[i].cpu()).detach().clone().numpy()
+
+        FP += len(np.where(validation_pred_arr - validation_truth_arr == 1)[0])
+        FN += len(np.where(validation_pred_arr - validation_truth_arr == -1)[0])
+        TP += len(np.where(validation_pred_arr + validation_truth_arr == 2)[0])
+        TN += len(np.where(validation_pred_arr + validation_truth_arr == 0)[0])
+
+
+    validation_accuracy = (TP + TN) / (TP + TN + FN + FP)
+    validation_sensitivity = TP / (TP + FN)
+    validation_specificity = TN / (TN + FP)
+    validation_precision = TP / (TP + FP)
+    validation_balance_accuracy = (TP / (TP + FN) + TN / (TN + FP)) / 2
+    validation_IoU = TP / (TP + FN + FP)
+    validation_f1score = (2 * TP) / (2 * TP + FP + FN)
+
+    gc.collect()
+
+    test_preds_copy = test_preds.clone()
+
+    test_preds_copy[test_preds_copy >= threshold] = 1
+    test_preds_copy[test_preds_copy < threshold] = 0
+
+
+    FP, FN, TP, TN = 0, 0, 0, 0
+
+    for i in range(len(test_preds)):
+        test_pred_arr = torch.squeeze(test_preds_copy[i].cpu()).detach().clone().numpy()
+        test_truth_arr = torch.squeeze(test_truths[i].cpu()).detach().clone().numpy()
+
+        FP += len(np.where(test_pred_arr - test_truth_arr == 1)[0])
+        FN += len(np.where(test_pred_arr - test_truth_arr == -1)[0])
+        TP += len(np.where(test_pred_arr + test_truth_arr == 2)[0])
+        TN += len(np.where(test_pred_arr + test_truth_arr == 0)[0])
+
+
+    test_accuracy = (TP + TN) / (TP + TN + FN + FP)
+    test_sensitivity = TP / (TP + FN)
+    test_specificity = TN / (TN + FP)
+    test_precision = TP / (TP + FP)
+    test_balance_accuracy = (TP / (TP + FN) + TN / (TN + FP)) / 2
+    test_IoU = TP / (TP + FN + FP)
+    test_f1score = (2 * TP) / (2 * TP + FP + FN)
+
+    gc.collect()
+
+    evaluation_param = {
+        "accuracy": [train_accuracy, validation_accuracy, test_accuracy],
+        "sensitivity": [train_sensitivity, validation_sensitivity, test_sensitivity],
+        "specificity": [train_specificity, validation_specificity, test_specificity],
+        "precision": [train_precision, validation_precision, test_precision],
+        "balance_accuracy": [train_balance_accuracy, validation_balance_accuracy, test_balance_accuracy],
+        "IoU": [train_IoU, validation_IoU, test_IoU],
+        "f1score": [train_f1score, validation_f1score, test_f1score]
+    }
+    
+    return evaluation_param
+    
+class evaluation_list():
+    def __init__(self, MRI_series_this='T1', begin=1):
+        self.train_list = {} 
+        self.validation_list = {}
+        self.test_list = {}
+
+        evalution_params = ['loss', 'accuracy', 'precision', 'sensitivity', 'specificity', 'balance_accuracy', 'IoU', 'f1score']
+        for i in evalution_params:
+            self.train_list[i] = np.array([])
+            self.validation_list[i] = np.array([])
+            self.test_list[i] = np.array([])
+        
+        self.begin = begin
+        self.MRI_series_this = MRI_series_this
+
+        if not os.path.isdir(data_path):
+            os.mkdir(data_path)
+        if not os.path.isdir(os.path.join(data_path, self.MRI_series_this)):
+            os.mkdir(os.path.join(data_path, self.MRI_series_this))
+        for i in ['train', 'validation', 'test']:
+            if not os.path.isdir(os.path.join(data_path, self.MRI_series_this, i)):
+                os.mkdir(os.path.join(data_path, self.MRI_series_this, i))
+    
+    def push(self, evaluation_dict):
+
+        evalution_params = ['loss', 'accuracy', 'precision', 'sensitivity', 'specificity', 'balance_accuracy', 'IoU', 'f1score']
+
+        for i in evalution_params:
+            self.train_list[i] = np.append(self.train_list[i], evaluation_dict[i][0])
+            self.validation_list[i] = np.append(self.validation_list[i], evaluation_dict[i][1])
+            self.test_list[i] = np.append(self.test_list[i], evaluation_dict[i][2])
+
+    def single_plot(self, epoch):
+
+        evalution_params = ['loss', 'accuracy', 'precision', 'sensitivity', 'specificity', 'balance_accuracy', 'IoU', 'f1score']
+
+        for mode in ['train', 'validation', 'test']:
+            for i in evalution_params:
+                param = '\'' + i + '\''
+                length = len(eval(f'self.{mode}_list[{param}]'))
+                x = np.arange(
+                    start=epoch - length, stop=epoch, step=1)
+                fig = plt.figure()
+                plt.plot(x, eval(f'self.{mode}_list[{param}]'))
+                plt.title(f'epoch{x[0]} - epoch{epoch-1} {i}')
+                plt.ylabel(i)
+                plt.xlabel('epoch')
+                plt.savefig(os.path.join(data_path, self.MRI_series_this, mode, f'epoch{x[0]}_epoch{epoch-1}_{i}.png'))
+                plt.close(fig)
+
+    def all_plot(self, epoch):
+
+        evalution_params = ['loss', 'accuracy', 'precision', 'sensitivity', 'specificity', 'balance_accuracy', 'IoU', 'f1score']
+
+        for i in evalution_params:
+            fig = plt.figure()
+            for mode in ['train', 'validation', 'test']:
+                param = '\'' + i + '\''
+                length = len(eval(f'self.{mode}_list[{param}]'))
+                x = np.arange(
+                    start=epoch - length, stop=epoch, step=1)
+                plt.plot(x, eval(f'self.{mode}_list[{param}]'))
+
+            plt.title(f'epoch{x[0]} - epoch{epoch-1} {i}')
+            plt.ylabel(i)
+            plt.xlabel('epoch')
+            plt.legend(title='Lines', loc='best', labels=['train', 'validation', 'test'])
+            plt.savefig(os.path.join(data_path, self.MRI_series_this, f'epoch{x[0]}_epoch{epoch-1}_{i}.png'))
+            plt.close(fig)
+        
+    def single_log(self, epoch):
+
+        evalution_params = ['loss', 'accuracy', 'precision', 'sensitivity', 'specificity', 'balance_accuracy', 'IoU', 'f1score']
+
+        for mode in ['train', 'validation', 'test']:
+            for i in evalution_params:
+                if not os.path.isfile(os.path.join(data_path, self.MRI_series_this, mode, f'log_{i}.txt')):
+                    f = open(os.path.join(data_path, self.MRI_series_this, mode, f'log_{i}.txt'), "x")
+                    f.close()
+
+                f = open(os.path.join(data_path, self.MRI_series_this, mode, f'log_{i}.txt'), "a")
+
+                param = '\'' + i + '\''
+                length = len(eval(f'self.{mode}_list[{param}]'))
+                x = np.arange(
+                    start=epoch - length, stop=epoch, step=1)
+                f.write(f'{i} epoch{x[0]} - epoch{epoch}: \n\n')
+                for j in range(len(x)):
+                    val = eval(f'self.{mode}_list[{param}]')[j]
+                    f.write(f'epoch{x[j]}: {val}\n')
+                f.write('-------------------------------------------------------------------------------\n\n')
+                f.close()
+
+    def all_log(self, epoch):
+
+        evalution_params = ['loss', 'accuracy', 'precision', 'sensitivity', 'specificity', 'balance_accuracy', 'IoU', 'f1score']
+
+        if not os.path.isfile(os.path.join(data_path, self.MRI_series_this, f'log.txt')):
+            f = open(os.path.join(data_path, self.MRI_series_this, f'log.txt'), "x")
+            f.close()
+
+        f = open(os.path.join(data_path, self.MRI_series_this, f'log.txt'), "a")
+
+        length = len(self.train_list['loss'])
+        x = np.arange(
+            start=epoch - length, stop=epoch, step=1)
+
+        f.write(f'epoch{x[0]} - epoch{epoch}: \n\n')
+
+        for i, epoch_now in enumerate(x):
+            f.write(f'epoch{epoch_now}:\n')
+            toWrite = {
+                'loss':[], 
+                'accuracy': [], 
+                'precision': [],
+                'sensitivity': [],
+                'specificity': [],
+                'balance_accuracy': [],
+                'IoU': [],
+                'f1score': []
+                }
+            for param in evalution_params:
+                param_str = '\'' + param + '\''
+                for mode in ['train', 'validation', 'test']:
+                    val = eval(f'self.{mode}_list[{param_str}]')[i]
+                    toWrite[param].append(val)
+
+            toWrite = pd.DataFrame(data=toWrite, index=['train', 'validation', 'test'])
+            f.write(toWrite.to_string())
+            f.write('\n\n')
+
+        f.write('-------------------------------------------------------------------------------\n\n')
+        f.close()
+
+'''
+def updata_monitor(train_path, validation_path, test_path):
+    thresold = ROC_to_calculate_thresold(pred_path=train_path[2], truth_path=train_path[1])
+
+    for mode in ['train', 'validation', 'test']:
+        for i in os.listdir(eval('f{mode}_path[0]')):
+            img = cv2.imread(os.path.join(eval('f{mode}_path[0]'), i), cv2.IMREAD_GRAYSCALE)
+            msk = cv2.imread(os.path.join(eval('f{mode}_path[1]'), i), cv2.IMREAD_GRAYSCALE)
+            pred = cv2.imread(os.path.join(eval('f{mode}_path[2]'), i), cv2.IMREAD_GRAYSCALE)
+            pred[pred >= thresold] = 255
+            pred[pred < thresold] = 0
+
+            monitor_img = cv2.hconcat([img, msk, pred])
+            cv2.imwrite(os.path.join(eval('f{mode}_path[3]'), i), monitor_img)
+'''
+
 
 
 if __name__ == '__main__':
-
-    GBM_Dataset = ImageDataset(data_path, 'GBM_MRI_Dataset.csv',
-                               MRI_series=MRI_series_this, mode='train', resize=(256, 256))
-
-    training_data_size = 0.8
-
-    train_size = int(training_data_size * len(GBM_Dataset))
-    validation_size = len(GBM_Dataset) - train_size
-
-    train_dataset, validation_dataset = torch.utils.data.random_split(
-        GBM_Dataset, [train_size, validation_size])
-
-    test_dataset = ImageDataset(data_path, 'GBM_MRI_Dataset.csv',
-                                MRI_series=MRI_series_this, mode='test', resize=(256, 256))
-
-    batch_size = 2
-
-    train_loader = DataLoader(
-        train_dataset, batch_size=batch_size, shuffle=True)
-    validation_loader = DataLoader(
-        validation_dataset, batch_size=batch_size, shuffle=False)
-    test_loader = DataLoader(
-        test_dataset, batch_size=batch_size, shuffle=False)
-
-    net = UNet().to(device)
-
-    if os.path.exists(weight_path):
-        net.load_state_dict(torch.load(weight_path))
-        print("Loading Weight Successful")
-    else:
-        print("Loading Weight Failed")
-
-    opt = optim.Adam(net.parameters())  # stochastic gradient descent
-    loss_function = nn.BCELoss()
-
-    f = open(os.path.join(model_path, f'{MRI_series_this}_epoch.txt'), "r")
-    epoch = int(f.read())
-    f.close()
-
-    evl_list = trainHelper.evaluation_list(MRI_series_this, epoch)
-    loss_list = np.array([])
-    average_loss_list = np.array([])
-
-    try:
-        threshold = 0.5
-        for iter_out in range(1, epoches + 1):
-
-            train_preds = torch.tensor([])
-            train_truths = torch.tensor([])
-            for i, (image, mask) in tqdm(enumerate(train_loader), desc=f"train_{epoch}", total=len(train_loader)):
-                image, mask = image.to(device), mask.to(device)
-
-                predict_image = net(image)
-                train_loss = loss_function(predict_image, mask)
-                loss_list = np.append(loss_list, train_loss.item())
-
-                opt.zero_grad()
-                train_loss.backward()
-                opt.step()
-
-                train_preds = torch.cat((train_preds, predict_image.cpu().detach()), 0)
-                train_truths = torch.cat((train_truths, mask.cpu().detach()), 0)
-
-
-                _image = image[0]
-                _mask = mask[0]
-                _pred_image = predict_image[0]
-
-                _pred_image[_pred_image >= threshold] = 1
-                _pred_image[_pred_image < threshold] = 0
-
-                vaisual_image = torch.stack([_image, _mask, _pred_image], dim=0)
-                torchvision.utils.save_image(vaisual_image, os.path.join(monitor_path, 'train', f'{i}.png'))
-
-
-            average_loss_list = np.append(
-                average_loss_list, loss_list.sum() / len(loss_list))
-            loss_list = np.array([])
-
-            gc.collect()
-
-            validation_preds = torch.tensor([])
-            validation_truths = torch.tensor([])
-            for i, (image, mask) in tqdm(enumerate(validation_loader), desc=f"validation_{epoch}", total=len(validation_loader)):
-                image, mask = image.to(device), mask.to(device)
-
-                predict_image = net(image)
-                train_loss = loss_function(predict_image, mask)
-                loss_list = np.append(loss_list, train_loss.item())
-
-                validation_preds = torch.cat((validation_preds, predict_image.cpu().detach()), 0)
-                validation_truths = torch.cat((validation_truths, mask.cpu().detach()), 0)
-
-                _image = image[0]
-                _mask = mask[0]
-                _pred_image = predict_image[0]
-
-                _pred_image[_pred_image >= threshold] = 1
-                _pred_image[_pred_image < threshold] = 0
-
-                vaisual_image = torch.stack([_image, _mask, _pred_image], dim=0)
-                torchvision.utils.save_image(vaisual_image, os.path.join(monitor_path, 'validation', f'{i}.png'))
-
-            average_loss_list = np.append(
-                average_loss_list, loss_list.sum() / len(loss_list))
-            loss_list = np.array([])
-
-            gc.collect()
-
-
-            test_preds = torch.tensor([])
-            test_truths = torch.tensor([])
-            for i, (image, mask) in tqdm(enumerate(test_loader), desc=f"test_{epoch}", total=len(test_loader)):
-                image, mask = image.to(device), mask.to(device)
-
-                predict_image = net(image)
-                train_loss = loss_function(predict_image, mask)
-                loss_list = np.append(loss_list, train_loss.item())
-
-                test_preds = torch.cat((test_preds, predict_image.cpu().detach()), 0)
-                test_truths = torch.cat((test_truths, mask.cpu().detach()), 0)
-
-                _image = image[0]
-                _mask = mask[0]
-                _pred_image = predict_image[0]
-
-                _pred_image[_pred_image >= threshold] = 1
-                _pred_image[_pred_image < threshold] = 0
-
-                vaisual_image = torch.stack([_image, _mask, _pred_image], dim=0)
-                torchvision.utils.save_image(vaisual_image, os.path.join(monitor_path, 'test', f'{i}.png'))
-            
-            average_loss_list = np.append(
-                average_loss_list, loss_list.sum() / len(loss_list))
-            loss_list = np.array([])
-
-            gc.collect()
-            
-            
-            # print(torch.unique(train_preds))
-            evl_dict = trainHelper.evalation_all(train_preds, train_truths, validation_preds, validation_truths, test_preds, test_truths, threshold)
-            evl_dict['loss'] = average_loss_list
-            evl_list.push(evl_dict)
-
-            average_loss_list = np.array([])
-
-            if epoch % 25 == 0:
-                torch.save(net.state_dict(), os.path.join(
-                    model_path, f'{MRI_series_this}_epoch_{epoch}.pth'))
-
-            torch.save(net.state_dict(), weight_path)
-
-            # print(torch.unique(train_preds))
-
-            if epoch % 10 == 0:
-                threshold = trainHelper.ROC_to_calculate_thresold(train_preds, train_truths, os.path.join(ROC_path, f'epoch{epoch}.png'), True)
-
-            epoch += 1
-
-            f = open(os.path.join(
-                model_path, f'{MRI_series_this}_epoch.txt'), "w")
-            f.write(f'{epoch}')
-            f.close()
-
-            print('--------------------------------------------------\n\n')
-
-            gc.collect()
-
-    except:
-        print('Exception!!!')
-        if not os.path.isfile(os.path.join(base_path, 'exception_in_trainning', f'{MRI_series_this}_log.txt')):
-            f = open(os.path.join(base_path, 'exception_in_trainning',
-                     f'{MRI_series_this}_log.txt'), 'x')
-            f.close()
-        f = open(os.path.join(base_path, 'exception_in_trainning',
-                 f'{MRI_series_this}_log.txt'), 'a')
-        f.write(f'exception in epoch{epoch}\n')
-        f.write(traceback.format_exc())
-        f.write('\n')
-        f.close()
-
-        torch.save(net.state_dict(), weight_path)
-
-        if iter_out != 1:
-            evl_list.single_plot(epoch)
-            evl_list.all_plot(epoch)
-            evl_list.single_log(epoch)
-            evl_list.all_log(epoch)
-
-        trainHelper.sendmail(
-            content=r'Your train.py went something wrong', subject=r'train.py go wrong')
-
-    else:
-        print("Train finishing")
-
-        evl_list.single_plot(epoch)
-        evl_list.all_plot(epoch)
-        evl_list.single_log(epoch)
-        evl_list.all_log(epoch)
-
-        trainHelper.sendmail(
-            content=r'Your train.py run success', subject=r'train.py finished')
+    evl_dict = evalation_all(train_path=[os.path.join(train_path, 'Preds'), os.path.join(train_path, 'Masks')], validation_path=[os.path.join(validation_path, 'Preds'), os.path.join(validation_path, 'Masks')], test_path=[os.path.join(test_path, 'Preds'), os.path.join(test_path, 'Masks')], ROC_cruve_save_path='./ROC.png')
+    print(evl_dict)

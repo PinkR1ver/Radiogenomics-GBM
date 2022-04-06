@@ -352,7 +352,7 @@ class evaluation_list():
                 length = len(eval(f'self.{mode}_list[{param}]'))
                 x = np.arange(
                     start=epoch - length, stop=epoch, step=1)
-                f.write(f'{i} epoch{x[0]} - epoch{epoch}: \n\n')
+                f.write(f'{i} epoch{x[0]} - epoch{epoch-1}: \n\n')
                 for j in range(len(x)):
                     val = eval(f'self.{mode}_list[{param}]')[j]
                     f.write(f'epoch{x[j]}: {val}\n')
@@ -373,7 +373,7 @@ class evaluation_list():
         x = np.arange(
             start=epoch - length, stop=epoch, step=1)
 
-        f.write(f'epoch{x[0]} - epoch{epoch}: \n\n')
+        f.write(f'epoch{x[0]} - epoch{epoch-1}: \n\n')
 
         for i, epoch_now in enumerate(x):
             f.write(f'epoch{epoch_now}:\n')

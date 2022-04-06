@@ -1,7 +1,6 @@
 import os
 from statistics import mode
 from PIL import Image
-from cv2 import resize
 
 from torch.utils.data import Dataset
 from utils import *
@@ -15,8 +14,6 @@ from collections import defaultdict
 import matplotlib.pyplot as plt
 import albumentations as albu
 import sys
-from scipy.ndimage import interpolation as itpl
-
 
 class NiiDataset():
     def __init__(self, img_path, msk_path, MRI_series='T1', mode='train', resize=None):
@@ -52,17 +49,19 @@ class NiiDataset():
         msk = read_nii_image(mask_path)
         msk = gray2Binary(msk)
         if self.resize is not None:
-            img = resize_3d_image(img, self.resize)
-            msk = resize_3d_image(msk, self.resize, mode='nearest')
+            img = cv2.resize(img, self.resize, interpolation=cv2.INTER_CUBIC)
+            msk = cv2.resize(msk, self.resize, interpolation=cv2.INTER_NEAREST)
 
         return torch.tensor(img / sys.float_info.max), torch.tensor(msk / 255)
 
 if __name__ == '__main__':
-    print(sys.float_info.max)
-    IMGDataset = NiiDataset('./data/Images', './data/Masks', MRI_series='T1', mode='train', resize=(256, 256, 128))
+    IMGDataset = NiiDataset('./data/Images', './data/Masks', MRI_series='T1', mode='train', resize=None)
     print(IMGDataset[5])
-    plt.imshow(IMGDataset[5][0][:,:,70])
+    plt.imshow(IMGDataset[5][0][:,:,100])
     plt.show()
 
-    plt.imshow(IMGDataset[5][1][:,:,70])
+    plt.imshow(read_nii_image(os.path.join(IMGDataset.img_path, IMGDataset.img_list[5]))[:,:,100])
     plt.show()
+
+    print(IMGDataset[5][0].dtype)
+    print(IMGDataset[5][1].dtype)

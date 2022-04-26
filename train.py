@@ -118,11 +118,16 @@ if __name__ == '__main__':
 
 
                 _image = image[0]
-                _mask = mask[0]
                 _pred_image = predict_image[0]
 
                 _pred_image[_pred_image >= threshold] = 1
                 _pred_image[_pred_image < threshold] = 0
+
+                if MRI_series_this != 'Stack':
+                    _mask = mask[0]
+                else:
+                    _mask = gray2RGB(mask[0])
+                    _pred_image = gray2RGB(predict_image)
 
                 vaisual_image = torch.stack([_image, _mask, _pred_image], dim=0)
                 torchvision.utils.save_image(vaisual_image, os.path.join(monitor_path, 'train', f'{i}.png'))
@@ -147,11 +152,16 @@ if __name__ == '__main__':
                 validation_truths = torch.cat((validation_truths, mask.cpu().detach()), 0)
 
                 _image = image[0]
-                _mask = mask[0]
                 _pred_image = predict_image[0]
 
                 _pred_image[_pred_image >= threshold] = 1
                 _pred_image[_pred_image < threshold] = 0
+
+                if MRI_series_this != 'Stack':
+                    _mask = mask[0]
+                else:
+                    _mask = gray2RGB(mask[0])
+                    _pred_image = gray2RGB(predict_image)
 
                 vaisual_image = torch.stack([_image, _mask, _pred_image], dim=0)
                 torchvision.utils.save_image(vaisual_image, os.path.join(monitor_path, 'validation', f'{i}.png'))
@@ -176,11 +186,16 @@ if __name__ == '__main__':
                 test_truths = torch.cat((test_truths, mask.cpu().detach()), 0)
 
                 _image = image[0]
-                _mask = mask[0]
                 _pred_image = predict_image[0]
 
                 _pred_image[_pred_image >= threshold] = 1
                 _pred_image[_pred_image < threshold] = 0
+
+                if MRI_series_this != 'Stack':
+                    _mask = mask[0]
+                else:
+                    _mask = gray2RGB(mask[0])
+                    _pred_image = gray2RGB(predict_image)
 
                 vaisual_image = torch.stack([_image, _mask, _pred_image], dim=0)
                 torchvision.utils.save_image(vaisual_image, os.path.join(monitor_path, 'test', f'{i}.png'))

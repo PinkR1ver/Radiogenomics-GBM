@@ -84,7 +84,7 @@ class UNet(nn.Module):
 
         return self.th(self.out(R1))
 
-class UNet_three_in(nn.Module):
+class UNet_RGB(nn.Module):
     def __init__(self):
         super(UNet_three_in, self).__init__()
         self.c1 = convBlock(3, 64)

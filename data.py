@@ -27,6 +27,20 @@ class ImageDataset(Dataset):
         self.Info = self.Info[self.Info['Plane'] == self.axis]
         if not MRI_series == 'ALL':
             self.Info = self.Info[self.Info['MRISeries'] == self.MRI_series]
+        if MRI_series == 'Stack':
+            FLAIR_Info = self.Info[self.Info['MRISeries'] == 'FLAIR']
+            FLAIR_Info = FLAIR_Info.reset_index(drop=True)
+            FLAIR_Info = FLAIR_Info.rename(columns={'MRISeries':'MRISeries3', 'ImagePath':'ImagePath3'})
+
+            T2_Info = self.Info[self.Info['MRISeries'] == 'T2']
+            T2_Info = T2_Info.reset_index(drop=True)
+            T2_Info = T2_Info.rename(columns={'MRISeries':'MRISeries2', 'ImagePath':'ImagePath2'})
+
+            T1_Info = self.Info[self.Info['MRISeries'] == 'T1']
+            T1_Info = T1_Info.reset_index(drop=True)
+
+            self.Info = FLAIR_Info.merge(T2_Info.merge(T1_Info))
+
         self.Info = self.Info[self.Info['Slice'] > 20]
         self.Info = self.Info[self.Info['Slice'] < 150]
         if mode == 'train':
@@ -65,14 +79,34 @@ class ImageDataset(Dataset):
         return torch.FloatTensor(weights)
     
     def __getitem__(self, index):
-        if platform.system() == 'Windows':
-            maskPath = os.path.join(self.path, (((self.Info).iloc[index]).MaskPath))
-            imagePath = os.path.join(self.path, (((self.Info).iloc[index]).ImagePath))
-        elif platform.system() == 'Linux' or platform.system() == 'Darwin':
-            maskPath = os.path.join(self.path, ((((self.Info).iloc[index]).MaskPath).replace('\\', '/')))
-            imagePath = os.path.join(self.path, ((((self.Info).iloc[index]).ImagePath).replace('\\', '/')))
+        if self.MRI_series != 'Stack':
+            if platform.system() == 'Windows':
+                maskPath = os.path.join(self.path, (((self.Info).iloc[index]).MaskPath))
+                imagePath = os.path.join(self.path, (((self.Info).iloc[index]).ImagePath))
+            elif platform.system() == 'Linux' or platform.system() == 'Darwin':
+                maskPath = os.path.join(self.path, ((((self.Info).iloc[index]).MaskPath).replace('\\', '/')))
+                imagePath = os.path.join(self.path, ((((self.Info).iloc[index]).ImagePath).replace('\\', '/')))
+        else:
+            if platform.system() == 'Windows':
+                maskPath = os.path.join(self.path, (((self.Info).iloc[index]).MaskPath))
+                T1_imagePath = os.path.join(self.path, (((self.Info).iloc[index]).ImagePath))
+                T2_imagePath = os.path.join(self.path, (((self.Info).iloc[index]).ImagePath2))
+                FLAIR_imagePath = os.path.join(self.path, (((self.Info).iloc[index]).ImagePath3))
+            elif platform.system() == 'Linux' or platform.system() == 'Darwin':
+                maskPath = os.path.join(self.path, ((((self.Info).iloc[index]).MaskPath).replace('\\', '/')))
+                T1_imagePath = os.path.join(self.path, ((((self.Info).iloc[index]).ImagePath).replace('\\', '/')))
+                T2_imagePath = os.path.join(self.path, ((((self.Info).iloc[index]).ImagePath2).replace('\\', '/')))
+                FLAIR_imagePath = os.path.join(self.path, ((((self.Info).iloc[index]).ImagePath3).replace('\\', '/')))
 
-        img = cv2.imread(imagePath, 0)
+        
+        if self.MRI_series != 'Stack':
+            img = cv2.imread(imagePath, 0)
+        else:
+            T1_image = cv2.imread(T1_imagePath, 0)
+            T2_image = cv2.imread(T2_imagePath, 0)
+            FLAIR_image = cv2.imread(FLAIR_imagePath, 0)
+            img = np.stack((T1_image, T2_image, FLAIR_image), axis=-1)
+
         msk = cv2.imread(maskPath, 0)
         msk = gray2Binary(msk)
         if self.resize is not None:

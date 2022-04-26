@@ -68,7 +68,7 @@ if __name__ == '__main__':
     test_dataset = ImageDataset(data_path, 'GBM_MRI_Dataset.csv',
                                 MRI_series=MRI_series_this, mode='test', resize=(256, 256))
 
-    batch_size = 2
+    batch_size = 1
 
     train_loader = DataLoader(
         train_dataset, batch_size=batch_size, shuffle=True)

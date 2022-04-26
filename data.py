@@ -25,7 +25,7 @@ class ImageDataset(Dataset):
         self.axis = axis
         self.Info = pd.read_csv(os.path.join(self.path, Dataset_file))
         self.Info = self.Info[self.Info['Plane'] == self.axis]
-        if not MRI_series == 'ALL':
+        if MRI_series != 'ALL' and MRI_series != 'Stack':
             self.Info = self.Info[self.Info['MRISeries'] == self.MRI_series]
         if MRI_series == 'Stack':
             FLAIR_Info = self.Info[self.Info['MRISeries'] == 'FLAIR']
@@ -138,7 +138,7 @@ class ImageDataset(Dataset):
 
 
 if __name__ == '__main__':
-    IMGDataset = ImageDataset('./data', 'GBM_MRI_Dataset.csv', n_classes=2, label_value=[0, 255], augmentation=True, canny_edge=True)
+    IMGDataset = ImageDataset('./data', 'GBM_MRI_Dataset.csv', MRI_series='Stack',n_classes=2, label_value=[0, 255], augmentation=True, canny_edge=True)
     #plt.imshow(IMGDataset[20][1])
     #plt.show()
 
@@ -157,13 +157,13 @@ if __name__ == '__main__':
     plt.imshow(IMGDataset[20][1].squeeze(0) - IMGDataset[20][3].squeeze(0))
     plt.show()
 
-    plt.imshow(IMGDataset[20][0].squeeze(0))
+    plt.imshow(IMGDataset[20][0].permute(1, 2, 0))
     plt.show()
 
-    plt.imshow(IMGDataset[20][2].squeeze(0))
+    plt.imshow(IMGDataset[20][2].permute(1, 2, 0))
     plt.show()
 
-    plt.imshow(IMGDataset[20][2].squeeze(0) - IMGDataset[20][0].squeeze(0))
+    plt.imshow(IMGDataset[20][2].permute(1, 2, 0) - IMGDataset[20][0].permute(1, 2, 0) )
     plt.show()
 
     plt.imshow(IMGDataset[20][4].squeeze(0))

@@ -77,7 +77,10 @@ if __name__ == '__main__':
     test_loader = DataLoader(
         test_dataset, batch_size=batch_size, shuffle=False)
 
-    net = UNet().to(device)
+    if MRI_series_this !='Stack':
+        net = UNet().to(device)
+    else:
+        net = UNet_RGB().to(device)
 
     if os.path.exists(weight_path):
         net.load_state_dict(torch.load(weight_path))
@@ -127,7 +130,7 @@ if __name__ == '__main__':
                     _mask = mask[0]
                 else:
                     _mask = gray2RGB(mask[0])
-                    _pred_image = gray2RGB(predict_image)
+                    _pred_image = gray2RGB(_pred_image)
 
                 vaisual_image = torch.stack([_image, _mask, _pred_image], dim=0)
                 torchvision.utils.save_image(vaisual_image, os.path.join(monitor_path, 'train', f'{i}.png'))
@@ -161,7 +164,7 @@ if __name__ == '__main__':
                     _mask = mask[0]
                 else:
                     _mask = gray2RGB(mask[0])
-                    _pred_image = gray2RGB(predict_image)
+                    _pred_image = gray2RGB(_pred_image)
 
                 vaisual_image = torch.stack([_image, _mask, _pred_image], dim=0)
                 torchvision.utils.save_image(vaisual_image, os.path.join(monitor_path, 'validation', f'{i}.png'))
@@ -195,7 +198,7 @@ if __name__ == '__main__':
                     _mask = mask[0]
                 else:
                     _mask = gray2RGB(mask[0])
-                    _pred_image = gray2RGB(predict_image)
+                    _pred_image = gray2RGB(_pred_image)
 
                 vaisual_image = torch.stack([_image, _mask, _pred_image], dim=0)
                 torchvision.utils.save_image(vaisual_image, os.path.join(monitor_path, 'test', f'{i}.png'))

@@ -481,3 +481,224 @@ Traceback (most recent call last):
     train_preds_copy[train_preds_copy < threshold] = 0
 RuntimeError: [enforce fail at ..\c10\core\CPUAllocator.cpp:79] data. DefaultCPUAllocator: not enough memory: you tried to allocate 7780086800 bytes.
 
+exception in epoch1
+Traceback (most recent call last):
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\train.py", line 120, in <module>
+    resize_predict_image = np.append(resize_3d_image,  resize_3d_image(torch.squeeze(predict_image[i].clone()).cpu().detach().numpy(), original_mask[i].shape[1:], mode='nearest'))
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\utils.py", line 54, in resize_3d_image
+    resize_img = itpl.zoom(img, (resize[0] / img.shape[0], resize[1] / img.shape[1], resize[2] / img.shape[2]), mode=mode)
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\scipy\ndimage\interpolation.py", line 817, in zoom
+    _nd_image.zoom_shift(filtered, zoom, None, output, order, mode, cval, npad,
+KeyboardInterrupt
+
+exception in epoch1
+Traceback (most recent call last):
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\train.py", line 122, in <module>
+    print(resize_predict_image.shape())
+TypeError: 'tuple' object is not callable
+
+exception in epoch1
+Traceback (most recent call last):
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\train.py", line 115, in <module>
+    resize_predict_image = np.array([])
+KeyboardInterrupt
+
+exception in epoch1
+Traceback (most recent call last):
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\train.py", line 104, in <module>
+    for i, (image, mask, original_mask) in tqdm(enumerate(train_loader), desc=f"train_{epoch}", total=len(train_loader)):
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\tqdm\std.py", line 1180, in __iter__
+    for obj in iterable:
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\torch\utils\data\dataloader.py", line 521, in __next__
+    data = self._next_data()
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\torch\utils\data\dataloader.py", line 561, in _next_data
+    data = self._dataset_fetcher.fetch(index)  # may raise StopIteration
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\torch\utils\data\_utils\fetch.py", line 44, in fetch
+    data = [self.dataset[idx] for idx in possibly_batched_index]
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\torch\utils\data\_utils\fetch.py", line 44, in <listcomp>
+    data = [self.dataset[idx] for idx in possibly_batched_index]
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\data.py", line 57, in __getitem__
+    msk = resize_3d_image(msk, self.resize, mode='nearest')
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\utils.py", line 54, in resize_3d_image
+    resize_img = itpl.zoom(img, (resize[0] / img.shape[0], resize[1] / img.shape[1], resize[2] / img.shape[2]), mode=mode)
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\scipy\ndimage\interpolation.py", line 785, in zoom
+    filtered = spline_filter(padded, order, output=numpy.float64,
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\scipy\ndimage\interpolation.py", line 189, in spline_filter
+    spline_filter1d(input, order, axis, output=output, mode=mode)
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\scipy\ndimage\interpolation.py", line 131, in spline_filter1d
+    _nd_image.spline_filter1d(input, order, axis, output, mode)
+KeyboardInterrupt
+
+exception in epoch1
+Traceback (most recent call last):
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\train.py", line 124, in <module>
+    resize_predict_image = np.append(resize_predict_image ,resize_3d_image(torch.squeeze(predict_image[i]).cpu().detach().numpy(), original_mask[i].shape[1:], mode='nearest'))
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\utils.py", line 54, in resize_3d_image
+    resize_img = itpl.zoom(img, (resize[0] / img.shape[0], resize[1] / img.shape[1], resize[2] / img.shape[2]), mode=mode)
+IndexError: tuple index out of range
+
+exception in epoch1
+Traceback (most recent call last):
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\train.py", line 113, in <module>
+    loss_list = np.append(loss_list, train_loss.item())
+KeyboardInterrupt
+
+exception in epoch1
+Traceback (most recent call last):
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\train.py", line 122, in <module>
+    resize_predict_image = np.append(resize_predict_image ,resize_3d_image(torch.squeeze(predict_image[i]).cpu().detach().numpy(), original_mask[i].shape[1:], mode='nearest'), 0)
+  File "<__array_function__ internals>", line 5, in append
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\numpy\lib\function_base.py", line 4817, in append
+    return concatenate((arr, values), axis=axis)
+  File "<__array_function__ internals>", line 5, in concatenate
+ValueError: all the input arrays must have same number of dimensions, but the array at index 0 has 1 dimension(s) and the array at index 1 has 3 dimension(s)
+
+exception in epoch1
+Traceback (most recent call last):
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\train.py", line 122, in <module>
+    resize_predict_image = np.concatenate((resize_predict_image ,resize_3d_image(torch.squeeze(predict_image[i].clone()).cpu().detach().numpy(), original_mask[i].shape[1:], mode='nearest')), 0)
+  File "<__array_function__ internals>", line 5, in concatenate
+ValueError: all the input arrays must have same number of dimensions, but the array at index 0 has 1 dimension(s) and the array at index 1 has 3 dimension(s)
+
+exception in epoch1
+Traceback (most recent call last):
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\train.py", line 123, in <module>
+    resize_predict_image = np.concatenate((resize_predict_image ,resize_3d_image(torch.squeeze(predict_image[i].clone()).cpu().detach().numpy(), original_mask[i].shape[1:], mode='nearest')), 0)
+  File "<__array_function__ internals>", line 5, in concatenate
+ValueError: all the input arrays must have same number of dimensions, but the array at index 0 has 1 dimension(s) and the array at index 1 has 3 dimension(s)
+
+exception in epoch1
+Traceback (most recent call last):
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\train.py", line 123, in <module>
+    print(resize_3d_image(torch.squeeze(predict_image[i].clone()).cpu().detach().numpy()).shape)
+TypeError: resize_3d_image() missing 1 required positional argument: 'resize'
+
+exception in epoch1
+Traceback (most recent call last):
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\train.py", line 123, in <module>
+    print(resize_3d_image(torch.squeeze(predict_image[i].clone()).cpu().detach().numpy()).shape)
+TypeError: resize_3d_image() missing 1 required positional argument: 'resize'
+
+exception in epoch1
+Traceback (most recent call last):
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\train.py", line 124, in <module>
+    resize_predict_image = np.concatenate((resize_predict_image ,resize_3d_image(torch.squeeze(predict_image[i].clone()).cpu().detach().numpy(), original_mask[i].shape[1:], mode='nearest')), 0)
+  File "<__array_function__ internals>", line 5, in concatenate
+ValueError: all the input arrays must have same number of dimensions, but the array at index 0 has 1 dimension(s) and the array at index 1 has 3 dimension(s)
+
+exception in epoch1
+Traceback (most recent call last):
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\train.py", line 126, in <module>
+    resize_predict_image[resize_predict_image >= threshold] = 1
+ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all()
+
+exception in epoch1
+Traceback (most recent call last):
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\train.py", line 127, in <module>
+    resize_predict_image[resize_predict_image >= threshold] = 1
+ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all()
+
+exception in epoch1
+Traceback (most recent call last):
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\train.py", line 124, in <module>
+    resize_predict_image = np.vstack((resize_predict_image, resize_3d_image(torch.squeeze(predict_image[i].clone()).cpu().detach().numpy(), original_mask[i].shape[1:], mode='nearest')))
+  File "<__array_function__ internals>", line 5, in vstack
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\numpy\core\shape_base.py", line 282, in vstack
+    return _nx.concatenate(arrs, 0)
+  File "<__array_function__ internals>", line 5, in concatenate
+ValueError: all the input arrays must have same number of dimensions, but the array at index 0 has 2 dimension(s) and the array at index 1 has 3 dimension(s)
+
+exception in epoch1
+Traceback (most recent call last):
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\train.py", line 124, in <module>
+    resize_predict_image = np.vstack((resize_predict_image, resize_3d_image(torch.squeeze(predict_image[i].clone()).cpu().detach().numpy(), original_mask[i].shape[1:], mode='nearest')))
+  File "<__array_function__ internals>", line 5, in vstack
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\numpy\core\shape_base.py", line 282, in vstack
+    return _nx.concatenate(arrs, 0)
+  File "<__array_function__ internals>", line 5, in concatenate
+ValueError: all the input arrays must have same number of dimensions, but the array at index 0 has 2 dimension(s) and the array at index 1 has 3 dimension(s)
+
+exception in epoch1
+Traceback (most recent call last):
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\train.py", line 124, in <module>
+    resize_predict_image = np.vstack((resize_predict_image, resize_3d_image(torch.squeeze(predict_image[i].clone()).cpu().detach().numpy(), original_mask[i].shape[1:], mode='nearest')))
+  File "<__array_function__ internals>", line 5, in vstack
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\numpy\core\shape_base.py", line 282, in vstack
+    return _nx.concatenate(arrs, 0)
+  File "<__array_function__ internals>", line 5, in concatenate
+ValueError: all the input arrays must have same number of dimensions, but the array at index 0 has 4 dimension(s) and the array at index 1 has 3 dimension(s)
+
+exception in epoch1
+Traceback (most recent call last):
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\train.py", line 120, in <module>
+    resize_predict_image = np.empty((0, original_mask[i].shape[1:]))
+TypeError: 'torch.Size' object cannot be interpreted as an integer
+
+exception in epoch1
+Traceback (most recent call last):
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\train.py", line 126, in <module>
+    resize_predict_image = np.vstack((resize_predict_image, resize_3d_image(torch.squeeze(predict_image[i].clone()).cpu().detach().numpy(), original_mask[i].shape[1:], mode='nearest')))
+  File "<__array_function__ internals>", line 5, in vstack
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\numpy\core\shape_base.py", line 282, in vstack
+    return _nx.concatenate(arrs, 0)
+  File "<__array_function__ internals>", line 5, in concatenate
+ValueError: all the input arrays must have same number of dimensions, but the array at index 0 has 4 dimension(s) and the array at index 1 has 3 dimension(s)
+
+exception in epoch1
+Traceback (most recent call last):
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\train.py", line 126, in <module>
+    resize_predict_image = np.append(resize_predict_image, resize_3d_image(torch.squeeze(predict_image[i].clone()).cpu().detach().numpy(), original_mask[i].shape[1:], mode='nearest'), axis=0)
+  File "<__array_function__ internals>", line 5, in append
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\numpy\lib\function_base.py", line 4817, in append
+    return concatenate((arr, values), axis=axis)
+  File "<__array_function__ internals>", line 5, in concatenate
+ValueError: all the input arrays must have same number of dimensions, but the array at index 0 has 4 dimension(s) and the array at index 1 has 3 dimension(s)
+
+exception in epoch1
+Traceback (most recent call last):
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\train.py", line 126, in <module>
+    resize_predict_image = np.append(resize_predict_image, resize_3d_image(torch.squeeze(predict_image[i].clone()).cpu().detach().numpy(), original_mask[i].shape[1:], mode='nearest'), axis=0)
+  File "<__array_function__ internals>", line 5, in append
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\numpy\lib\function_base.py", line 4817, in append
+    return concatenate((arr, values), axis=axis)
+  File "<__array_function__ internals>", line 5, in concatenate
+ValueError: all the input arrays must have same number of dimensions, but the array at index 0 has 4 dimension(s) and the array at index 1 has 3 dimension(s)
+
+exception in epoch1
+Traceback (most recent call last):
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\train.py", line 108, in <module>
+    for i, (image, mask, original_mask) in tqdm(enumerate(train_loader), desc=f"train_{epoch}", total=len(train_loader)):
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\tqdm\std.py", line 1180, in __iter__
+    for obj in iterable:
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\torch\utils\data\dataloader.py", line 521, in __next__
+    data = self._next_data()
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\torch\utils\data\dataloader.py", line 561, in _next_data
+    data = self._dataset_fetcher.fetch(index)  # may raise StopIteration
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\torch\utils\data\_utils\fetch.py", line 44, in fetch
+    data = [self.dataset[idx] for idx in possibly_batched_index]
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\torch\utils\data\_utils\fetch.py", line 44, in <listcomp>
+    data = [self.dataset[idx] for idx in possibly_batched_index]
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\data.py", line 55, in __getitem__
+    img = resize_3d_image(img, self.resize)
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\utils.py", line 54, in resize_3d_image
+    resize_img = itpl.zoom(img, (resize[0] / img.shape[0], resize[1] / img.shape[1], resize[2] / img.shape[2]), mode=mode)
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\scipy\ndimage\interpolation.py", line 785, in zoom
+    filtered = spline_filter(padded, order, output=numpy.float64,
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\scipy\ndimage\interpolation.py", line 189, in spline_filter
+    spline_filter1d(input, order, axis, output=output, mode=mode)
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\scipy\ndimage\interpolation.py", line 131, in spline_filter1d
+    _nd_image.spline_filter1d(input, order, axis, output, mode)
+KeyboardInterrupt
+
+exception in epoch1
+Traceback (most recent call last):
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\train.py", line 120, in <module>
+    resize_predict_image = np.empty((0, original_mask[i].shape[1], original_mask[i].shape[2], original_mask[i].shape[3]))
+IndexError: index 2 is out of bounds for dimension 0 with size 2
+
+exception in epoch1
+Traceback (most recent call last):
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\train.py", line 126, in <module>
+    resize_predict_image = np.append(resize_predict_image, np.expand_dims(resize_3d_image(torch.squeeze(predict_image[j].clone()).cpu().detach().numpy(), original_mask[j].shape[1:], mode='nearest'), 0), axis=0)
+KeyboardInterrupt
+

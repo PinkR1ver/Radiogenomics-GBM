@@ -15,8 +15,8 @@ import sys
 from tqdm import tqdm
 import gc
 
-MRI_series_this = 'FLAIR'
-epoches = 10
+MRI_series_this = sys.argv[1]
+epoches = int(sys.argv[2])
 
 base_path = os.path.dirname(__file__)
 data_path = os.path.join(base_path, 'data')
@@ -99,8 +99,12 @@ if __name__ == '__main__':
         threshold = 0.5
         for iter_out in range(1, epoches + 1):
 
-            train_preds = torch.tensor([])
-            train_truths = torch.tensor([])
+            # train_preds = torch.tensor([])
+            # train_truths = torch.tensor([])
+            TP = 0
+            FP = 0
+            TN = 0
+            FN = 0
             for i, (image, mask, original_mask) in tqdm(enumerate(train_loader), desc=f"train_{epoch}", total=len(train_loader)):
                 image, mask, original_mask = image.to(device), mask.to(device), original_mask.to(device)
 
@@ -112,17 +116,45 @@ if __name__ == '__main__':
                 train_loss.backward()
                 opt.step()
 
-                resize_predict_image = torch.tensor([])
-                for i in range(predict_image.shape[0]):
-                    # print(torch.squeeze(predict_image[i].clone()).shape)
-                    # print(original_mask[i].shape[1:])
-                    # print(torch.FloatTensor(resize_3d_image(torch.squeeze(predict_image[i].clone()).cpu().detach().numpy(), original_mask[i].shape[1:], mode='nearest')).unsqueeze(0).shape)
-                    resize_predict_image = torch.cat((resize_predict_image ,torch.FloatTensor(resize_3d_image(torch.squeeze(predict_image[i].clone()).cpu().detach().numpy(), original_mask[i].shape[1:], mode='nearest')).unsqueeze(0).unsqueeze(0)), 0)
-                
+
+                resize_predict_image = np.empty((0, original_mask[0].shape[1], original_mask[0].shape[2], original_mask[0].shape[3]))
                 # print(resize_predict_image.shape)
 
-                train_preds = torch.cat((train_preds, resize_predict_image.cpu().detach()), 0)
-                train_truths = torch.cat((train_truths, original_mask.cpu().detach()), 0)
+                for j in range(predict_image.shape[0]):
+                    # print(original_mask[i].shape[1:])
+                    # print(torch.squeeze(predict_image[i].clone()).cpu().detach().numpy().shape)
+                    resize_predict_image = np.append(resize_predict_image, np.expand_dims(resize_3d_image(torch.squeeze(predict_image[j].clone()).cpu().detach().numpy(), original_mask[j].shape[1:], mode='nearest'), 0), axis=0)
+                    # print(resize_predict_image.shape)
+
+                resize_predict_image[resize_predict_image >= threshold] = 1
+                resize_predict_image[resize_predict_image < threshold] = 0
+
+                original_mask = torch.squeeze(original_mask).cpu().detach().numpy()
+
+
+                # print(resize_predict_image.shape)
+                # print(original_mask.shape)
+
+
+                FP += len(np.where(resize_predict_image - original_mask == 1)[0])
+                FN += len(np.where(resize_predict_image - original_mask == -1)[0])
+                TP += len(np.where(resize_predict_image + original_mask == 2)[0])
+                TN += len(np.where(resize_predict_image + original_mask == 0)[0])
+
+
+                # print(resize_predict_image.shape)
+
+                # train_preds = torch.cat((train_preds, resize_predict_image.cpu().detach()), 0)
+                # train_truths = torch.cat((train_truths, original_mask.cpu().detach()), 0)
+
+
+            train_accuracy = (TP + TN) / (TP + TN + FN + FP)
+            train_sensitivity = TP / (TP + FN)
+            train_specificity = TN / (TN + FP)
+            train_precision = TP / (TP + FP)
+            train_balance_accuracy = (TP / (TP + FN) + TN / (TN + FP)) / 2
+            train_IoU = TP / (TP + FN + FP)
+            train_f1score = (2 * TP) / (2 * TP + FP + FN)
 
             average_loss_list = np.append(
                 average_loss_list, loss_list.sum() / len(loss_list))
@@ -131,8 +163,12 @@ if __name__ == '__main__':
             gc.collect()
 
 
-            test_preds = torch.tensor([])
-            test_truths = torch.tensor([])
+            TP = 0
+            FP = 0
+            TN = 0
+            FN = 0
+            # test_preds = torch.tensor([])
+            # test_truths = torch.tensor([])
             for i, (image, mask, original_mask) in tqdm(enumerate(test_loader), desc=f"test_{epoch}", total=len(test_loader)):
                 image, mask, original_mask = image.to(device), mask.to(device), original_mask.to(device)
 
@@ -140,26 +176,67 @@ if __name__ == '__main__':
                 train_loss = loss_function(predict_image, mask)
                 loss_list = np.append(loss_list, train_loss.item())
 
-                resize_predict_image = torch.tensor([])
-                for i in range(predict_image.shape[0]):
-                    resize_predict_image = torch.cat((resize_predict_image ,torch.FloatTensor(resize_3d_image(torch.squeeze(predict_image[i].clone()).cpu().detach().numpy(), original_mask[i].shape[1:], mode='nearest')).unsqueeze(0).unsqueeze(0)), 0)
+                resize_predict_image = np.empty((0, original_mask[0].shape[1], original_mask[0].shape[2], original_mask[0].shape[3]))
+                # print(resize_predict_image.shape)
 
-                test_preds = torch.cat((test_preds, resize_predict_image.cpu().detach()), 0)
-                test_truths = torch.cat((test_truths, original_mask.cpu().detach()), 0)
-            
+                for j in range(predict_image.shape[0]):
+                    # print(original_mask[i].shape[1:])
+                    # print(torch.squeeze(predict_image[i].clone()).cpu().detach().numpy().shape)
+                    resize_predict_image = np.append(resize_predict_image, np.expand_dims(resize_3d_image(torch.squeeze(predict_image[j].clone()).cpu().detach().numpy(), original_mask[j].shape[1:], mode='nearest'), 0), axis=0)
+                    # print(resize_predict_image.shape)
+
+                resize_predict_image[resize_predict_image >= threshold] = 1
+                resize_predict_image[resize_predict_image < threshold] = 0
+
+                original_mask = torch.squeeze(original_mask).cpu().detach().numpy()
+
+
+                # print(resize_predict_image.shape)
+                # print(original_mask.shape)
+
+
+                FP += len(np.where(resize_predict_image - original_mask == 1)[0])
+                FN += len(np.where(resize_predict_image - original_mask == -1)[0])
+                TP += len(np.where(resize_predict_image + original_mask == 2)[0])
+                TN += len(np.where(resize_predict_image + original_mask == 0)[0])
+
+                # test_preds = torch.cat((test_preds, resize_predict_image.cpu().detach()), 0)
+                # test_truths = torch.cat((test_truths, original_mask.cpu().detach()), 0)
+
+
+            test_accuracy = (TP + TN) / (TP + TN + FN + FP)
+            test_sensitivity = TP / (TP + FN)
+            test_specificity = TN / (TN + FP)
+            test_precision = TP / (TP + FP)
+            test_balance_accuracy = (TP / (TP + FN) + TN / (TN + FP)) / 2
+            test_IoU = TP / (TP + FN + FP)
+            test_f1score = (2 * TP) / (2 * TP + FP + FN)
+
             average_loss_list = np.append(
                 average_loss_list, loss_list.sum() / len(loss_list))
             loss_list = np.array([])
 
             gc.collect()
             
-            
+
             # print(torch.unique(train_preds))
-            evl_dict = trainHelper.evalation_all(train_preds, train_truths, test_preds, test_truths, threshold)
+            # evl_dict = trainHelper.evalation_all(train_preds, train_truths, test_preds, test_truths, threshold)
+            
+            evl_dict = {
+                "accuracy": [train_accuracy, test_accuracy],
+                "sensitivity": [train_sensitivity, test_sensitivity],
+                "specificity": [train_specificity, test_specificity],
+                "precision": [train_precision, test_precision],
+                "balance_accuracy": [train_balance_accuracy, test_balance_accuracy],
+                "IoU": [train_IoU, test_IoU],
+                "f1score": [train_f1score, test_f1score]
+            }
+    
             evl_dict['loss'] = average_loss_list
             evl_list.push(evl_dict)
 
             average_loss_list = np.array([])
+
 
             if epoch % 25 == 0:
                 torch.save(net.state_dict(), os.path.join(
@@ -169,9 +246,9 @@ if __name__ == '__main__':
 
             # print(torch.unique(train_preds))
 
-            if epoch % 10 == 0:
+            # if epoch % 10 == 0:
                 # threshold = trainHelper.ROC_to_calculate_thresold(train_preds, train_truths, os.path.join(ROC_path, f'epoch{epoch}.png'), True)
-                threshold = trainHelper.f1score_to_calculate_thresold(train_preds, train_truths, os.path.join(ROC_path, f'epoch{epoch}.png'), True)
+                # threshold = trainHelper.f1score_to_calculate_thresold(train_preds, train_truths, os.path.join(ROC_path, f'epoch{epoch}.png'), True)
 
             epoch += 1
 

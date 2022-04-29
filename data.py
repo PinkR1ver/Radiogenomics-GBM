@@ -53,18 +53,32 @@ class NiiDataset():
         msk = gray2Binary(msk)
         if self.resize is not None:
             img = resize_3d_image(img, self.resize)
+            original_msk = np.copy(msk)
             msk = resize_3d_image(msk, self.resize, mode='nearest')
 
-        msk = msk / 255
+        #msk = msk / 255
+        #msk[msk > 0.9] = 1
+        #msk[msk <= 0.9] = 0
 
-        return torch.FloatTensor(img / img.max()), torch.FloatTensor(msk)
+        if self.resize is not None:
+            return torch.FloatTensor(img / img.max()).unsqueeze(0), torch.FloatTensor(msk / 255).unsqueeze(0), torch.FloatTensor(original_msk / 255).unsqueeze(0)
+        else:
+            return torch.FloatTensor(img / img.max()).unsqueeze(0), torch.FloatTensor(msk / 255).unsqueeze(0)
 
 if __name__ == '__main__':
-    print(sys.float_info.max)
+    #print(sys.float_info.max)
     IMGDataset = NiiDataset('./data/Images', './data/Masks', MRI_series='T1', mode='train', resize=(256, 256, 128))
-    #print(IMGDataset[5])
-    plt.imshow(IMGDataset[5][0][:,:,70])
+    #print(IMGDataset[5][0].shape)
+    plt.imshow(resize_3d_image(IMGDataset[6][1], IMGDataset[6][2].shape, mode='nearest')[:,:,70])
     plt.show()
 
-    plt.imshow(IMGDataset[5][1][:,:,70])
+    plt.imshow(IMGDataset[6][2][:,:,70])
     plt.show()
+
+
+    #TestDataset = NiiDataset('./data/Images', './data/Masks', MRI_series='T1', mode='train')
+    #plt.imshow(TestDataset[5][1][:,:,90])
+    #plt.show()
+
+    #plt.imshow(IMGDataset[5][1][:,:,70])
+    #plt.show()

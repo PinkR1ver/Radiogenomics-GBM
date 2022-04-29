@@ -205,3 +205,279 @@ Traceback (most recent call last):
     train_preds = torch.cat((train_preds, predict_image.cpu().detach()), 0)
 KeyboardInterrupt
 
+exception in epoch1
+Traceback (most recent call last):
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\train.py", line 107, in <module>
+    predict_image = net(image)
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\torch\nn\modules\module.py", line 1051, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\unet.py", line 71, in forward
+    L1 = self.c1(x)
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\torch\nn\modules\module.py", line 1051, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\unet.py", line 20, in forward
+    return self.layer(x)
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\torch\nn\modules\module.py", line 1051, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\torch\nn\modules\container.py", line 139, in forward
+    input = module(input)
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\torch\nn\modules\module.py", line 1051, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\torch\nn\modules\conv.py", line 587, in forward
+    return self._conv_forward(input, self.weight, self.bias)
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\torch\nn\modules\conv.py", line 582, in _conv_forward
+    return F.conv3d(
+RuntimeError: Expected 5-dimensional input for 5-dimensional weight [64, 1, 3, 3, 3], but got 4-dimensional input of size [2, 256, 256, 128] instead
+
+exception in epoch1
+Traceback (most recent call last):
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\train.py", line 107, in <module>
+    predict_image = net(image)
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\torch\nn\modules\module.py", line 1051, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\unet.py", line 71, in forward
+    L1 = self.c1(x)
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\torch\nn\modules\module.py", line 1051, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\unet.py", line 20, in forward
+    return self.layer(x)
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\torch\nn\modules\module.py", line 1051, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\torch\nn\modules\container.py", line 139, in forward
+    input = module(input)
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\torch\nn\modules\module.py", line 1051, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\torch\nn\modules\dropout.py", line 142, in forward
+    return F.dropout3d(input, self.p, self.training, self.inplace)
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\torch\nn\functional.py", line 1226, in dropout3d
+    return _VF.feature_dropout_(input, p, training) if inplace else _VF.feature_dropout(input, p, training)
+RuntimeError: CUDA out of memory. Tried to allocate 2.00 GiB (GPU 0; 6.00 GiB total capacity; 4.45 GiB already allocated; 0 bytes free; 4.72 GiB reserved in total by PyTorch)
+
+exception in epoch1
+Traceback (most recent call last):
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\train.py", line 116, in <module>
+    predict_image[i] = torch.FloatTensor(resize_3d_image(predict_image[i].clone().cpu().detach().numpy(), original_mask[i].shape, mode='nearest'))
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\utils.py", line 54, in resize_3d_image
+    resize_img = itpl.zoom(img, (resize[0] / img.shape[0], resize[1] / img.shape[1], resize[2] / img.shape[2]), mode=mode)
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\scipy\ndimage\interpolation.py", line 767, in zoom
+    zoom = _ni_support._normalize_sequence(zoom, input.ndim)
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\scipy\ndimage\_ni_support.py", line 67, in _normalize_sequence
+    raise RuntimeError(err)
+RuntimeError: sequence argument must have length equal to input rank
+
+exception in epoch1
+Traceback (most recent call last):
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\train.py", line 116, in <module>
+    predict_image[i] = torch.FloatTensor(resize_3d_image(predict_image[i].clone().cpu().detach().numpy(), original_mask[i].shape, mode='nearest'))
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\utils.py", line 54, in resize_3d_image
+    resize_img = itpl.zoom(img, (resize[0] / img.shape[0], resize[1] / img.shape[1], resize[2] / img.shape[2]), mode=mode)
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\scipy\ndimage\interpolation.py", line 767, in zoom
+    zoom = _ni_support._normalize_sequence(zoom, input.ndim)
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\scipy\ndimage\_ni_support.py", line 67, in _normalize_sequence
+    raise RuntimeError(err)
+RuntimeError: sequence argument must have length equal to input rank
+
+exception in epoch1
+Traceback (most recent call last):
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\train.py", line 116, in <module>
+    predict_image[i] = torch.FloatTensor(resize_3d_image(predict_image[i].clone().cpu().detach().numpy(), original_mask[i].shape, mode='nearest'))
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\utils.py", line 54, in resize_3d_image
+    resize_img = itpl.zoom(img, (resize[0] / img.shape[0], resize[1] / img.shape[1], resize[2] / img.shape[2]), mode=mode)
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\scipy\ndimage\interpolation.py", line 767, in zoom
+    zoom = _ni_support._normalize_sequence(zoom, input.ndim)
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\scipy\ndimage\_ni_support.py", line 67, in _normalize_sequence
+    raise RuntimeError(err)
+RuntimeError: sequence argument must have length equal to input rank
+
+exception in epoch1
+Traceback (most recent call last):
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\train.py", line 117, in <module>
+    predict_image[i] = torch.FloatTensor(resize_3d_image(torch.squeeze(predict_image[i].clone()).cpu().detach().numpy(), original_mask[i].shape, mode='nearest'))
+RuntimeError: The expanded size of the tensor (32) must match the existing size (229) at non-singleton dimension 3.  Target sizes: [1, 128, 128, 32].  Tensor sizes: [193, 229]
+
+exception in epoch1
+Traceback (most recent call last):
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\train.py", line 117, in <module>
+    predict_image[i] = torch.FloatTensor(resize_3d_image(torch.squeeze(predict_image[i].clone()).cpu().detach().numpy(), original_mask[i].shape, mode='nearest'))
+RuntimeError: The expanded size of the tensor (32) must match the existing size (229) at non-singleton dimension 3.  Target sizes: [1, 128, 128, 32].  Tensor sizes: [193, 229]
+
+exception in epoch1
+Traceback (most recent call last):
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\train.py", line 118, in <module>
+    predict_image[i] = torch.FloatTensor(resize_3d_image(torch.squeeze(predict_image[i].clone()).cpu().detach().numpy(), original_mask[i].shape[2:], mode='nearest'))
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\utils.py", line 54, in resize_3d_image
+    resize_img = itpl.zoom(img, (resize[0] / img.shape[0], resize[1] / img.shape[1], resize[2] / img.shape[2]), mode=mode)
+IndexError: tuple index out of range
+
+exception in epoch1
+Traceback (most recent call last):
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\train.py", line 118, in <module>
+    predict_image[i] = torch.FloatTensor(resize_3d_image(torch.squeeze(predict_image[i].clone()).cpu().detach().numpy(), original_mask[i].shape[2:], mode='nearest'))
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\utils.py", line 54, in resize_3d_image
+    resize_img = itpl.zoom(img, (resize[0] / img.shape[0], resize[1] / img.shape[1], resize[2] / img.shape[2]), mode=mode)
+IndexError: tuple index out of range
+
+exception in epoch1
+Traceback (most recent call last):
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\train.py", line 118, in <module>
+    predict_image[i] = torch.FloatTensor(resize_3d_image(torch.squeeze(predict_image[i].clone()).cpu().detach().numpy(), original_mask[i].shape[1:], mode='nearest'))
+RuntimeError: The expanded size of the tensor (32) must match the existing size (193) at non-singleton dimension 3.  Target sizes: [1, 128, 128, 32].  Tensor sizes: [193, 229, 193]
+
+exception in epoch1
+Traceback (most recent call last):
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\train.py", line 118, in <module>
+    predict_image[i] = torch.FloatTensor(resize_3d_image(torch.squeeze(predict_image[i].clone()).cpu().detach().numpy(), original_mask[i].shape[1:], mode='nearest')).unsqueeze(0)
+RuntimeError: The expanded size of the tensor (32) must match the existing size (193) at non-singleton dimension 3.  Target sizes: [1, 128, 128, 32].  Tensor sizes: [193, 229, 193]
+
+exception in epoch1
+Traceback (most recent call last):
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\train.py", line 119, in <module>
+    predict_image[i] = torch.FloatTensor(resize_3d_image(torch.squeeze(predict_image[i].clone()).cpu().detach().numpy(), original_mask[i].shape[1:], mode='nearest')).unsqueeze(0)
+RuntimeError: The expanded size of the tensor (32) must match the existing size (193) at non-singleton dimension 3.  Target sizes: [1, 128, 128, 32].  Tensor sizes: [193, 229, 193]
+
+exception in epoch1
+Traceback (most recent call last):
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\train.py", line 120, in <module>
+    resize_predict_image[i] = torch.FloatTensor(resize_3d_image(torch.squeeze(predict_image[i].clone()).cpu().detach().numpy(), original_mask[i].shape[1:], mode='nearest')).unsqueeze(0)
+IndexError: index 0 is out of bounds for dimension 0 with size 0
+
+exception in epoch1
+Traceback (most recent call last):
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\train.py", line 120, in <module>
+    resize_predict_image[i] = torch.FloatTensor(resize_3d_image(torch.squeeze(predict_image[i].clone()).cpu().detach().numpy(), original_mask[i].shape[1:], mode='nearest')).unsqueeze(0)
+IndexError: index 0 is out of bounds for dimension 0 with size 0
+
+exception in epoch1
+Traceback (most recent call last):
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\train.py", line 120, in <module>
+    resize_predict_image[i] = torch.FloatTensor(resize_3d_image(torch.squeeze(predict_image[i].clone()).cpu().detach().numpy(), original_mask[i].shape[1:], mode='nearest')).unsqueeze(0)
+IndexError: index 0 is out of bounds for dimension 0 with size 0
+
+exception in epoch1
+Traceback (most recent call last):
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\train.py", line 120, in <module>
+    resize_predict_image = torch.cat((resize_predict_image ,torch.FloatTensor(resize_3d_image(torch.squeeze(predict_image[i].clone()).cpu().detach().numpy(), original_mask[i].shape[1:], mode='nearest')).unsqueeze(0)), 0)
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\utils.py", line 54, in resize_3d_image
+    resize_img = itpl.zoom(img, (resize[0] / img.shape[0], resize[1] / img.shape[1], resize[2] / img.shape[2]), mode=mode)
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\scipy\ndimage\interpolation.py", line 785, in zoom
+    filtered = spline_filter(padded, order, output=numpy.float64,
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\scipy\ndimage\interpolation.py", line 189, in spline_filter
+    spline_filter1d(input, order, axis, output=output, mode=mode)
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\scipy\ndimage\interpolation.py", line 131, in spline_filter1d
+    _nd_image.spline_filter1d(input, order, axis, output, mode)
+KeyboardInterrupt
+
+exception in epoch1
+Traceback (most recent call last):
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\train.py", line 107, in <module>
+    predict_image = net(image)
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\torch\nn\modules\module.py", line 1051, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\unet.py", line 79, in forward
+    R1 = self.c9(self.u4(R2, L1))
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\torch\nn\modules\module.py", line 1051, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\unet.py", line 20, in forward
+    return self.layer(x)
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\torch\nn\modules\module.py", line 1051, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\torch\nn\modules\container.py", line 139, in forward
+    input = module(input)
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\torch\nn\modules\module.py", line 1051, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\torch\nn\modules\conv.py", line 587, in forward
+    return self._conv_forward(input, self.weight, self.bias)
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\torch\nn\modules\conv.py", line 582, in _conv_forward
+    return F.conv3d(
+RuntimeError: CUDA out of memory. Tried to allocate 256.00 MiB (GPU 0; 6.00 GiB total capacity; 5.12 GiB already allocated; 0 bytes free; 5.22 GiB reserved in total by PyTorch)
+
+exception in epoch1
+Traceback (most recent call last):
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\train.py", line 120, in <module>
+    resize_predict_image = torch.cat((resize_predict_image ,torch.FloatTensor(resize_3d_image(torch.squeeze(predict_image[i].clone()).cpu().detach().numpy(), original_mask[i].shape[1:], mode='nearest')).unsqueeze(0)), 0)
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\utils.py", line 54, in resize_3d_image
+    resize_img = itpl.zoom(img, (resize[0] / img.shape[0], resize[1] / img.shape[1], resize[2] / img.shape[2]), mode=mode)
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\scipy\ndimage\interpolation.py", line 817, in zoom
+    _nd_image.zoom_shift(filtered, zoom, None, output, order, mode, cval, npad,
+KeyboardInterrupt
+
+exception in epoch1
+Traceback (most recent call last):
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\train.py", line 120, in <module>
+    resize_predict_image = torch.cat((resize_predict_image ,torch.FloatTensor(resize_3d_image(torch.squeeze(predict_image[i].clone()).cpu().detach().numpy(), original_mask[i].shape[1:], mode='nearest')).unsqueeze(0).unsqueeze(0)), 0)
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\utils.py", line 54, in resize_3d_image
+    resize_img = itpl.zoom(img, (resize[0] / img.shape[0], resize[1] / img.shape[1], resize[2] / img.shape[2]), mode=mode)
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\scipy\ndimage\interpolation.py", line 785, in zoom
+    filtered = spline_filter(padded, order, output=numpy.float64,
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\scipy\ndimage\interpolation.py", line 189, in spline_filter
+    spline_filter1d(input, order, axis, output=output, mode=mode)
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\scipy\ndimage\interpolation.py", line 131, in spline_filter1d
+    _nd_image.spline_filter1d(input, order, axis, output, mode)
+KeyboardInterrupt
+
+exception in epoch1
+Traceback (most recent call last):
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\train.py", line 159, in <module>
+    evl_dict = trainHelper.evalation_all(train_preds, train_truths, test_preds, test_truths, threshold)
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\trainHelper.py", line 175, in evalation_all
+    train_preds_copy[train_preds_copy < threshold] = 0
+RuntimeError: [enforce fail at ..\c10\core\CPUAllocator.cpp:79] data. DefaultCPUAllocator: not enough memory: you tried to allocate 7791531240 bytes.
+
+exception in epoch1
+Traceback (most recent call last):
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\train.py", line 159, in <module>
+    evl_dict = trainHelper.evalation_all(train_preds, train_truths, test_preds, test_truths, threshold)
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\trainHelper.py", line 175, in evalation_all
+    train_preds_copy[train_preds_copy < threshold] = 0
+RuntimeError: [enforce fail at ..\c10\core\CPUAllocator.cpp:79] data. DefaultCPUAllocator: not enough memory: you tried to allocate 7811663040 bytes.
+
+exception in epoch1
+Traceback (most recent call last):
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\train.py", line 160, in <module>
+    evl_dict = trainHelper.evalation_all(train_preds, train_truths, test_preds, test_truths, threshold)
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\trainHelper.py", line 175, in evalation_all
+    train_preds_copy[train_preds_copy < threshold] = 0
+RuntimeError: [enforce fail at ..\c10\core\CPUAllocator.cpp:79] data. DefaultCPUAllocator: not enough memory: you tried to allocate 7845605480 bytes.
+
+exception in epoch1
+Traceback (most recent call last):
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\train.py", line 159, in <module>
+    evl_dict = trainHelper.evalation_all(train_preds, train_truths, test_preds, test_truths, threshold)
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\trainHelper.py", line 175, in evalation_all
+    train_preds_copy[train_preds_copy < threshold] = 0
+RuntimeError: [enforce fail at ..\c10\core\CPUAllocator.cpp:79] data. DefaultCPUAllocator: not enough memory: you tried to allocate 7826643400 bytes.
+
+exception in epoch1
+Traceback (most recent call last):
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\train.py", line 107, in <module>
+    for i, (image, mask, original_mask) in tqdm(enumerate(train_loader), desc=f"train_{epoch}", total=len(train_loader)):
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\tqdm\std.py", line 1180, in __iter__
+    for obj in iterable:
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\torch\utils\data\dataloader.py", line 521, in __next__
+    data = self._next_data()
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\torch\utils\data\dataloader.py", line 561, in _next_data
+    data = self._dataset_fetcher.fetch(index)  # may raise StopIteration
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\torch\utils\data\_utils\fetch.py", line 44, in fetch
+    data = [self.dataset[idx] for idx in possibly_batched_index]
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\torch\utils\data\_utils\fetch.py", line 44, in <listcomp>
+    data = [self.dataset[idx] for idx in possibly_batched_index]
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\data.py", line 57, in __getitem__
+    msk = resize_3d_image(msk, self.resize, mode='nearest')
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\utils.py", line 54, in resize_3d_image
+    resize_img = itpl.zoom(img, (resize[0] / img.shape[0], resize[1] / img.shape[1], resize[2] / img.shape[2]), mode=mode)
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\scipy\ndimage\interpolation.py", line 785, in zoom
+    filtered = spline_filter(padded, order, output=numpy.float64,
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\scipy\ndimage\interpolation.py", line 189, in spline_filter
+    spline_filter1d(input, order, axis, output=output, mode=mode)
+  File "C:\Users\83549\anaconda3\envs\PyTorch-gpu\lib\site-packages\scipy\ndimage\interpolation.py", line 131, in spline_filter1d
+    _nd_image.spline_filter1d(input, order, axis, output, mode)
+KeyboardInterrupt
+
+exception in epoch1
+Traceback (most recent call last):
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\train.py", line 158, in <module>
+    evl_dict = trainHelper.evalation_all(train_preds, train_truths, test_preds, test_truths, threshold)
+  File "c:\Users\83549\Github Projects\Radiogenemics--on-Ivy-Gap\trainHelper.py", line 175, in evalation_all
+    train_preds_copy[train_preds_copy < threshold] = 0
+RuntimeError: [enforce fail at ..\c10\core\CPUAllocator.cpp:79] data. DefaultCPUAllocator: not enough memory: you tried to allocate 7780086800 bytes.
+

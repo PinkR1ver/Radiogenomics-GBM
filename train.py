@@ -1,3 +1,4 @@
+from ast import Or
 import os
 from re import S
 from cv2 import threshold
@@ -14,8 +15,8 @@ import sys
 from tqdm import tqdm
 import gc
 
-MRI_series_this = sys.argv[1]
-epoches = int(sys.argv[2])
+MRI_series_this = 'FLAIR'
+epoches = 10
 
 base_path = os.path.dirname(__file__)
 data_path = os.path.join(base_path, 'data')
@@ -56,29 +57,26 @@ else:
 
 if __name__ == '__main__':
 
-    GBM_Dataset = NiiDataset(img_path=image_path, msk_path=mask_path, MRI_series=MRI_series_this, mode='train')
+    train_dataset = NiiDataset(img_path=image_path, msk_path=mask_path, MRI_series=MRI_series_this, mode='train', resize=(32, 32, 16))
 
-    training_data_size = 0.8
+    # training_data_size = 0.8
 
-    train_size = int(training_data_size * len(GBM_Dataset))
-    validation_size = len(GBM_Dataset) - train_size
+    # train_size = int(training_data_size * len(GBM_Dataset))
+    # validation_size = len(GBM_Dataset) - train_size
 
-    train_dataset, validation_dataset = torch.utils.data.random_split(
-        GBM_Dataset, [train_size, validation_size])
+    # train_dataset, validation_dataset = torch.utils.data.random_split(
+    #   GBM_Dataset, [train_size, validation_size])
 
-    test_dataset = ImageDataset(data_path, 'GBM_MRI_Dataset.csv',
-                                MRI_series=MRI_series_this, mode='test', resize=(256, 256))
+    test_dataset = NiiDataset(img_path=image_path, msk_path=mask_path, MRI_series=MRI_series_this, mode='test', resize=(32, 32, 16))
 
     batch_size = 2
 
     train_loader = DataLoader(
         train_dataset, batch_size=batch_size, shuffle=True)
-    validation_loader = DataLoader(
-        validation_dataset, batch_size=batch_size, shuffle=False)
     test_loader = DataLoader(
         test_dataset, batch_size=batch_size, shuffle=False)
 
-    net = UNet().to(device)
+    net = UNet_3D().to(device)
 
     if os.path.exists(weight_path):
         net.load_state_dict(torch.load(weight_path))
@@ -103,8 +101,8 @@ if __name__ == '__main__':
 
             train_preds = torch.tensor([])
             train_truths = torch.tensor([])
-            for i, (image, mask) in tqdm(enumerate(train_loader), desc=f"train_{epoch}", total=len(train_loader)):
-                image, mask = image.to(device), mask.to(device)
+            for i, (image, mask, original_mask) in tqdm(enumerate(train_loader), desc=f"train_{epoch}", total=len(train_loader)):
+                image, mask, original_mask = image.to(device), mask.to(device), original_mask.to(device)
 
                 predict_image = net(image)
                 train_loss = loss_function(predict_image, mask)
@@ -114,48 +112,17 @@ if __name__ == '__main__':
                 train_loss.backward()
                 opt.step()
 
-                train_preds = torch.cat((train_preds, predict_image.cpu().detach()), 0)
-                train_truths = torch.cat((train_truths, mask.cpu().detach()), 0)
+                resize_predict_image = torch.tensor([])
+                for i in range(predict_image.shape[0]):
+                    # print(torch.squeeze(predict_image[i].clone()).shape)
+                    # print(original_mask[i].shape[1:])
+                    # print(torch.FloatTensor(resize_3d_image(torch.squeeze(predict_image[i].clone()).cpu().detach().numpy(), original_mask[i].shape[1:], mode='nearest')).unsqueeze(0).shape)
+                    resize_predict_image = torch.cat((resize_predict_image ,torch.FloatTensor(resize_3d_image(torch.squeeze(predict_image[i].clone()).cpu().detach().numpy(), original_mask[i].shape[1:], mode='nearest')).unsqueeze(0).unsqueeze(0)), 0)
+                
+                # print(resize_predict_image.shape)
 
-
-                _image = image[0]
-                _mask = mask[0]
-                _pred_image = predict_image[0]
-
-                _pred_image[_pred_image >= threshold] = 1
-                _pred_image[_pred_image < threshold] = 0
-
-                vaisual_image = torch.stack([_image, _mask, _pred_image], dim=0)
-                torchvision.utils.save_image(vaisual_image, os.path.join(monitor_path, 'train', f'{i}.png'))
-
-
-            average_loss_list = np.append(
-                average_loss_list, loss_list.sum() / len(loss_list))
-            loss_list = np.array([])
-
-            gc.collect()
-
-            validation_preds = torch.tensor([])
-            validation_truths = torch.tensor([])
-            for i, (image, mask) in tqdm(enumerate(validation_loader), desc=f"validation_{epoch}", total=len(validation_loader)):
-                image, mask = image.to(device), mask.to(device)
-
-                predict_image = net(image)
-                train_loss = loss_function(predict_image, mask)
-                loss_list = np.append(loss_list, train_loss.item())
-
-                validation_preds = torch.cat((validation_preds, predict_image.cpu().detach()), 0)
-                validation_truths = torch.cat((validation_truths, mask.cpu().detach()), 0)
-
-                _image = image[0]
-                _mask = mask[0]
-                _pred_image = predict_image[0]
-
-                _pred_image[_pred_image >= threshold] = 1
-                _pred_image[_pred_image < threshold] = 0
-
-                vaisual_image = torch.stack([_image, _mask, _pred_image], dim=0)
-                torchvision.utils.save_image(vaisual_image, os.path.join(monitor_path, 'validation', f'{i}.png'))
+                train_preds = torch.cat((train_preds, resize_predict_image.cpu().detach()), 0)
+                train_truths = torch.cat((train_truths, original_mask.cpu().detach()), 0)
 
             average_loss_list = np.append(
                 average_loss_list, loss_list.sum() / len(loss_list))
@@ -166,25 +133,19 @@ if __name__ == '__main__':
 
             test_preds = torch.tensor([])
             test_truths = torch.tensor([])
-            for i, (image, mask) in tqdm(enumerate(test_loader), desc=f"test_{epoch}", total=len(test_loader)):
-                image, mask = image.to(device), mask.to(device)
+            for i, (image, mask, original_mask) in tqdm(enumerate(test_loader), desc=f"test_{epoch}", total=len(test_loader)):
+                image, mask, original_mask = image.to(device), mask.to(device), original_mask.to(device)
 
                 predict_image = net(image)
                 train_loss = loss_function(predict_image, mask)
                 loss_list = np.append(loss_list, train_loss.item())
 
-                test_preds = torch.cat((test_preds, predict_image.cpu().detach()), 0)
-                test_truths = torch.cat((test_truths, mask.cpu().detach()), 0)
+                resize_predict_image = torch.tensor([])
+                for i in range(predict_image.shape[0]):
+                    resize_predict_image = torch.cat((resize_predict_image ,torch.FloatTensor(resize_3d_image(torch.squeeze(predict_image[i].clone()).cpu().detach().numpy(), original_mask[i].shape[1:], mode='nearest')).unsqueeze(0).unsqueeze(0)), 0)
 
-                _image = image[0]
-                _mask = mask[0]
-                _pred_image = predict_image[0]
-
-                _pred_image[_pred_image >= threshold] = 1
-                _pred_image[_pred_image < threshold] = 0
-
-                vaisual_image = torch.stack([_image, _mask, _pred_image], dim=0)
-                torchvision.utils.save_image(vaisual_image, os.path.join(monitor_path, 'test', f'{i}.png'))
+                test_preds = torch.cat((test_preds, resize_predict_image.cpu().detach()), 0)
+                test_truths = torch.cat((test_truths, original_mask.cpu().detach()), 0)
             
             average_loss_list = np.append(
                 average_loss_list, loss_list.sum() / len(loss_list))
@@ -194,7 +155,7 @@ if __name__ == '__main__':
             
             
             # print(torch.unique(train_preds))
-            evl_dict = trainHelper.evalation_all(train_preds, train_truths, validation_preds, validation_truths, test_preds, test_truths, threshold)
+            evl_dict = trainHelper.evalation_all(train_preds, train_truths, test_preds, test_truths, threshold)
             evl_dict['loss'] = average_loss_list
             evl_list.push(evl_dict)
 

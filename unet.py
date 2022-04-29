@@ -44,9 +44,9 @@ class upSample(nn.Module):
         return torch.cat((out, featureMap), dim=1)
 
 
-class UNet(nn.Module):
+class UNet_3D(nn.Module):
     def __init__(self):
-        super(UNet, self).__init__()
+        super(UNet_3D, self).__init__()
         self.c1 = convBlock(1, 64)
         self.d1 = downSample(64)
         self.c2 = convBlock(64, 128)

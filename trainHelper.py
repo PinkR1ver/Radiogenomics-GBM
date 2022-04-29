@@ -168,7 +168,7 @@ def f1score_to_calculate_thresold(preds, truths, save_path=None, save_or_not=Fal
     return threshold_flag
 
 
-def evalation_all(train_preds, train_truths, validation_preds, validation_truths, test_preds, test_truths, threshold):
+def evalation_all(train_preds, train_truths, test_preds, test_truths, threshold):
     train_preds_copy = train_preds.clone()
 
     train_preds_copy[train_preds_copy >= threshold] = 1
@@ -194,34 +194,6 @@ def evalation_all(train_preds, train_truths, validation_preds, validation_truths
     train_balance_accuracy = (TP / (TP + FN) + TN / (TN + FP)) / 2
     train_IoU = TP / (TP + FN + FP)
     train_f1score = (2 * TP) / (2 * TP + FP + FN)
-
-    gc.collect()
-
-    validation_preds_copy = validation_preds.clone()
-
-    validation_preds_copy[validation_preds_copy >= threshold] = 1
-    validation_preds_copy[validation_preds_copy < threshold] = 0
-
-
-    FP, FN, TP, TN = 0, 0, 0, 0
-
-    for i in range(len(validation_preds)):
-        validation_pred_arr = torch.squeeze(validation_preds_copy[i].cpu()).detach().clone().numpy()
-        validation_truth_arr = torch.squeeze(validation_truths[i].cpu()).detach().clone().numpy()
-
-        FP += len(np.where(validation_pred_arr - validation_truth_arr == 1)[0])
-        FN += len(np.where(validation_pred_arr - validation_truth_arr == -1)[0])
-        TP += len(np.where(validation_pred_arr + validation_truth_arr == 2)[0])
-        TN += len(np.where(validation_pred_arr + validation_truth_arr == 0)[0])
-
-
-    validation_accuracy = (TP + TN) / (TP + TN + FN + FP)
-    validation_sensitivity = TP / (TP + FN)
-    validation_specificity = TN / (TN + FP)
-    validation_precision = TP / (TP + FP)
-    validation_balance_accuracy = (TP / (TP + FN) + TN / (TN + FP)) / 2
-    validation_IoU = TP / (TP + FN + FP)
-    validation_f1score = (2 * TP) / (2 * TP + FP + FN)
 
     gc.collect()
 
@@ -254,13 +226,13 @@ def evalation_all(train_preds, train_truths, validation_preds, validation_truths
     gc.collect()
 
     evaluation_param = {
-        "accuracy": [train_accuracy, validation_accuracy, test_accuracy],
-        "sensitivity": [train_sensitivity, validation_sensitivity, test_sensitivity],
-        "specificity": [train_specificity, validation_specificity, test_specificity],
-        "precision": [train_precision, validation_precision, test_precision],
-        "balance_accuracy": [train_balance_accuracy, validation_balance_accuracy, test_balance_accuracy],
-        "IoU": [train_IoU, validation_IoU, test_IoU],
-        "f1score": [train_f1score, validation_f1score, test_f1score]
+        "accuracy": [train_accuracy, test_accuracy],
+        "sensitivity": [train_sensitivity, test_sensitivity],
+        "specificity": [train_specificity, test_specificity],
+        "precision": [train_precision, test_precision],
+        "balance_accuracy": [train_balance_accuracy, test_balance_accuracy],
+        "IoU": [train_IoU, test_IoU],
+        "f1score": [train_f1score, test_f1score]
     }
     
     return evaluation_param
@@ -268,13 +240,11 @@ def evalation_all(train_preds, train_truths, validation_preds, validation_truths
 class evaluation_list():
     def __init__(self, MRI_series_this='T1', begin=1):
         self.train_list = {} 
-        self.validation_list = {}
         self.test_list = {}
 
         evalution_params = ['loss', 'accuracy', 'precision', 'sensitivity', 'specificity', 'balance_accuracy', 'IoU', 'f1score']
         for i in evalution_params:
             self.train_list[i] = np.array([])
-            self.validation_list[i] = np.array([])
             self.test_list[i] = np.array([])
         
         self.begin = begin
@@ -284,7 +254,7 @@ class evaluation_list():
             os.mkdir(data_path)
         if not os.path.isdir(os.path.join(data_path, self.MRI_series_this)):
             os.mkdir(os.path.join(data_path, self.MRI_series_this))
-        for i in ['train', 'validation', 'test']:
+        for i in ['train', 'test']:
             if not os.path.isdir(os.path.join(data_path, self.MRI_series_this, i)):
                 os.mkdir(os.path.join(data_path, self.MRI_series_this, i))
     
@@ -294,14 +264,13 @@ class evaluation_list():
 
         for i in evalution_params:
             self.train_list[i] = np.append(self.train_list[i], evaluation_dict[i][0])
-            self.validation_list[i] = np.append(self.validation_list[i], evaluation_dict[i][1])
             self.test_list[i] = np.append(self.test_list[i], evaluation_dict[i][2])
 
     def single_plot(self, epoch):
 
         evalution_params = ['loss', 'accuracy', 'precision', 'sensitivity', 'specificity', 'balance_accuracy', 'IoU', 'f1score']
 
-        for mode in ['train', 'validation', 'test']:
+        for mode in ['train', 'test']:
             for i in evalution_params:
                 param = '\'' + i + '\''
                 length = len(eval(f'self.{mode}_list[{param}]'))
@@ -321,7 +290,7 @@ class evaluation_list():
 
         for i in evalution_params:
             fig = plt.figure()
-            for mode in ['train', 'validation', 'test']:
+            for mode in ['train', 'test']:
                 param = '\'' + i + '\''
                 length = len(eval(f'self.{mode}_list[{param}]'))
                 x = np.arange(
@@ -339,7 +308,7 @@ class evaluation_list():
 
         evalution_params = ['loss', 'accuracy', 'precision', 'sensitivity', 'specificity', 'balance_accuracy', 'IoU', 'f1score']
 
-        for mode in ['train', 'validation', 'test']:
+        for mode in ['train', 'test']:
             for i in evalution_params:
                 if not os.path.isfile(os.path.join(data_path, self.MRI_series_this, mode, f'log_{i}.txt')):
                     f = open(os.path.join(data_path, self.MRI_series_this, mode, f'log_{i}.txt'), "x")
@@ -388,7 +357,7 @@ class evaluation_list():
                 }
             for param in evalution_params:
                 param_str = '\'' + param + '\''
-                for mode in ['train', 'validation', 'test']:
+                for mode in ['train', 'test']:
                     val = eval(f'self.{mode}_list[{param_str}]')[i]
                     toWrite[param].append(val)
 

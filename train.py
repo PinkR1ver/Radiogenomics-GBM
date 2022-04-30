@@ -57,7 +57,7 @@ else:
 
 if __name__ == '__main__':
 
-    train_dataset = NiiDataset(img_path=image_path, msk_path=mask_path, MRI_series=MRI_series_this, mode='train', resize=(32, 32, 16))
+    train_dataset = NiiDataset(img_path=image_path, msk_path=mask_path, MRI_series=MRI_series_this, mode='train', resize=(256, 256, 128))
 
     # training_data_size = 0.8
 
@@ -67,7 +67,7 @@ if __name__ == '__main__':
     # train_dataset, validation_dataset = torch.utils.data.random_split(
     #   GBM_Dataset, [train_size, validation_size])
 
-    test_dataset = NiiDataset(img_path=image_path, msk_path=mask_path, MRI_series=MRI_series_this, mode='test', resize=(32, 32, 16))
+    test_dataset = NiiDataset(img_path=image_path, msk_path=mask_path, MRI_series=MRI_series_this, mode='test', resize=(256, 256, 128))
 
     batch_size = 2
 
@@ -283,7 +283,7 @@ if __name__ == '__main__':
             evl_list.all_log(epoch)
 
         trainHelper.sendmail(
-            content=r'Your train.py went something wrong', subject=r'train.py go wrong')
+            content=r'Your train.py went something wrong' + '\n' traceback.format_exc()+ , subject=r'train.py go wrong')
 
     else:
         print("Train finishing")

@@ -1,4 +1,3 @@
-from ast import Or
 import os
 from re import S
 from cv2 import threshold

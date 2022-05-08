@@ -109,6 +109,7 @@ Just run `mutual_information.py`
 ### Segmentation
 <img src="Pictures\Segmentation_Table.png" alt="Seg" width="400"/>
 <img src="Pictures\Segmentation_Vis.png" alt="Seg" width="600"/>
+<img src="Pictures\Segmentation.gif" alt="Seg" width="600"/>
 
 ### Classification
 <img src="Pictures\MLP.png" alt="MLP" width="400"/>

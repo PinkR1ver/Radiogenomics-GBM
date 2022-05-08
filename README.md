@@ -1,6 +1,7 @@
 # Radiogenomics analysis on Dataset from Ivy Glioblastoma Atlas Project (Ivy GAP)
 ## What is Radiogenomics
-![](Pictures\RadiogenomicsResearchTypicalPathway.png)
+<img src="Pictures\RadiogenomicsResearchTypicalPathway.png" alt="MLP" width="600"/>
+
 
 ## Which part this repositories focus on?
 1. GBM MRI image segmentation
@@ -106,14 +107,14 @@ Just run `mutual_information.py`
 ## Some results show
 
 ### Segmentation
-![](Pictures\Segmentation_Table.png)
-![](Pictures\Segmentation_Vis.png)
+<img src="Pictures\Segmentation_Table.png" alt="Seg" width="400"/>
+<img src="Pictures\Segmentation_Vis.png" alt="Seg" width="600"/>
 
 ### Classification
-![](Pictures\MLP.png)
+<img src="Pictures\MLP.png" alt="MLP" width="400"/>
 
 ### Mutual Information
-![](Pictures\Radiomics_with_ctAreaGeneExpression.png)
+<img src="Pictures\Radiomics_with_ctAreaGeneExpression.png" alt="MI" width="400"/>
 
 ## TODO List
 - [] Change old version generate_gif_results.py to new version

@@ -84,9 +84,9 @@ class UNet(nn.Module):
 
         return self.th(self.out(R1))
 
-class UNet_three_in(nn.Module):
+class UNet_RGB(nn.Module):
     def __init__(self):
-        super(UNet_three_in, self).__init__()
+        super(UNet_RGB, self).__init__()
         self.c1 = convBlock(3, 64)
         self.d1 = downSample(64)
         self.c2 = convBlock(64, 128)
@@ -121,7 +121,7 @@ class UNet_three_in(nn.Module):
         return self.th(self.out(R1))
 
 if __name__ == '__main__':
-    x = torch.randn(1, 3, 256, 256)
-    net = convBlock(3,64).to('cpu')
+    x = torch.randn(1, 1, 256, 256)
+    net = UNet().to('cpu')
     x = x.to('cpu')
     print(net(x).shape)

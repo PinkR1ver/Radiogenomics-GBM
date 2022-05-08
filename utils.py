@@ -62,6 +62,3 @@ def read_nii_image(niifile, plane='AX'):
     img_fdata = img.get_fdata()
 
     return img_fdata
-
-if __name__ == '__main__':
-    pass

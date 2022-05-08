@@ -266,10 +266,11 @@ def evalation_all(train_preds, train_truths, validation_preds, validation_truths
     return evaluation_param
     
 class evaluation_list():
-    def __init__(self, MRI_series_this='T1', begin=1):
+    def __init__(self, MRI_series_this='T1', begin=1, path=data_path):
         self.train_list = {} 
         self.validation_list = {}
         self.test_list = {}
+        self.path = path
 
         evalution_params = ['loss', 'accuracy', 'precision', 'sensitivity', 'specificity', 'balance_accuracy', 'IoU', 'f1score']
         for i in evalution_params:
@@ -280,13 +281,13 @@ class evaluation_list():
         self.begin = begin
         self.MRI_series_this = MRI_series_this
 
-        if not os.path.isdir(data_path):
-            os.mkdir(data_path)
-        if not os.path.isdir(os.path.join(data_path, self.MRI_series_this)):
-            os.mkdir(os.path.join(data_path, self.MRI_series_this))
+        if not os.path.isdir(self.path):
+            os.mkdir(self.path)
+        if not os.path.isdir(os.path.join(self.path, self.MRI_series_this)):
+            os.mkdir(os.path.join(self.path, self.MRI_series_this))
         for i in ['train', 'validation', 'test']:
-            if not os.path.isdir(os.path.join(data_path, self.MRI_series_this, i)):
-                os.mkdir(os.path.join(data_path, self.MRI_series_this, i))
+            if not os.path.isdir(os.path.join(self.path, self.MRI_series_this, i)):
+                os.mkdir(os.path.join(self.path, self.MRI_series_this, i))
     
     def push(self, evaluation_dict):
 
@@ -312,7 +313,7 @@ class evaluation_list():
                 plt.title(f'epoch{x[0]} - epoch{epoch-1} {i}')
                 plt.ylabel(i)
                 plt.xlabel('epoch')
-                plt.savefig(os.path.join(data_path, self.MRI_series_this, mode, f'epoch{x[0]}_epoch{epoch-1}_{i}.png'))
+                plt.savefig(os.path.join(self.path, self.MRI_series_this, mode, f'epoch{x[0]}_epoch{epoch-1}_{i}.png'))
                 plt.close(fig)
 
     def all_plot(self, epoch):
@@ -332,7 +333,7 @@ class evaluation_list():
             plt.ylabel(i)
             plt.xlabel('epoch')
             plt.legend(title='Lines', loc='best', labels=['train', 'validation', 'test'])
-            plt.savefig(os.path.join(data_path, self.MRI_series_this, f'epoch{x[0]}_epoch{epoch-1}_{i}.png'))
+            plt.savefig(os.path.join(self.path, self.MRI_series_this, f'epoch{x[0]}_epoch{epoch-1}_{i}.png'))
             plt.close(fig)
         
     def single_log(self, epoch):
@@ -341,17 +342,17 @@ class evaluation_list():
 
         for mode in ['train', 'validation', 'test']:
             for i in evalution_params:
-                if not os.path.isfile(os.path.join(data_path, self.MRI_series_this, mode, f'log_{i}.txt')):
-                    f = open(os.path.join(data_path, self.MRI_series_this, mode, f'log_{i}.txt'), "x")
+                if not os.path.isfile(os.path.join(self.path, self.MRI_series_this, mode, f'log_{i}.txt')):
+                    f = open(os.path.join(self.path, self.MRI_series_this, mode, f'log_{i}.txt'), "x")
                     f.close()
 
-                f = open(os.path.join(data_path, self.MRI_series_this, mode, f'log_{i}.txt'), "a")
+                f = open(os.path.join(self.path, self.MRI_series_this, mode, f'log_{i}.txt'), "a")
 
                 param = '\'' + i + '\''
                 length = len(eval(f'self.{mode}_list[{param}]'))
                 x = np.arange(
                     start=epoch - length, stop=epoch, step=1)
-                f.write(f'{i} epoch{x[0]} - epoch{epoch}: \n\n')
+                f.write(f'{i} epoch{x[0]} - epoch{epoch-1}: \n\n')
                 for j in range(len(x)):
                     val = eval(f'self.{mode}_list[{param}]')[j]
                     f.write(f'epoch{x[j]}: {val}\n')
@@ -362,17 +363,17 @@ class evaluation_list():
 
         evalution_params = ['loss', 'accuracy', 'precision', 'sensitivity', 'specificity', 'balance_accuracy', 'IoU', 'f1score']
 
-        if not os.path.isfile(os.path.join(data_path, self.MRI_series_this, f'log.txt')):
-            f = open(os.path.join(data_path, self.MRI_series_this, f'log.txt'), "x")
+        if not os.path.isfile(os.path.join(self.path, self.MRI_series_this, f'log.txt')):
+            f = open(os.path.join(self.path, self.MRI_series_this, f'log.txt'), "x")
             f.close()
 
-        f = open(os.path.join(data_path, self.MRI_series_this, f'log.txt'), "a")
+        f = open(os.path.join(self.path, self.MRI_series_this, f'log.txt'), "a")
 
         length = len(self.train_list['loss'])
         x = np.arange(
             start=epoch - length, stop=epoch, step=1)
 
-        f.write(f'epoch{x[0]} - epoch{epoch}: \n\n')
+        f.write(f'epoch{x[0]} - epoch{epoch-1}: \n\n')
 
         for i, epoch_now in enumerate(x):
             f.write(f'epoch{epoch_now}:\n')

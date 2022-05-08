@@ -1,16 +1,16 @@
 Decision Trees to original Data in TestDataset: 
                         precision    recall  f1-score   support
 
-             Classical       0.71      0.68      0.69       375
-Classical, Mesenchymal       0.59      0.66      0.63       157
-     Classical, Neural       0.63      0.58      0.60       199
-           Mesenchymal       0.62      0.69      0.65       224
-   Mesenchymal, Neural       0.69      0.57      0.62       168
-             Proneural       0.79      0.81      0.80       728
+             Classical       0.73      0.66      0.69       375
+Classical, Mesenchymal       0.60      0.61      0.60       157
+     Classical, Neural       0.60      0.60      0.60       199
+           Mesenchymal       0.61      0.66      0.64       224
+   Mesenchymal, Neural       0.62      0.57      0.59       168
+             Proneural       0.77      0.80      0.78       728
 
-              accuracy                           0.71      1851
-             macro avg       0.67      0.66      0.67      1851
-          weighted avg       0.71      0.71      0.71      1851
+              accuracy                           0.69      1851
+             macro avg       0.65      0.65      0.65      1851
+          weighted avg       0.69      0.69      0.69      1851
 
 
 Decision Trees to original Data in TrainDataset: 
@@ -31,16 +31,16 @@ Classical, Mesenchymal       1.00      1.00      1.00       482
 Decision Trees to normalize Data in TestDataset: 
                         precision    recall  f1-score   support
 
-             Classical       0.64      0.65      0.65       375
-Classical, Mesenchymal       0.52      0.59      0.55       157
-     Classical, Neural       0.56      0.55      0.55       199
-           Mesenchymal       0.65      0.65      0.65       224
-   Mesenchymal, Neural       0.59      0.42      0.49       168
-             Proneural       0.76      0.78      0.77       728
+             Classical       0.63      0.68      0.65       375
+Classical, Mesenchymal       0.54      0.57      0.56       157
+     Classical, Neural       0.59      0.57      0.58       199
+           Mesenchymal       0.63      0.63      0.63       224
+   Mesenchymal, Neural       0.60      0.42      0.49       168
+             Proneural       0.78      0.79      0.78       728
 
               accuracy                           0.67      1851
-             macro avg       0.62      0.61      0.61      1851
-          weighted avg       0.66      0.67      0.66      1851
+             macro avg       0.63      0.61      0.62      1851
+          weighted avg       0.67      0.67      0.67      1851
 
 
 Decision Trees to normalize Data in TrainDataset: 
@@ -91,11 +91,11 @@ Classical, Mesenchymal       1.00      1.00      1.00       482
 Decision Trees to PCA Normalized Data in TestDataset: 
                         precision    recall  f1-score   support
 
-             Classical       0.57      0.54      0.56       375
-Classical, Mesenchymal       0.33      0.41      0.37       157
-     Classical, Neural       0.51      0.50      0.50       199
-           Mesenchymal       0.43      0.45      0.44       224
-   Mesenchymal, Neural       0.49      0.48      0.49       168
+             Classical       0.58      0.55      0.56       375
+Classical, Mesenchymal       0.36      0.44      0.39       157
+     Classical, Neural       0.46      0.49      0.47       199
+           Mesenchymal       0.42      0.46      0.44       224
+   Mesenchymal, Neural       0.55      0.46      0.50       168
              Proneural       0.70      0.68      0.69       728
 
               accuracy                           0.56      1851
@@ -151,16 +151,16 @@ Classical, Mesenchymal       1.00      1.00      1.00       482
 Random Forest to orginal Data in TestDataset: 
                         precision    recall  f1-score   support
 
-             Classical       0.84      0.83      0.84       375
-Classical, Mesenchymal       0.79      0.75      0.77       157
-     Classical, Neural       0.91      0.64      0.75       199
-           Mesenchymal       0.93      0.74      0.82       224
-   Mesenchymal, Neural       0.92      0.65      0.76       168
-             Proneural       0.78      0.97      0.87       728
+             Classical       0.86      0.82      0.84       375
+Classical, Mesenchymal       0.79      0.78      0.78       157
+     Classical, Neural       0.91      0.65      0.76       199
+           Mesenchymal       0.92      0.74      0.82       224
+   Mesenchymal, Neural       0.91      0.69      0.78       168
+             Proneural       0.79      0.96      0.87       728
 
               accuracy                           0.83      1851
-             macro avg       0.86      0.76      0.80      1851
-          weighted avg       0.84      0.83      0.82      1851
+             macro avg       0.86      0.77      0.81      1851
+          weighted avg       0.84      0.83      0.83      1851
 
 
 Random Forest to original Data in TrainDataset: 
@@ -181,12 +181,12 @@ Classical, Mesenchymal       1.00      1.00      1.00       482
 Random Forest to orginal Data in TestDataset, adding tree numbers to 500: 
                         precision    recall  f1-score   support
 
-             Classical       0.87      0.82      0.85       375
-Classical, Mesenchymal       0.79      0.76      0.77       157
-     Classical, Neural       0.92      0.64      0.75       199
-           Mesenchymal       0.91      0.76      0.83       224
-   Mesenchymal, Neural       0.93      0.67      0.78       168
-             Proneural       0.79      0.97      0.87       728
+             Classical       0.86      0.83      0.85       375
+Classical, Mesenchymal       0.80      0.76      0.78       157
+     Classical, Neural       0.93      0.64      0.76       199
+           Mesenchymal       0.90      0.74      0.81       224
+   Mesenchymal, Neural       0.94      0.68      0.79       168
+             Proneural       0.78      0.97      0.87       728
 
               accuracy                           0.83      1851
              macro avg       0.87      0.77      0.81      1851
@@ -211,16 +211,16 @@ Classical, Mesenchymal       1.00      1.00      1.00       482
 Random Forest to normalized Data in TestDataset, adding tree numbers to 500: 
                         precision    recall  f1-score   support
 
-             Classical       0.87      0.83      0.85       375
-Classical, Mesenchymal       0.79      0.73      0.76       157
+             Classical       0.86      0.83      0.85       375
+Classical, Mesenchymal       0.79      0.75      0.77       157
      Classical, Neural       0.92      0.62      0.74       199
-           Mesenchymal       0.92      0.74      0.82       224
-   Mesenchymal, Neural       0.93      0.66      0.77       168
-             Proneural       0.77      0.97      0.86       728
+           Mesenchymal       0.91      0.75      0.83       224
+   Mesenchymal, Neural       0.93      0.67      0.78       168
+             Proneural       0.78      0.96      0.86       728
 
               accuracy                           0.83      1851
-             macro avg       0.87      0.76      0.80      1851
-          weighted avg       0.84      0.83      0.82      1851
+             macro avg       0.86      0.76      0.80      1851
+          weighted avg       0.84      0.83      0.83      1851
 
 
 Random Forest to normalized Data in TrainDataset, adding tree numbers to 500: 
@@ -241,16 +241,16 @@ Classical, Mesenchymal       1.00      1.00      1.00       482
 Random Forest to PCA normalized Data in TestDataset, adding tree numbers to 500: 
                         precision    recall  f1-score   support
 
-             Classical       0.86      0.75      0.80       375
-Classical, Mesenchymal       0.77      0.57      0.65       157
-     Classical, Neural       0.97      0.55      0.71       199
-           Mesenchymal       0.89      0.64      0.74       224
-   Mesenchymal, Neural       0.96      0.48      0.64       168
-             Proneural       0.67      0.96      0.79       728
+             Classical       0.88      0.74      0.80       375
+Classical, Mesenchymal       0.72      0.56      0.63       157
+     Classical, Neural       0.97      0.54      0.70       199
+           Mesenchymal       0.88      0.62      0.73       224
+   Mesenchymal, Neural       0.96      0.47      0.63       168
+             Proneural       0.66      0.97      0.79       728
 
-              accuracy                           0.76      1851
-             macro avg       0.85      0.66      0.72      1851
-          weighted avg       0.80      0.76      0.75      1851
+              accuracy                           0.75      1851
+             macro avg       0.85      0.65      0.71      1851
+          weighted avg       0.80      0.75      0.75      1851
 
 
 Random Forest to PCA normalized Data in TrainDataset, adding tree numbers to 500: 
@@ -331,46 +331,46 @@ Classical, Mesenchymal       0.98      0.30      0.46       482
 MLP to Normalized Data in TestDataset: 
                         precision    recall  f1-score   support
 
-             Classical       0.80      0.91      0.85       375
-Classical, Mesenchymal       0.80      0.82      0.81       157
-     Classical, Neural       0.88      0.80      0.84       199
-           Mesenchymal       0.87      0.87      0.87       224
-   Mesenchymal, Neural       0.81      0.79      0.80       168
-             Proneural       0.91      0.87      0.89       728
+             Classical       0.89      0.85      0.87       375
+Classical, Mesenchymal       0.80      0.84      0.82       157
+     Classical, Neural       0.83      0.82      0.83       199
+           Mesenchymal       0.89      0.86      0.88       224
+   Mesenchymal, Neural       0.87      0.77      0.82       168
+             Proneural       0.88      0.93      0.90       728
 
-              accuracy                           0.86      1851
-             macro avg       0.84      0.84      0.84      1851
-          weighted avg       0.86      0.86      0.86      1851
+              accuracy                           0.87      1851
+             macro avg       0.86      0.85      0.85      1851
+          weighted avg       0.87      0.87      0.87      1851
 
 
 MLP to Normalized Data in TrainDataset: 
                         precision    recall  f1-score   support
 
-             Classical       0.96      1.00      0.98       870
-Classical, Mesenchymal       1.00      0.99      0.99       482
-     Classical, Neural       0.99      1.00      0.99       445
-           Mesenchymal       1.00      0.99      1.00       514
-   Mesenchymal, Neural       0.99      1.00      1.00       345
-             Proneural       1.00      0.98      0.99      1663
+             Classical       1.00      1.00      1.00       870
+Classical, Mesenchymal       1.00      1.00      1.00       482
+     Classical, Neural       1.00      1.00      1.00       445
+           Mesenchymal       1.00      1.00      1.00       514
+   Mesenchymal, Neural       1.00      1.00      1.00       345
+             Proneural       1.00      1.00      1.00      1663
 
-              accuracy                           0.99      4319
-             macro avg       0.99      0.99      0.99      4319
-          weighted avg       0.99      0.99      0.99      4319
+              accuracy                           1.00      4319
+             macro avg       1.00      1.00      1.00      4319
+          weighted avg       1.00      1.00      1.00      4319
 
 
 MLP to PCA Normalized Data in TestDataset: 
                         precision    recall  f1-score   support
 
-             Classical       0.84      0.85      0.85       375
-Classical, Mesenchymal       0.67      0.76      0.71       157
-     Classical, Neural       0.82      0.78      0.80       199
-           Mesenchymal       0.88      0.79      0.83       224
-   Mesenchymal, Neural       0.83      0.75      0.79       168
-             Proneural       0.88      0.90      0.89       728
+             Classical       0.86      0.83      0.85       375
+Classical, Mesenchymal       0.76      0.80      0.78       157
+     Classical, Neural       0.86      0.78      0.82       199
+           Mesenchymal       0.82      0.82      0.82       224
+   Mesenchymal, Neural       0.84      0.81      0.83       168
+             Proneural       0.87      0.90      0.89       728
 
-              accuracy                           0.84      1851
-             macro avg       0.82      0.81      0.81      1851
-          weighted avg       0.84      0.84      0.84      1851
+              accuracy                           0.85      1851
+             macro avg       0.84      0.83      0.83      1851
+          weighted avg       0.85      0.85      0.85      1851
 
 
 MLP to PCA Normalized Data in TrainDataset: 
@@ -391,12 +391,12 @@ Classical, Mesenchymal       1.00      1.00      1.00       482
 Decision Trees to original Data in Simplified TestDataset: 
               precision    recall  f1-score   support
 
-   Classical       0.77      0.71      0.74       367
- Mesenchymal       0.66      0.66      0.66       219
-   Proneural       0.84      0.87      0.86       727
+   Classical       0.74      0.71      0.73       367
+ Mesenchymal       0.70      0.64      0.67       219
+   Proneural       0.83      0.87      0.85       727
 
     accuracy                           0.79      1313
-   macro avg       0.76      0.75      0.75      1313
+   macro avg       0.76      0.74      0.75      1313
 weighted avg       0.79      0.79      0.79      1313
 
 
@@ -415,13 +415,13 @@ weighted avg       1.00      1.00      1.00      3061
 Decision Trees to normalize Data in Simplified TestDataset: 
               precision    recall  f1-score   support
 
-   Classical       0.77      0.71      0.74       367
- Mesenchymal       0.65      0.63      0.64       219
+   Classical       0.77      0.73      0.75       367
+ Mesenchymal       0.64      0.61      0.62       219
    Proneural       0.82      0.85      0.83       727
 
     accuracy                           0.78      1313
    macro avg       0.74      0.73      0.74      1313
-weighted avg       0.78      0.78      0.78      1313
+weighted avg       0.77      0.78      0.77      1313
 
 
 Decision Trees to normalize Data in Simplified TrainDataset: 
@@ -463,13 +463,13 @@ weighted avg       1.00      1.00      1.00      3061
 Decision Trees to PCA Normalized Data in Simplified TestDataset: 
               precision    recall  f1-score   support
 
-   Classical       0.64      0.66      0.65       367
- Mesenchymal       0.53      0.55      0.54       219
-   Proneural       0.78      0.75      0.76       727
+   Classical       0.63      0.66      0.65       367
+ Mesenchymal       0.56      0.55      0.55       219
+   Proneural       0.78      0.76      0.77       727
 
-    accuracy                           0.69      1313
-   macro avg       0.65      0.65      0.65      1313
-weighted avg       0.69      0.69      0.69      1313
+    accuracy                           0.70      1313
+   macro avg       0.66      0.66      0.66      1313
+weighted avg       0.70      0.70      0.70      1313
 
 
 Decision Trees to PCA Normalized  Data in Simplified TrainDataset: 
@@ -511,13 +511,13 @@ weighted avg       1.00      1.00      1.00      3061
 Random Forest to orginal Data in Simplified TestDataset: 
               precision    recall  f1-score   support
 
-   Classical       0.94      0.80      0.86       367
- Mesenchymal       0.93      0.75      0.83       219
+   Classical       0.93      0.81      0.86       367
+ Mesenchymal       0.92      0.72      0.81       219
    Proneural       0.86      0.97      0.91       727
 
-    accuracy                           0.89      1313
-   macro avg       0.91      0.84      0.87      1313
-weighted avg       0.89      0.89      0.88      1313
+    accuracy                           0.88      1313
+   macro avg       0.90      0.83      0.86      1313
+weighted avg       0.89      0.88      0.88      1313
 
 
 Random Forest to original Data in Simplified TrainDataset: 
@@ -535,12 +535,12 @@ weighted avg       1.00      1.00      1.00      3061
 Random Forest to orginal Data in Simplified TestDataset, adding tree numbers to 10000: 
               precision    recall  f1-score   support
 
-   Classical       0.94      0.80      0.86       367
- Mesenchymal       0.93      0.74      0.82       219
-   Proneural       0.86      0.97      0.91       727
+   Classical       0.94      0.79      0.86       367
+ Mesenchymal       0.93      0.74      0.83       219
+   Proneural       0.85      0.97      0.91       727
 
     accuracy                           0.88      1313
-   macro avg       0.91      0.84      0.86      1313
+   macro avg       0.91      0.83      0.86      1313
 weighted avg       0.89      0.88      0.88      1313
 
 
@@ -560,12 +560,12 @@ Random Forest to normalized Data in Simplified TestDataset, adding tree numbers 
               precision    recall  f1-score   support
 
    Classical       0.94      0.78      0.85       367
- Mesenchymal       0.90      0.74      0.81       219
+ Mesenchymal       0.89      0.74      0.81       219
    Proneural       0.85      0.97      0.91       727
 
     accuracy                           0.88      1313
    macro avg       0.90      0.83      0.86      1313
-weighted avg       0.88      0.88      0.88      1313
+weighted avg       0.88      0.88      0.87      1313
 
 
 Random Forest to normalized Data in Simplified TrainDataset, adding tree numbers to 10000: 
@@ -583,12 +583,12 @@ weighted avg       1.00      1.00      1.00      3061
 Random Forest to PCA normalized Data in Simplified TestDataset, adding tree numbers to 10000: 
               precision    recall  f1-score   support
 
-   Classical       0.89      0.73      0.80       367
- Mesenchymal       0.96      0.59      0.73       219
+   Classical       0.89      0.73      0.81       367
+ Mesenchymal       0.96      0.60      0.74       219
    Proneural       0.80      0.97      0.88       727
 
     accuracy                           0.84      1313
-   macro avg       0.88      0.76      0.80      1313
+   macro avg       0.88      0.77      0.81      1313
 weighted avg       0.85      0.84      0.83      1313
 
 
@@ -655,36 +655,36 @@ weighted avg       0.79      0.66      0.60      3061
 MLP to Normalized Data in Simplified TestDataset: 
               precision    recall  f1-score   support
 
-   Classical       0.90      0.90      0.90       367
- Mesenchymal       0.91      0.88      0.89       219
-   Proneural       0.94      0.95      0.94       727
+   Classical       0.79      0.92      0.85       367
+ Mesenchymal       0.82      0.88      0.85       219
+   Proneural       0.95      0.84      0.89       727
 
-    accuracy                           0.92      1313
-   macro avg       0.92      0.91      0.91      1313
-weighted avg       0.92      0.92      0.92      1313
+    accuracy                           0.87      1313
+   macro avg       0.85      0.88      0.86      1313
+weighted avg       0.88      0.87      0.87      1313
 
 
 MLP to Normalized Data in Simplified TrainDataset: 
               precision    recall  f1-score   support
 
-   Classical       1.00      1.00      1.00       878
- Mesenchymal       1.00      1.00      1.00       519
-   Proneural       1.00      1.00      1.00      1664
+   Classical       0.90      1.00      0.95       878
+ Mesenchymal       0.95      1.00      0.98       519
+   Proneural       1.00      0.93      0.96      1664
 
-    accuracy                           1.00      3061
-   macro avg       1.00      1.00      1.00      3061
-weighted avg       1.00      1.00      1.00      3061
+    accuracy                           0.96      3061
+   macro avg       0.95      0.98      0.96      3061
+weighted avg       0.96      0.96      0.96      3061
 
 
 MLP to PCA Normalized Data in Simplified TestDataset: 
               precision    recall  f1-score   support
 
-   Classical       0.87      0.87      0.87       367
+   Classical       0.89      0.88      0.88       367
  Mesenchymal       0.88      0.84      0.86       219
-   Proneural       0.91      0.92      0.92       727
+   Proneural       0.91      0.93      0.92       727
 
     accuracy                           0.90      1313
-   macro avg       0.89      0.88      0.88      1313
+   macro avg       0.89      0.88      0.89      1313
 weighted avg       0.90      0.90      0.90      1313
 
 

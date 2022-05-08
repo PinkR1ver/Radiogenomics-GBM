@@ -28,6 +28,9 @@ featureFileName = 'feature_extraction.csv'
 saveResultPath = os.path.join(dataPath, 'classification results')
 
 if __name__ == '__main__':
+
+    sns.set(font_scale=1.5)
+
     subtype = pd.read_csv(os.path.join(dataPath, subtypeFileName))
     subtype = subtype.replace(np.nan, '')
     subtype = subtype[subtype['molecular_subtype'] != '']
@@ -654,14 +657,14 @@ if __name__ == '__main__':
     cm_train = confusion_matrix(y_train, y_pred_in_train, labels=MLP_clf.classes_)
 
 
-    fig = plt.figure(figsize=(8, 8))
+    fig = plt.figure(figsize=(6, 6))
     sns.heatmap(cm_test / np.sum(cm_test), cmap="YlGnBu", annot=True, fmt='.2%', square=1, linewidth=2., xticklabels=MLP_clf.classes_, yticklabels=MLP_clf.classes_)
     plt.xlabel("predictions")
     plt.ylabel("real values")
     plt.savefig(os.path.join(saveResultPath, 'Test', 'Normalize', 'PCA', 'MLP.png'))
     plt.close()
 
-    fig = plt.figure(figsize=(8, 8))
+    fig = plt.figure(figsize=(6, 6))
     sns.heatmap(cm_train / np.sum(cm_train), cmap="YlGnBu", annot=True, fmt='.2%', square=1, linewidth=2., xticklabels=MLP_clf.classes_, yticklabels=MLP_clf.classes_)
     plt.xlabel("predictions")
     plt.ylabel("real values")
@@ -770,14 +773,14 @@ if __name__ == '__main__':
     cm_train = confusion_matrix(y_train, y_pred_in_train, labels=DecisionTree_clf.classes_)
 
 
-    fig = plt.figure(figsize=(8, 8))
+    fig = plt.figure(figsize=(6, 6))
     sns.heatmap(cm_test / np.sum(cm_test), cmap="YlGnBu", annot=True, fmt='.2%', square=1, linewidth=2., xticklabels=DecisionTree_clf.classes_, yticklabels=DecisionTree_clf.classes_)
     plt.xlabel("predictions")
     plt.ylabel("real values")
     plt.savefig(os.path.join(saveResultPath, 'Simplified', 'Test', 'DecisionTrees ConfusionMatrix.png'))
     plt.close()
 
-    fig = plt.figure(figsize=(8, 8))
+    fig = plt.figure(figsize=(6, 6))
     sns.heatmap(cm_train / np.sum(cm_train), cmap="YlGnBu", annot=True, fmt='.2%', square=1, linewidth=2., xticklabels=DecisionTree_clf.classes_, yticklabels=DecisionTree_clf.classes_)
     plt.xlabel("predictions")
     plt.ylabel("real values")
@@ -810,14 +813,14 @@ if __name__ == '__main__':
     cm_train = confusion_matrix(y_train, y_pred_in_train, labels=DecisionTree_clf.classes_)
 
 
-    fig = plt.figure(figsize=(8, 8))
+    fig = plt.figure(figsize=(6, 6))
     sns.heatmap(cm_test / np.sum(cm_test), cmap="YlGnBu", annot=True, fmt='.2%', square=1, linewidth=2., xticklabels=DecisionTree_clf.classes_, yticklabels=DecisionTree_clf.classes_)
     plt.xlabel("predictions")
     plt.ylabel("real values")
     plt.savefig(os.path.join(saveResultPath, 'Simplified', 'Test', 'Normalize','DecisionTrees ConfusionMatrix.png'))
     plt.close()
 
-    fig = plt.figure(figsize=(8, 8))
+    fig = plt.figure(figsize=(6, 6))
     sns.heatmap(cm_train / np.sum(cm_train), cmap="YlGnBu", annot=True, fmt='.2%', square=1, linewidth=2., xticklabels=DecisionTree_clf.classes_, yticklabels=DecisionTree_clf.classes_)
     plt.xlabel("predictions")
     plt.ylabel("real values")
@@ -851,14 +854,14 @@ if __name__ == '__main__':
     cm_train = confusion_matrix(y_train, y_pred_in_train, labels=DecisionTree_clf.classes_)
 
 
-    fig = plt.figure(figsize=(8, 8))
+    fig = plt.figure(figsize=(6, 6))
     sns.heatmap(cm_test / np.sum(cm_test), cmap="YlGnBu", annot=True, fmt='.2%', square=1, linewidth=2., xticklabels=DecisionTree_clf.classes_, yticklabels=DecisionTree_clf.classes_)
     plt.xlabel("predictions")
     plt.ylabel("real values")
     plt.savefig(os.path.join(saveResultPath, 'Simplified', 'Test', 'PCA','DecisionTrees ConfusionMatrix.png'))
     plt.close()
 
-    fig = plt.figure(figsize=(8, 8))
+    fig = plt.figure(figsize=(6, 6))
     sns.heatmap(cm_train / np.sum(cm_train), cmap="YlGnBu", annot=True, fmt='.2%', square=1, linewidth=2., xticklabels=DecisionTree_clf.classes_, yticklabels=DecisionTree_clf.classes_)
     plt.xlabel("predictions")
     plt.ylabel("real values")
@@ -891,14 +894,14 @@ if __name__ == '__main__':
     cm_train = confusion_matrix(y_train, y_pred_in_train, labels=DecisionTree_clf.classes_)
 
 
-    fig = plt.figure(figsize=(8, 8))
+    fig = plt.figure(figsize=(6, 6))
     sns.heatmap(cm_test / np.sum(cm_test), cmap="YlGnBu", annot=True, fmt='.2%', square=1, linewidth=2., xticklabels=DecisionTree_clf.classes_, yticklabels=DecisionTree_clf.classes_)
     plt.xlabel("predictions")
     plt.ylabel("real values")
     plt.savefig(os.path.join(saveResultPath, 'Simplified', 'Test', 'Normalize', 'PCA', 'DecisionTrees ConfusionMatrix.png'))
     plt.close()
 
-    fig = plt.figure(figsize=(8, 8))
+    fig = plt.figure(figsize=(6, 6))
     sns.heatmap(cm_train / np.sum(cm_train), cmap="YlGnBu", annot=True, fmt='.2%', square=1, linewidth=2., xticklabels=DecisionTree_clf.classes_, yticklabels=DecisionTree_clf.classes_)
     plt.xlabel("predictions")
     plt.ylabel("real values")
@@ -931,14 +934,14 @@ if __name__ == '__main__':
     cm_train = confusion_matrix(y_train, y_pred_in_train, labels=DecisionTree_clf.classes_)
 
 
-    fig = plt.figure(figsize=(8, 8))
+    fig = plt.figure(figsize=(6, 6))
     sns.heatmap(cm_test / np.sum(cm_test), cmap="YlGnBu", annot=True, fmt='.2%', square=1, linewidth=2., xticklabels=DecisionTree_clf.classes_, yticklabels=DecisionTree_clf.classes_)
     plt.xlabel("predictions")
     plt.ylabel("real values")
     plt.savefig(os.path.join(saveResultPath, 'Simplified', 'Test', 'PCA', 'Normalize', 'DecisionTrees ConfusionMatrix.png'))
     plt.close()
 
-    fig = plt.figure(figsize=(8, 8))
+    fig = plt.figure(figsize=(6, 6))
     sns.heatmap(cm_train / np.sum(cm_train), cmap="YlGnBu", annot=True, fmt='.2%', square=1, linewidth=2., xticklabels=DecisionTree_clf.classes_, yticklabels=DecisionTree_clf.classes_)
     plt.xlabel("predictions")
     plt.ylabel("real values")
@@ -970,14 +973,14 @@ if __name__ == '__main__':
     cm_train = confusion_matrix(y_train, y_pred_in_train, labels=RandomForest_clf.classes_)
 
 
-    fig = plt.figure(figsize=(8, 8))
+    fig = plt.figure(figsize=(6, 6))
     sns.heatmap(cm_test / np.sum(cm_test), cmap="YlGnBu", annot=True, fmt='.2%', square=1, linewidth=2., xticklabels=RandomForest_clf.classes_, yticklabels=RandomForest_clf.classes_)
     plt.xlabel("predictions")
     plt.ylabel("real values")
     plt.savefig(os.path.join(saveResultPath, 'Simplified', 'Test', 'Random Forest.png'))
     plt.close()
 
-    fig = plt.figure(figsize=(8, 8))
+    fig = plt.figure(figsize=(6, 6))
     sns.heatmap(cm_train / np.sum(cm_train), cmap="YlGnBu", annot=True, fmt='.2%', square=1, linewidth=2., xticklabels=RandomForest_clf.classes_, yticklabels=RandomForest_clf.classes_)
     plt.xlabel("predictions")
     plt.ylabel("real values")
@@ -1009,14 +1012,14 @@ if __name__ == '__main__':
     cm_train = confusion_matrix(y_train, y_pred_in_train, labels=RandomForest_clf.classes_)
 
 
-    fig = plt.figure(figsize=(8, 8))
+    fig = plt.figure(figsize=(6, 6))
     sns.heatmap(cm_test / np.sum(cm_test), cmap="YlGnBu", annot=True, fmt='.2%', square=1, linewidth=2., xticklabels=RandomForest_clf.classes_, yticklabels=RandomForest_clf.classes_)
     plt.xlabel("predictions")
     plt.ylabel("real values")
     plt.savefig(os.path.join(saveResultPath, 'Simplified', 'Test', 'Random Forest, TreeNumbers=10000.png'))
     plt.close()
 
-    fig = plt.figure(figsize=(8, 8))
+    fig = plt.figure(figsize=(6, 6))
     sns.heatmap(cm_train / np.sum(cm_train), cmap="YlGnBu", annot=True, fmt='.2%', square=1, linewidth=2., xticklabels=RandomForest_clf.classes_, yticklabels=RandomForest_clf.classes_)
     plt.xlabel("predictions")
     plt.ylabel("real values")
@@ -1051,14 +1054,14 @@ if __name__ == '__main__':
     cm_train = confusion_matrix(y_train, y_pred_in_train, labels=RandomForest_clf.classes_)
 
 
-    fig = plt.figure(figsize=(8, 8))
+    fig = plt.figure(figsize=(6, 6))
     sns.heatmap(cm_test / np.sum(cm_test), cmap="YlGnBu", annot=True, fmt='.2%', square=1, linewidth=2., xticklabels=RandomForest_clf.classes_, yticklabels=RandomForest_clf.classes_)
     plt.xlabel("predictions")
     plt.ylabel("real values")
     plt.savefig(os.path.join(saveResultPath, 'Simplified', 'Test', 'Normalize','Random Forest, TreeNumbers=10000.png'))
     plt.close()
 
-    fig = plt.figure(figsize=(8, 8))
+    fig = plt.figure(figsize=(6, 6))
     sns.heatmap(cm_train / np.sum(cm_train), cmap="YlGnBu", annot=True, fmt='.2%', square=1, linewidth=2., xticklabels=RandomForest_clf.classes_, yticklabels=RandomForest_clf.classes_)
     plt.xlabel("predictions")
     plt.ylabel("real values")
@@ -1093,14 +1096,14 @@ if __name__ == '__main__':
     cm_train = confusion_matrix(y_train, y_pred_in_train, labels=RandomForest_clf.classes_)
 
 
-    fig = plt.figure(figsize=(8, 8))
+    fig = plt.figure(figsize=(6, 6))
     sns.heatmap(cm_test / np.sum(cm_test), cmap="YlGnBu", annot=True, fmt='.2%', square=1, linewidth=2., xticklabels=RandomForest_clf.classes_, yticklabels=RandomForest_clf.classes_)
     plt.xlabel("predictions")
     plt.ylabel("real values")
     plt.savefig(os.path.join(saveResultPath, 'Simplified', 'Test', 'Normalize', 'PCA', 'Random Forest, TreeNumbers=10000.png'))
     plt.close()
 
-    fig = plt.figure(figsize=(8, 8))
+    fig = plt.figure(figsize=(6, 6))
     sns.heatmap(cm_train / np.sum(cm_train), cmap="YlGnBu", annot=True, fmt='.2%', square=1, linewidth=2., xticklabels=RandomForest_clf.classes_, yticklabels=RandomForest_clf.classes_)
     plt.xlabel("predictions")
     plt.ylabel("real values")
@@ -1136,14 +1139,14 @@ if __name__ == '__main__':
     cm_train = confusion_matrix(y_train, y_pred_in_train, labels=SVM_clf.classes_)
 
 
-    fig = plt.figure(figsize=(8, 8))
+    fig = plt.figure(figsize=(6, 6))
     sns.heatmap(cm_test / np.sum(cm_test), cmap="YlGnBu", annot=True, fmt='.2%', square=1, linewidth=2., xticklabels=SVM_clf.classes_, yticklabels=SVM_clf.classes_)
     plt.xlabel("predictions")
     plt.ylabel("real values")
     plt.savefig(os.path.join(saveResultPath, 'Simplified', 'Test', 'Normalize', 'PCA', 'SVM.png'))
     plt.close()
 
-    fig = plt.figure(figsize=(8, 8))
+    fig = plt.figure(figsize=(6, 6))
     sns.heatmap(cm_train / np.sum(cm_train), cmap="YlGnBu", annot=True, fmt='.2%', square=1, linewidth=2., xticklabels=SVM_clf.classes_, yticklabels=SVM_clf.classes_)
     plt.xlabel("predictions")
     plt.ylabel("real values")
@@ -1175,14 +1178,14 @@ if __name__ == '__main__':
     cm_train = confusion_matrix(y_train, y_pred_in_train, labels=SVM_clf.classes_)
 
 
-    fig = plt.figure(figsize=(8, 8))
+    fig = plt.figure(figsize=(6, 6))
     sns.heatmap(cm_test / np.sum(cm_test), cmap="YlGnBu", annot=True, fmt='.2%', square=1, linewidth=2., xticklabels=SVM_clf.classes_, yticklabels=SVM_clf.classes_)
     plt.xlabel("predictions")
     plt.ylabel("real values")
     plt.savefig(os.path.join(saveResultPath, 'Simplified', 'Test', 'Normalize', 'PCA', 'Poly SVM.png'))
     plt.close()
 
-    fig = plt.figure(figsize=(8, 8))
+    fig = plt.figure(figsize=(6, 6))
     sns.heatmap(cm_train / np.sum(cm_train), cmap="YlGnBu", annot=True, fmt='.2%', square=1, linewidth=2., xticklabels=SVM_clf.classes_, yticklabels=SVM_clf.classes_)
     plt.xlabel("predictions")
     plt.ylabel("real values")
@@ -1214,14 +1217,14 @@ if __name__ == '__main__':
     cm_train = confusion_matrix(y_train, y_pred_in_train, labels=MLP_clf.classes_)
 
 
-    fig = plt.figure(figsize=(8, 8))
+    fig = plt.figure(figsize=(6, 6))
     sns.heatmap(cm_test / np.sum(cm_test), cmap="YlGnBu", annot=True, fmt='.2%', square=1, linewidth=2., xticklabels=MLP_clf.classes_, yticklabels=MLP_clf.classes_)
     plt.xlabel("predictions")
     plt.ylabel("real values")
     plt.savefig(os.path.join(saveResultPath, 'Simplified', 'Test', 'Normalize', 'MLP.png'))
     plt.close()
 
-    fig = plt.figure(figsize=(8, 8))
+    fig = plt.figure(figsize=(6, 6))
     sns.heatmap(cm_train / np.sum(cm_train), cmap="YlGnBu", annot=True, fmt='.2%', square=1, linewidth=2., xticklabels=MLP_clf.classes_, yticklabels=MLP_clf.classes_)
     plt.xlabel("predictions")
     plt.ylabel("real values")
@@ -1256,14 +1259,14 @@ if __name__ == '__main__':
     cm_train = confusion_matrix(y_train, y_pred_in_train, labels=MLP_clf.classes_)
 
 
-    fig = plt.figure(figsize=(8, 8))
+    fig = plt.figure(figsize=(6, 6))
     sns.heatmap(cm_test / np.sum(cm_test), cmap="YlGnBu", annot=True, fmt='.2%', square=1, linewidth=2., xticklabels=MLP_clf.classes_, yticklabels=MLP_clf.classes_)
     plt.xlabel("predictions")
     plt.ylabel("real values")
     plt.savefig(os.path.join(saveResultPath, 'Simplified', 'Test', 'Normalize', 'PCA', 'MLP.png'))
     plt.close()
 
-    fig = plt.figure(figsize=(8, 8))
+    fig = plt.figure(figsize=(6, 6))
     sns.heatmap(cm_train / np.sum(cm_train), cmap="YlGnBu", annot=True, fmt='.2%', square=1, linewidth=2., xticklabels=MLP_clf.classes_, yticklabels=MLP_clf.classes_)
     plt.xlabel("predictions")
     plt.ylabel("real values")

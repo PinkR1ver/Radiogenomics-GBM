@@ -133,8 +133,8 @@ if __name__ == '__main__':
     # print(MI_df)
     fig = plt.figure(figsize=(30, 30))
     sns.heatmap(MI_df.fillna(0), annot=True, fmt="g")
-    heatmap_path = os.path.join(base_path, 'data', 'Mutual_Information', 'Radiomics_with_ctAreaGeneExpression.png')
-    plt.savefig(heatmap_path)
+    heatmap_path = os.path.join(base_path, 'data', 'Mutual_Information', 'Radiomics_with_ctAreaGeneExpression.svg')
+    plt.savefig(heatmap_path, format='svg', dpi=1800)
     plt.close(fig)
 
     
@@ -161,8 +161,8 @@ if __name__ == '__main__':
     # print(MI_df)
     fig = plt.figure(figsize=(30, 30))
     sns.heatmap(MI_df.fillna(0), annot=True, fmt="g")
-    heatmap_path = os.path.join(base_path, 'data', 'Mutual_Information', 'Radiomics_with_itAreaGeneExpression.png')
-    plt.savefig(heatmap_path)
+    heatmap_path = os.path.join(base_path, 'data', 'Mutual_Information', 'Radiomics_with_itAreaGeneExpression.svg')
+    plt.savefig(heatmap_path, format='svg', dpi=1800)
     plt.close(fig)
 
     feature_df = feature_df_origin.copy(deep=True)
@@ -188,8 +188,8 @@ if __name__ == '__main__':
     # print(MI_df)
     fig = plt.figure(figsize=(30, 30))
     sns.heatmap(MI_df.fillna(0), annot=True, fmt="g")
-    heatmap_path = os.path.join(base_path, 'data', 'Mutual_Information', 'Radiomics_with_leAreaGeneExpression.png')
-    plt.savefig(heatmap_path)
+    heatmap_path = os.path.join(base_path, 'data', 'Mutual_Information', 'Radiomics_with_leAreaGeneExpression.svg')
+    plt.savefig(heatmap_path, format='svg', dpi=1800)
     plt.close(fig)
 
 

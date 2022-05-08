@@ -1,74 +1,121 @@
 # Radiogenomics analysis on Dataset from Ivy Glioblastoma Atlas Project (Ivy GAP)
 ## What is Radiogenomics
-![](Pictures/RadiogenomicsResearchTypicalPathway.png)
-$\quad$ Most existing radiogenomics studies aim to establish the relationship between tumor radiographic features  (eg,  tumor enhancement volume,  degree of necrosis)  and gene expression profiles or pathways.   These exploratory studies are designed to lay the groundwork for optimal study design, data collection, and analysis to help formulate relevant hypotheses for future research.  Exploratory studies are aimed at finding relevant mutations that may give rise to unique radiological phenotypes.  Ideally, radiogenomics studies are designed based on the following systematic approach:1) image acquisition; 2)image processing, including noise/artifact reduction, intensity and/or orientation standardization, coregistration of the multiparametric MRI scans; 3) ROI definition using manual annotation or (semi-)automatic segmentation; 4) feature extraction based on human-engineered (conventional radiomics) or deep-learning approaches; and5) data analysis, involving machine/deep-learning methods for feature selection, classification, and cross-validation.  This project focus on the last three steps, including ROI definition, also known as image segmentation, feature extraction, and data analysis [1]
-
-## Dataest description [2]
-$\quad$ This data collection consists of MRI/CT scan data for brain tumor patients that form the cohort for the resource Ivy Glioblastoma Atlas Project (Ivy GAP). There are 390 studies for 39 patients that include pre-surgery, post-surgery and follow up scans. The Ivy GAP is a collaborative partnership between the Ben and Catherine Ivy Foundation, which generously provided the financial support, the Allen Institute for Brain Science, and the Ben and Catherine Ivy Center for Advanced Brain Tumor Treatment. The goal of the project is to provide online resources to scientists and physicians dedicated to the development of innovative treatments and diagnostics that will enhance the quality of life and survival of patients with brain cancer. </br>
-$\quad$ These resources represent an unprecedented platform for exploring the anatomic and genetic basis of glioblastoma at the cellular and molecular levels. In addition to the DICOM images in TCIA there are two interactive databases linked together by de-identified tumor specimen numbers to facilitate comparisons across data modalities:
-
-1. Ivy Glioblastoma Atlas Project - An open/public database providing in situ hybridization (ISH) and RNA sequencing (RNA-Seq) data, which map gene expression across the anatomic structures and putative cancer stem cell clusters in glioblastoma. The associated histological dataset is annotated and is suitable for neuropathological examination.
-2. Ivy GAP Clinical and Genomic Database -  A database offering detailed clinical, genomic, and expression array data sets that are designed to elucidate the pathways involved in glioblastoma development and progression. This database requires registration for access.
+![](Pictures\RadiogenomicsResearchTypicalPathway.png)
 
 ## Which part this repositories focus on?
-This repositorise focus on the last three steps.
 1. GBM MRI image segmentation
 2. Feature Extracion from ROI
 3. Data anaylsis, including:
-   * feature selection (Not applied yet)
-   * GBM subtypes prediction,which is based on Verhaak et al. research in 2010 prediction (Accuracy:88%, )
-   * gene expression profile generation(Not applied yet)
+   * GBM subtypes prediction,which is based on Wang research on 2017, prediction (Accuracy:92%, using Multilayer Perceptron)
+   * Mutual Information Analysis to Radiomics feature and gene expression energy.
 
 ## File Structure
 ```
-.
-├── Data
-│   ├── assessment
-│   │   ├── confusion_matrix
-│   │   ├── predict_mask
-│   │   └── log.txt
-│   ├── classfication results
-│   │   ├── Simplified
-│   │   │   ├── Test
-│   │   │   │   └── ...
-│   │   │   └── Train
-│   │   │       └── ...
-│   │   ├── Test
-│   │   │   └── ...
-│   │   ├── Train
-│   │   │   └── ...
-│   │   └── log.txt
-│   ├── Images
-│   │   ├── W1_FLAIR_AX
-│   │   │   └── ...
-│   │   └── ...
-│   ├── Masks
-│   │   ├── W1_FLAIR_AX
-│   │   │   └── ...
-│   │   └── ...
-│   ├── train_monitor_image_AX
-│   │   └── ...
-│   ├── test_image_AX
-│   │   └── ...
-│   ├── feature extraction.csv
-│   ├── GBM_MRI_Dataset.csv
-│   ├── tumor_details.csv
-│   ├── valid_data_to_classify.csv
-│   └── Params.ymal
-├── models
-│   └── unet.pth
-├── pictures
-│   └── ...
-├── assess.py
-├── classification.py
-├── data.py
-├── feature_extraction.py
-├── net.py
-├── train.py
-└── utils.py
+├─data # Store data, both data for training and generated results
+│  ├─classification results # Classification results
+│  │  ├─model
+│  │  ├─Simplified
+│  │  │  ├─Test
+│  │  │  │  ├─Normalize
+│  │  │  │  │  └─PCA
+│  │  │  │  └─PCA
+│  │  │  │      └─Normalize
+│  │  │  └─Train
+│  │  │      ├─Normalize
+│  │  │      │  └─PCA
+│  │  │      └─PCA
+│  │  │          └─Normalize
+│  │  ├─Test
+│  │  │  ├─Normalize
+│  │  │  │  └─PCA
+│  │  │  └─PCA
+│  │  │      └─Normalize
+│  │  └─Train
+│  │      ├─Normalize
+│  │      │  └─PCA
+│  │      └─PCA
+│  │          └─Normalize
+│  ├─gene # Gene analysis (Not important, pls ignore)
+│  │  └─...
+│  ├─Images # Training Images, store based on patient and MRI series
+│  │  ├─W10_FLAIR_AX
+│  │  └─...
+│  ├─Masks # Training Masks, store based on patient and MRI series
+│  │  ├─W10_AX
+│  │  └─...
+│  ├─Mutual_Information # Mutual Information between feature
+│  ├─result # Store 
+│      └─FLAIR
+│          ├─monitor
+│          │  ├─test
+│          │  ├─train
+│          │  └─validation
+│          ├─ROC_curve
+│          ├─test
+│          └─train
+│  ├─feature_extraction.csv # radiomics feature, extracted by radiomics, plz check their doc
+│  ├─GBM_MRI_Dataset.csv # contianing every slice location, using for training
+│  ├─gene_expression_details.csv # gene expression energy
+│  ├─tumor_details.csv # Basic Database info, containing every patients' subtype
+│  └─Params.yaml # using for feature extraction, configure file for pyradiomics, plz check their doc
+├─exception_in_trainning # Store error message, will send to your email.
+├─model # Store model
+│  ├─FLAIR
+│  ├─Stack
+│  ├─T1
+│  └─T2
+├─Pictures # Pictures for README
+├─requirement # Store Python environment
+├─train.py  # Training Main
+├─data.py # Training dataset
+├─utils.py # Training utils
+├─unet.py # Training net
+├─trainHelper.py # Help training module
+├─classification.py # Classification main
+├─mutual_information.py # mutual information analysis
+├─feature_extraction.py # Get radiomics features from mask
+├─get_graph_csv.py # Old version file, ignore it, used to get data in csv to replot fancy graph
+├─generate_gif_results.py # Get gif, old version file, only use as reference, can not run directly
+└─gene_expression_monitor.py # Get some statistic information about gene expression, old version code, you can ignore it
 ```
 
-# Reference
-[1] Fathi Kazerooni, Anahita, et al. “Imaging Signatures of Glioblastoma Molecular Characteristics: A Radiogenomics Review.” Journal of Magnetic Resonance Imaging, vol. 52, no. 1, July 2020, pp. 54–69. DOI.org (Crossref), https://doi.org/10.1002/jmri.26907.
+## How to use it
 
-[2] https://wiki.cancerimagingarchive.net/pages/viewpage.action?pageId=22515597
+### Segmentation
+Install python environment by requirements (pip)
+```
+pip install -r requirements.txt
+```
+
+GBM MRI image segmentation using `train.py, data.py, utils.py, unet.py, trainHelper.py`. The main python script is `train.py`, using command to run it:
+```
+python train.py [argv1] [argv2]
+```
+`argv1` is the MRI series you can choose, containing `T1, T2, FLAIR, Stack`. `argv2` is the epoches you want.
+
+Also, see the `trainHelper.py`, you can use your own mail to remind you the train's situation.
+
+### Classification
+
+Just run `classification.py`
+
+### Mutual Information analysis
+
+Just run `mutual_information.py`
+
+## Some results show
+
+### Segmentation
+![](Pictures\Segmentation_Table.png)
+![](Pictures\Segmentation_Vis.png)
+
+### Classification
+![](Pictures\MLP.png)
+
+### Mutual Information
+![](Pictures\Radiomics_with_ctAreaGeneExpression.png)
+
+## TODO List
+- [] Change old version generate_gif_results.py to new version
+
+
